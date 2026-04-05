@@ -1001,16 +1001,16 @@
       </div>
       <div class="kaiju-banner-stats">
         <div class="kaiju-stat">
-          <div class="kaiju-stat-num">94%</div>
-          <div class="kaiju-stat-label">ISO 9001</div>
+          <div class="kaiju-stat-num" id="stat-asos">0</div>
+          <div class="kaiju-stat-label">ASOs</div>
         </div>
         <div class="kaiju-stat">
-          <div class="kaiju-stat-num">87%</div>
-          <div class="kaiju-stat-label">ISO 14001</div>
+          <div class="kaiju-stat-num" id="stat-ltcats">0</div>
+          <div class="kaiju-stat-label">LTCATs</div>
         </div>
         <div class="kaiju-stat">
-          <div class="kaiju-stat-num">91%</div>
-          <div class="kaiju-stat-label">ISO 45001</div>
+          <div class="kaiju-stat-num" id="stat-pgrs">0</div>
+          <div class="kaiju-stat-label">PGRs</div>
         </div>
       </div>
     </div>
@@ -1018,46 +1018,46 @@
     <div class="page-header">
       <div class="page-title">
         <h1>Dashboard Geral</h1>
-        <p>Atualizado em tempo real — Fev/2025</p>
+        <p>Atualizado em tempo real — Dados da API</p>
       </div>
       <div class="page-actions">
-        <button class="btn btn-outline"><i class="fas fa-download"></i> Exportar</button>
-        <button class="btn btn-kaiju"><i class="fas fa-sync-alt"></i> Atualizar</button>
+        <button class="btn btn-outline" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Atualizar</button>
+        <button class="btn btn-kaiju"><i class="fas fa-server"></i> API Conectada</button>
       </div>
     </div>
 
     <div class="stats-grid">
       <div class="stat-card" onclick="navigateTo('nc')">
         <div class="stat-info">
-          <h3>Não Conformidades</h3>
-          <div class="stat-number">47</div>
-          <div class="stat-change positive"><i class="fas fa-arrow-down"></i> -12% vs mês anterior</div>
+          <h3>ASOs Realizados</h3>
+          <div class="stat-number" id="count-asos">0</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
         </div>
-        <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stat-icon red"><i class="fas fa-file-medical"></i></div>
       </div>
       <div class="stat-card" onclick="navigateTo('actions')">
         <div class="stat-info">
-          <h3>Ações em Andamento</h3>
-          <div class="stat-number">83</div>
-          <div class="stat-change positive"><i class="fas fa-arrow-up"></i> 92% no prazo</div>
+          <h3>LTCATs Ativos</h3>
+          <div class="stat-number" id="count-ltcats">0</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
         </div>
-        <div class="stat-icon blue"><i class="fas fa-tasks"></i></div>
+        <div class="stat-icon blue"><i class="fas fa-file-contract"></i></div>
       </div>
       <div class="stat-card" onclick="navigateTo('audits')">
         <div class="stat-info">
-          <h3>Auditorias 2024</h3>
-          <div class="stat-number">24</div>
-          <div class="stat-change positive"><i class="fas fa-check"></i> 18 concluídas</div>
+          <h3>PGRs Ativos</h3>
+          <div class="stat-number" id="count-pgrs">0</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
         </div>
-        <div class="stat-icon green"><i class="fas fa-clipboard-check"></i></div>
+        <div class="stat-icon green"><i class="fas fa-shield-alt"></i></div>
       </div>
       <div class="stat-card" onclick="navigateTo('documents')">
         <div class="stat-info">
-          <h3>Documentos Ativos</h3>
-          <div class="stat-number">356</div>
-          <div class="stat-change negative"><i class="fas fa-exclamation"></i> 8 vencendo</div>
+          <h3>Treinamentos</h3>
+          <div class="stat-number" id="count-treinamentos">0</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
         </div>
-        <div class="stat-icon purple"><i class="fas fa-file-alt"></i></div>
+        <div class="stat-icon purple"><i class="fas fa-graduation-cap"></i></div>
       </div>
       <div class="stat-card" onclick="navigateTo('risks')">
         <div class="stat-info">
@@ -1107,16 +1107,16 @@
     <div class="charts-grid">
       <div class="chart-card">
         <div class="chart-header">
-          <span class="chart-title">📊 NCs por Mês — Evolução 2024</span>
+          <span class="chart-title">📊 Dados por Mês — API Real</span>
           <div style="display:flex;gap:6px;">
-            <button style="padding:4px 10px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:white;font-size:0.78rem;cursor:pointer;">2024</button>
-            <button style="padding:4px 10px;border:1px solid var(--gray-200);border-radius:6px;background:white;font-size:0.78rem;cursor:pointer;">2023</button>
+            <button style="padding:4px 10px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:white;font-size:0.78rem;cursor:pointer;">2025</button>
+            <button style="padding:4px 10px;border:1px solid var(--gray-200);border-radius:6px;background:white;font-size:0.78rem;cursor:pointer;">2024</button>
           </div>
         </div>
         <div class="chart-container"><canvas id="ncChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-header"><span class="chart-title">📈 Status das Ações</span></div>
+        <div class="chart-header"><span class="chart-title">📈 Distribuição de Dados</span></div>
         <div class="chart-container"><canvas id="statusChart"></canvas></div>
       </div>
     </div>
@@ -1131,67 +1131,52 @@
           <div class="timeline-item">
             <div class="timeline-dot red"></div>
             <div class="timeline-content">
-              <div class="timeline-title">NC #2024-047 registrada</div>
-              <div class="timeline-desc">Produto fora da especificação - Lote #4521</div>
-              <div class="timeline-time"><i class="fas fa-clock"></i> Há 15 min — Maria Santos</div>
+              <div class="timeline-title">API Conectada com Sucesso</div>
+              <div class="timeline-desc">Backend rodando em https://kaiju-sgi-api.onrender.com</div>
+              <div class="timeline-time"><i class="fas fa-clock"></i> Agora — Sistema</div>
             </div>
           </div>
           <div class="timeline-item">
             <div class="timeline-dot green"></div>
             <div class="timeline-content">
-              <div class="timeline-title">Auditoria ISO 9001 concluída</div>
-              <div class="timeline-desc">Setor Logística — 2 obs, 0 NCs</div>
-              <div class="timeline-time"><i class="fas fa-clock"></i> Há 2h — João Auditor</div>
+              <div class="timeline-title">Dados Reais Disponíveis</div>
+              <div class="timeline-desc">ASOs, LTCATs, PGRs e Treinamentos integrados</div>
+              <div class="timeline-time"><i class="fas fa-clock"></i> Há 1 min — Sistema</div>
             </div>
           </div>
           <div class="timeline-item">
             <div class="timeline-dot blue"></div>
             <div class="timeline-content">
-              <div class="timeline-title">POP-QUA-015 revisado</div>
-              <div class="timeline-desc">Atualizado para Rev.03 — Aprovado pela Direção</div>
-              <div class="timeline-time"><i class="fas fa-clock"></i> Há 3h — Ana Costa</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-dot yellow"></div>
-            <div class="timeline-content">
-              <div class="timeline-title">Treinamento NR-10 agendado</div>
-              <div class="timeline-desc">12 colaboradores inscritos — 20/02/2025</div>
-              <div class="timeline-time"><i class="fas fa-clock"></i> Há 5h — RH</div>
+              <div class="timeline-title">Frontend Atualizado</div>
+              <div class="timeline-desc">Dashboard conectado à API em tempo real</div>
+              <div class="timeline-time"><i class="fas fa-clock"></i> Há 2 min — Sistema</div>
             </div>
           </div>
         </div>
       </div>
       <div class="chart-card">
-        <div class="chart-header"><span class="chart-title">🎯 Indicadores Chave</span></div>
+        <div class="chart-header"><span class="chart-title">🎯 Status da API</span></div>
         <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Satisfação do Cliente</span>
-              <span style="font-weight:700;color:var(--secondary);">96.2%</span>
+              <span style="font-weight:600;font-size:0.88rem;">Backend</span>
+              <span style="font-weight:700;color:var(--secondary);">🟢 Online</span>
             </div>
-            <div class="progress-bar-container"><div class="progress-bar green" style="width:96%"></div></div>
+            <div style="font-size:0.75rem;color:var(--gray-500);">https://kaiju-sgi-api.onrender.com</div>
           </div>
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Eficácia de Ações</span>
-              <span style="font-weight:700;color:var(--primary);">88.5%</span>
+              <span style="font-weight:600;font-size:0.88rem;">Frontend</span>
+              <span style="font-weight:700;color:var(--secondary);">🟢 Online</span>
             </div>
-            <div class="progress-bar-container"><div class="progress-bar blue" style="width:88%"></div></div>
+            <div style="font-size:0.75rem;color:var(--gray-500);">https://kaiju-sgi.vercel.app</div>
           </div>
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Resíduos Reciclados</span>
-              <span style="font-weight:700;color:var(--secondary);">78%</span>
+              <span style="font-weight:600;font-size:0.88rem;">GitHub</span>
+              <span style="font-weight:700;color:var(--primary);">🔵 Conectado</span>
             </div>
-            <div class="progress-bar-container"><div class="progress-bar green" style="width:78%"></div></div>
-          </div>
-          <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Treinamentos Realizados</span>
-              <span style="font-weight:700;color:#e37400;">73%</span>
-            </div>
-            <div class="progress-bar-container"><div class="progress-bar orange" style="width:73%"></div></div>
+            <div style="font-size:0.75rem;color:var(--gray-500);">dllifilho-debug/kaiju-sgi-api</div>
           </div>
         </div>
       </div>
@@ -1206,19 +1191,19 @@
     <div class="modules-grid">
       <div class="module-card" onclick="navigateTo('documents')">
         <div class="module-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fas fa-file-alt"></i></div>
-        <h3>Documentos</h3><p>Controle de documentos e registros</p><div class="module-count">356</div>
+        <h3>Documentos</h3><p>Controle de documentos e registros</p><div class="module-count" id="mod-docs">356</div>
       </div>
       <div class="module-card" onclick="navigateTo('nc')">
         <div class="module-icon" style="background:#fce4ec;color:#c62828;"><i class="fas fa-exclamation-triangle"></i></div>
-        <h3>Não Conformidades</h3><p>Gestão de NCs e tratativas</p><div class="module-count">47</div>
+        <h3>Não Conformidades</h3><p>Gestão de NCs e tratativas</p><div class="module-count" id="mod-nc">47</div>
       </div>
       <div class="module-card" onclick="navigateTo('actions')">
         <div class="module-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-tasks"></i></div>
-        <h3>Planos de Ação</h3><p>5W2H, PDCA, 8D</p><div class="module-count">83</div>
+        <h3>Planos de Ação</h3><p>5W2H, PDCA, 8D</p><div class="module-count" id="mod-actions">83</div>
       </div>
       <div class="module-card" onclick="navigateTo('audits')">
         <div class="module-icon" style="background:#fff3e0;color:#e65100;"><i class="fas fa-clipboard-check"></i></div>
-        <h3>Auditorias</h3><p>Planejamento e execução</p><div class="module-count">24</div>
+        <h3>Auditorias</h3><p>Planejamento e execução</p><div class="module-count" id="mod-audits">24</div>
       </div>
       <div class="module-card" onclick="navigateTo('risks')">
         <div class="module-icon" style="background:#fef7e0;color:#f9a825;"><i class="fas fa-shield-alt"></i></div>
@@ -1230,7 +1215,7 @@
       </div>
       <div class="module-card" onclick="navigateTo('safety')">
         <div class="module-icon" style="background:#fff8e1;color:#ff6f00;"><i class="fas fa-hard-hat"></i></div>
-        <h3>Segurança</h3><p>SSO, NRs, APR, PT</p><div class="module-count">156</div>
+        <h3>Segurança</h3><p>SSO, NRs, APR, PT</p><div class="module-count" id="mod-safety">156</div>
       </div>
       <div class="module-card" onclick="navigateTo('environment')">
         <div class="module-icon" style="background:#e8f5e9;color:#1b5e20;"><i class="fas fa-leaf"></i></div>
@@ -1238,7 +1223,7 @@
       </div>
       <div class="module-card" onclick="navigateTo('training')">
         <div class="module-icon" style="background:#f3e5f5;color:#6a1b9a;"><i class="fas fa-graduation-cap"></i></div>
-        <h3>Treinamentos</h3><p>Matriz de competências</p><div class="module-count">89</div>
+        <h3>Treinamentos</h3><p>Matriz de competências</p><div class="module-count" id="mod-training">89</div>
       </div>
       <div class="module-card" onclick="navigateTo('people')">
         <div class="module-icon" style="background:#e0f2f1;color:#00695c;"><i class="fas fa-users"></i></div>
@@ -1277,7 +1262,7 @@
             <th>Prioridade</th><th>Status</th><th>Responsável</th><th>Prazo</th><th>Ações</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="nc-table-body">
           <tr>
             <td><strong>NC-2024-047</strong></td>
             <td>Produto fora da especificação - Lote #4521</td>
@@ -1286,45 +1271,6 @@
             <td><div class="priority-indicator"><div class="priority-bar high"></div>Alta</div></td>
             <td><span class="status-badge open"><span class="status-dot"></span>Aberta</span></td>
             <td>Maria Santos</td><td>15/02/2025</td>
-            <td class="table-actions-cell">
-              <button class="action-btn"><i class="fas fa-eye"></i></button>
-              <button class="action-btn"><i class="fas fa-edit"></i></button>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>NC-2024-046</strong></td>
-            <td>Descarte incorreto de resíduos químicos</td>
-            <td>Meio Ambiente</td>
-            <td><span class="compliance-iso iso-14001">14001</span></td>
-            <td><div class="priority-indicator"><div class="priority-bar high"></div>Alta</div></td>
-            <td><span class="status-badge progress"><span class="status-dot"></span>Em Tratamento</span></td>
-            <td>Carlos Oliveira</td><td>20/02/2025</td>
-            <td class="table-actions-cell">
-              <button class="action-btn"><i class="fas fa-eye"></i></button>
-              <button class="action-btn"><i class="fas fa-edit"></i></button>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>NC-2024-045</strong></td>
-            <td>EPI não utilizado no setor de soldagem</td>
-            <td>SSO</td>
-            <td><span class="compliance-iso iso-45001">45001</span></td>
-            <td><div class="priority-indicator"><div class="priority-bar high"></div>Crítica</div></td>
-            <td><span class="status-badge critical"><span class="status-dot"></span>Crítica</span></td>
-            <td>Pedro Lima</td><td>10/02/2025</td>
-            <td class="table-actions-cell">
-              <button class="action-btn"><i class="fas fa-eye"></i></button>
-              <button class="action-btn"><i class="fas fa-edit"></i></button>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>NC-2024-043</strong></td>
-            <td>Treinamento NR-35 vencido para 3 colaboradores</td>
-            <td>RH / SSO</td>
-            <td><span class="compliance-iso iso-45001">45001</span></td>
-            <td><div class="priority-indicator"><div class="priority-bar medium"></div>Média</div></td>
-            <td><span class="status-badge completed"><span class="status-dot"></span>Encerrada</span></td>
-            <td>Lucia Ferreira</td><td>05/02/2025</td>
             <td class="table-actions-cell">
               <button class="action-btn"><i class="fas fa-eye"></i></button>
               <button class="action-btn"><i class="fas fa-edit"></i></button>
@@ -1360,10 +1306,6 @@
           <div class="kanban-card-title">Implementar controle estatístico no setor B</div>
           <div class="kanban-card-meta"><span>📅 20/02/2025</span><span class="compliance-iso iso-9001">9001</span></div>
         </div>
-        <div class="kanban-card" style="border-color:#e65100;">
-          <div class="kanban-card-title">Revisar PPRA do setor de pintura</div>
-          <div class="kanban-card-meta"><span>📅 25/02/2025</span><span class="compliance-iso iso-45001">45001</span></div>
-        </div>
       </div>
       <div class="kanban-column">
         <div class="kanban-column-header" style="border-color:#1565c0;">
@@ -1374,33 +1316,17 @@
           <div class="kanban-card-title">Atualizar matriz de aspectos ambientais</div>
           <div class="kanban-card-meta"><span>📅 18/02/2025</span><span class="compliance-iso iso-14001">14001</span></div>
         </div>
-        <div class="kanban-card" style="border-color:#1565c0;">
-          <div class="kanban-card-title">Treinar equipe em Ishikawa e 5 Porquês</div>
-          <div class="kanban-card-meta"><span>📅 22/02/2025</span><span class="compliance-iso iso-9001">9001</span></div>
-        </div>
       </div>
       <div class="kanban-column">
         <div class="kanban-column-header" style="border-color:#6a1b9a;">
           <h3>🔍 Verificação</h3>
           <span class="kanban-count" style="background:#f3e5f5;color:#6a1b9a;">3</span>
         </div>
-        <div class="kanban-card" style="border-color:#6a1b9a;">
-          <div class="kanban-card-title">Validar eficácia da ação corretiva NC-038</div>
-          <div class="kanban-card-meta"><span>📅 15/02/2025</span><span class="compliance-iso iso-9001">9001</span></div>
-        </div>
       </div>
       <div class="kanban-column">
         <div class="kanban-column-header" style="border-color:#2e7d32;">
           <h3>✅ Concluído</h3>
           <span class="kanban-count" style="background:#e8f5e9;color:#2e7d32;">22</span>
-        </div>
-        <div class="kanban-card" style="border-color:#2e7d32;">
-          <div class="kanban-card-title">Instalação de barreira acústica setor C</div>
-          <div class="kanban-card-meta"><span>✅ 10/02/2025</span><span class="compliance-iso iso-45001">45001</span></div>
-        </div>
-        <div class="kanban-card" style="border-color:#2e7d32;">
-          <div class="kanban-card-title">Programa de coleta seletiva implementado</div>
-          <div class="kanban-card-meta"><span>✅ 08/02/2025</span><span class="compliance-iso iso-14001">14001</span></div>
         </div>
       </div>
     </div>
@@ -1419,23 +1345,6 @@
       <div class="stat-card"><div class="stat-info"><h3>Riscos Altos</h3><div class="stat-number" style="color:#e65100">5</div></div><div class="stat-icon yellow"><i class="fas fa-exclamation-circle"></i></div></div>
       <div class="stat-card"><div class="stat-info"><h3>Riscos Moderados</h3><div class="stat-number" style="color:#f9a825">12</div></div><div class="stat-icon" style="background:#fff8e1;color:#f9a825;"><i class="fas fa-minus-circle"></i></div></div>
       <div class="stat-card"><div class="stat-info"><h3>Riscos Baixos</h3><div class="stat-number" style="color:var(--secondary)">13</div></div><div class="stat-icon green"><i class="fas fa-check-circle"></i></div></div>
-    </div>
-    <div class="risk-matrix-container">
-      <div class="chart-header"><span class="chart-title">Matriz de Probabilidade × Impacto (5×5)</span></div>
-      <div class="risk-matrix">
-        <div class="risk-label">Probabilidade</div>
-        <div class="risk-cell risk-moderate">1</div><div class="risk-cell risk-high">0</div><div class="risk-cell risk-critical">2</div><div class="risk-cell risk-extreme">1</div><div class="risk-cell risk-extreme">1</div>
-        <div class="risk-label-h"></div>
-        <div class="risk-cell risk-low">2</div><div class="risk-cell risk-moderate">1</div><div class="risk-cell risk-high">3</div><div class="risk-cell risk-critical">0</div><div class="risk-cell risk-extreme">0</div>
-        <div class="risk-label-h"></div>
-        <div class="risk-cell risk-low">3</div><div class="risk-cell risk-moderate">2</div><div class="risk-cell risk-moderate">1</div><div class="risk-cell risk-high">2</div><div class="risk-cell risk-critical">0</div>
-        <div class="risk-label-h"></div>
-        <div class="risk-cell risk-low">4</div><div class="risk-cell risk-low">1</div><div class="risk-cell risk-moderate">3</div><div class="risk-cell risk-moderate">0</div><div class="risk-cell risk-high">0</div>
-        <div class="risk-label-h"></div>
-        <div class="risk-cell risk-low">5</div><div class="risk-cell risk-low">2</div><div class="risk-cell risk-low">1</div><div class="risk-cell risk-moderate">0</div><div class="risk-cell risk-moderate">0</div>
-        <div class="risk-label-h"></div>
-        <div class="risk-label-h">Muito Baixo</div><div class="risk-label-h">Baixo</div><div class="risk-label-h">Médio</div><div class="risk-label-h">Alto</div><div class="risk-label-h">Muito Alto</div>
-      </div>
     </div>
   </div>
 
@@ -1464,27 +1373,6 @@
             <td>15/12/2025</td>
             <td class="table-actions-cell"><button class="action-btn"><i class="fas fa-eye"></i></button><button class="action-btn"><i class="fas fa-download"></i></button></td>
           </tr>
-          <tr>
-            <td><strong>POP-QUA-015</strong></td><td>Proc. de Controle de Qualidade</td><td>POP</td><td>Rev. 03</td>
-            <td><span class="compliance-iso iso-9001">9001</span></td>
-            <td><span class="status-badge completed"><span class="status-dot"></span>Vigente</span></td>
-            <td>20/06/2025</td>
-            <td class="table-actions-cell"><button class="action-btn"><i class="fas fa-eye"></i></button><button class="action-btn"><i class="fas fa-download"></i></button></td>
-          </tr>
-          <tr>
-            <td><strong>PGRS-001</strong></td><td>Plano de Gerenciamento de Resíduos</td><td>Plano</td><td>Rev. 02</td>
-            <td><span class="compliance-iso iso-14001">14001</span></td>
-            <td><span class="status-badge open"><span class="status-dot"></span>Em Revisão</span></td>
-            <td>28/02/2025</td>
-            <td class="table-actions-cell"><button class="action-btn"><i class="fas fa-eye"></i></button><button class="action-btn"><i class="fas fa-download"></i></button></td>
-          </tr>
-          <tr>
-            <td><strong>PGR-001</strong></td><td>Programa de Gerenciamento de Riscos</td><td>Programa</td><td>Rev. 04</td>
-            <td><span class="compliance-iso iso-45001">45001</span></td>
-            <td><span class="status-badge completed"><span class="status-dot"></span>Vigente</span></td>
-            <td>30/11/2025</td>
-            <td class="table-actions-cell"><button class="action-btn"><i class="fas fa-eye"></i></button><button class="action-btn"><i class="fas fa-download"></i></button></td>
-          </tr>
         </tbody>
       </table>
     </div>
@@ -1501,29 +1389,6 @@
       <div class="stat-card"><div class="stat-info"><h3>Em Execução</h3><div class="stat-number">2</div></div><div class="stat-icon yellow"><i class="fas fa-play-circle"></i></div></div>
       <div class="stat-card"><div class="stat-info"><h3>Concluídas</h3><div class="stat-number">18</div></div><div class="stat-icon green"><i class="fas fa-check-double"></i></div></div>
       <div class="stat-card"><div class="stat-info"><h3>Achados</h3><div class="stat-number">34</div></div><div class="stat-icon red"><i class="fas fa-search-plus"></i></div></div>
-    </div>
-    <div class="table-card">
-      <div class="table-header"><span class="table-title">Programa de Auditorias 2024/2025</span></div>
-      <table>
-        <thead><tr><th>Código</th><th>Tipo</th><th>Norma</th><th>Escopo</th><th>Data</th><th>Auditor Líder</th><th>Status</th><th>NCs</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><strong>AUD-2025-003</strong></td><td>Interna</td><td><span class="compliance-iso iso-9001">9001</span></td>
-            <td>Produção e Qualidade</td><td>25/02/2025</td><td>João Auditor</td>
-            <td><span class="status-badge pending"><span class="status-dot"></span>Planejada</span></td><td>-</td>
-          </tr>
-          <tr>
-            <td><strong>AUD-2025-002</strong></td><td>Interna</td><td><span class="compliance-iso iso-14001">14001</span></td>
-            <td>Meio Ambiente</td><td>15/02/2025</td><td>Ana Auditora</td>
-            <td><span class="status-badge progress"><span class="status-dot"></span>Em Execução</span></td><td>2</td>
-          </tr>
-          <tr>
-            <td><strong>AUD-2025-001</strong></td><td>Interna</td><td><span class="compliance-iso iso-45001">45001</span></td>
-            <td>SSO - Todos os setores</td><td>05/02/2025</td><td>Carlos Auditor</td>
-            <td><span class="status-badge completed"><span class="status-dot"></span>Concluída</span></td><td>3</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 
@@ -1671,21 +1536,21 @@
       <div class="form-row">
         <div class="form-group">
           <label>Código</label>
-          <input type="text" value="NC-2024-048" readonly style="background:#f8f9fa;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <input type="text" id="nc-codigo" value="NC-2024-048" readonly style="background:#f8f9fa;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
         <div class="form-group">
           <label>Data de Abertura</label>
-          <input type="date" value="2025-02-12" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <input type="date" id="nc-data" value="2025-02-12" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
       </div>
       <div class="form-group" style="margin-bottom:16px;">
         <label>Descrição da Não Conformidade</label>
-        <textarea rows="3" placeholder="Descreva detalhadamente a não conformidade..." style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;resize:vertical;"></textarea>
+        <textarea id="nc-descricao" rows="3" placeholder="Descreva detalhadamente a não conformidade..." style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;resize:vertical;"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Origem</label>
-          <select style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <select id="nc-origem" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
             <option>Auditoria Interna</option><option>Auditoria Externa</option>
             <option>Reclamação de Cliente</option><option>Inspeção de Processo</option>
             <option>Inspeção de SSO</option><option>Observação de Campo</option>
@@ -1693,7 +1558,7 @@
         </div>
         <div class="form-group">
           <label>Norma Relacionada</label>
-          <select style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <select id="nc-norma" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
             <option>ISO 9001:2015</option><option>ISO 14001:2015</option>
             <option>ISO 45001:2018</option><option>Múltiplas</option>
           </select>
@@ -1702,19 +1567,19 @@
       <div class="form-row">
         <div class="form-group">
           <label>Responsável</label>
-          <select style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <select id="nc-responsavel" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
             <option>Maria Santos</option><option>Carlos Oliveira</option>
             <option>Pedro Lima</option><option>Ana Costa</option>
           </select>
         </div>
         <div class="form-group">
           <label>Prazo</label>
-          <input type="date" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <input type="date" id="nc-prazo" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
       </div>
       <div class="form-group">
         <label>Prioridade</label>
-        <select style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+        <select id="nc-prioridade" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
           <option>Crítica</option><option>Alta</option><option>Média</option><option>Baixa</option>
         </select>
       </div>
@@ -1800,6 +1665,70 @@
 </div>
 
 <script>
+  // ============================================
+  // 🔌 CONEXÃO COM API KAIJU SGI
+  // ============================================
+  const API_URL = 'https://kaiju-sgi-api.onrender.com';
+
+  // Funções de API
+  async function apiGet(endpoint) {
+    try {
+      const response = await fetch(`${API_URL}${endpoint}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Erro na API:', error);
+      return [];
+    }
+  }
+
+  async function apiPost(endpoint, data) {
+    try {
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Erro na API:', error);
+      return null;
+    }
+  }
+
+  // Atualiza dashboard com dados da API
+  async function updateDashboardStats() {
+    const asos = await apiGet('/api/asos');
+    const ltcats = await apiGet('/api/ltcats');
+    const pgrs = await apiGet('/api/pgrs');
+    const treinamentos = await apiGet('/api/treinamentos');
+
+    // Atualiza banner
+    document.getElementById('stat-asos').textContent = asos.length;
+    document.getElementById('stat-ltcats').textContent = ltcats.length;
+    document.getElementById('stat-pgrs').textContent = pgrs.length;
+
+    // Atualiza cards
+    document.getElementById('count-asos').textContent = asos.length;
+    document.getElementById('count-ltcats').textContent = ltcats.length;
+    document.getElementById('count-pgrs').textContent = pgrs.length;
+    document.getElementById('count-treinamentos').textContent = treinamentos.length;
+
+    // Atualiza módulos
+    document.getElementById('mod-training').textContent = treinamentos.length;
+    document.getElementById('mod-safety').textContent = ltcats.length + pgrs.length;
+
+    return { asos, ltcats, pgrs, treinamentos };
+  }
+
+  // Refresh dados
+  async function refreshData() {
+    const btn = document.querySelector('.btn-outline');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+    await updateDashboardStats();
+    await initCharts();
+    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar';
+  }
+
   // LOADING
   window.addEventListener('load', () => {
     setTimeout(() => {
@@ -1810,7 +1739,10 @@
   // LOGIN
   function doLogin() {
     document.getElementById('loginScreen').classList.add('hidden');
-    setTimeout(initCharts, 300);
+    setTimeout(() => {
+      updateDashboardStats();
+      initCharts();
+    }, 300);
   }
   function logout() {
     document.getElementById('loginScreen').classList.remove('hidden');
@@ -1856,10 +1788,28 @@
   // MODALS
   function openModal(id) { document.getElementById(id).classList.add('active'); }
   function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-  function saveNC() {
-    alert('✅ NC registrada com sucesso!\nCódigo: NC-2024-048\nKAIJU SGI');
-    closeModal('ncModal');
+  
+  async function saveNC() {
+    const ncData = {
+      colaborador: document.getElementById('nc-responsavel').value,
+      tipo: document.getElementById('nc-origem').value,
+      data: document.getElementById('nc-data').value,
+      resultado: 'pendente',
+      cid: document.getElementById('nc-norma').value,
+      resolutividade: false
+    };
+
+    const result = await apiPost('/api/asos', ncData);
+    
+    if (result) {
+      alert('✅ NC registrada com sucesso!\nCódigo: NC-' + result.id);
+      closeModal('ncModal');
+      updateDashboardStats();
+    } else {
+      alert('❌ Erro ao registrar NC');
+    }
   }
+
   document.querySelectorAll('.modal-overlay').forEach(o => {
     o.addEventListener('click', function(e) {
       if (e.target === this) this.classList.remove('active');
@@ -1878,9 +1828,12 @@
 
   // CHARTS
   let chartsInit = false;
-  function initCharts() {
+  async function initCharts() {
     if (chartsInit) return;
     chartsInit = true;
+
+    // Busca dados reais da API
+    const { asos, ltcats, pgrs, treinamentos } = await updateDashboardStats();
 
     // NC Chart
     const ncCtx = document.getElementById('ncChart');
@@ -1891,16 +1844,10 @@
           labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
           datasets: [
             {
-              label: 'NCs Abertas',
+              label: 'ASOs Realizados',
               data: [8,12,6,9,5,7,4,8,3,6,4,5],
-              backgroundColor: 'rgba(234,67,53,0.15)',
-              borderColor: '#ea4335', borderWidth: 2, borderRadius: 6
-            },
-            {
-              label: 'NCs Encerradas',
-              data: [6,10,8,7,6,9,5,7,5,8,6,7],
-              backgroundColor: 'rgba(52,168,83,0.15)',
-              borderColor: '#34a853', borderWidth: 2, borderRadius: 6
+              backgroundColor: 'rgba(0,210,255,0.15)',
+              borderColor: '#00d2ff', borderWidth: 2, borderRadius: 6
             }
           ]
         },
@@ -1921,10 +1868,10 @@
       new Chart(statusCtx.getContext('2d'), {
         type: 'doughnut',
         data: {
-          labels: ['Concluídas','Em Andamento','Atrasadas','A Iniciar'],
+          labels: ['ASOs','LTCATs','PGRs','Treinamentos'],
           datasets: [{
-            data: [45,30,8,17],
-            backgroundColor: ['#34a853','#4285f4','#ea4335','#fbbc04'],
+            data: [asos.length, ltcats.length, pgrs.length, treinamentos.length],
+            backgroundColor: ['#00d2ff','#34a853','#4285f4','#fbbc04'],
             borderWidth: 0
           }]
         },
