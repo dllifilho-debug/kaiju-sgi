@@ -511,43 +511,6 @@
     }
     .compliance-percent { font-weight: 700; color: var(--dark); }
 
-    /* ===== RISK MATRIX ===== */
-    .risk-matrix-container {
-      background: white; border-radius: var(--border-radius);
-      padding: 24px; box-shadow: var(--shadow-sm);
-      border: 1px solid var(--gray-200); margin-bottom: 28px;
-    }
-    .risk-matrix {
-      display: grid;
-      grid-template-columns: 40px repeat(5, 1fr);
-      grid-template-rows: repeat(5, 55px) 35px;
-      gap: 4px; margin-top: 20px;
-    }
-    .risk-cell {
-      display: flex; align-items: center;
-      justify-content: center; border-radius: 8px;
-      font-weight: 700; font-size: 0.85rem;
-      color: white; cursor: pointer;
-      transition: var(--transition);
-    }
-    .risk-cell:hover { transform: scale(1.05); z-index: 2; }
-    .risk-low { background: #4caf50; }
-    .risk-moderate { background: #ffeb3b; color: #333; }
-    .risk-high { background: #ff9800; }
-    .risk-critical { background: #f44336; }
-    .risk-extreme { background: #b71c1c; }
-    .risk-label {
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.65rem; font-weight: 600; color: var(--gray-500);
-      writing-mode: vertical-rl; text-orientation: mixed;
-      transform: rotate(180deg);
-    }
-    .risk-label-h {
-      display: flex; align-items: center;
-      justify-content: center; font-size: 0.65rem;
-      font-weight: 600; color: var(--gray-500);
-    }
-
     /* ===== TIMELINE ===== */
     .timeline { position: relative; padding-left: 30px; }
     .timeline::before {
@@ -607,6 +570,7 @@
       display: flex; justify-content: space-between;
       align-items: center; font-size: 0.73rem; color: var(--gray-500);
     }
+    .kanban-cards { min-height: 60px; }
 
     /* ===== MODULES GRID ===== */
     .modules-grid {
@@ -676,7 +640,7 @@
       gap: 16px; margin-bottom: 16px;
     }
 
-    /* FORM INPUTS (light mode - modals) */
+    /* FORM INPUTS modal light mode */
     .modal .form-group input,
     .modal .form-group select,
     .modal .form-group textarea {
@@ -779,25 +743,6 @@
     .priority-bar.medium { background: var(--warning); }
     .priority-bar.low { background: var(--secondary); }
 
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1200px) {
-      .charts-grid { grid-template-columns: 1fr; }
-      .compliance-grid { grid-template-columns: 1fr 1fr; }
-      .kanban-board { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.mobile-open { transform: translateX(0); }
-      .header { left: 0; }
-      .main-content { margin-left: 0; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .compliance-grid { grid-template-columns: 1fr; }
-      .modules-grid { grid-template-columns: repeat(2, 1fr); }
-      .kanban-board { grid-template-columns: 1fr; }
-      .search-box { display: none; }
-      .form-row { grid-template-columns: 1fr; }
-    }
-
     /* ===== KAIJU BANNER ===== */
     .kaiju-banner {
       background: linear-gradient(135deg, #0f0c29, #302b63);
@@ -816,9 +761,7 @@
     .kaiju-banner-text p { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-top: 4px; }
     .kaiju-banner-stats { display: flex; gap: 30px; }
     .kaiju-stat { text-align: center; }
-    .kaiju-stat-num {
-      font-size: 1.8rem; font-weight: 900; color: #00d2ff;
-    }
+    .kaiju-stat-num { font-size: 1.8rem; font-weight: 900; color: #00d2ff; }
     .kaiju-stat-label { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
 
     /* ===== TABS ===== */
@@ -837,6 +780,25 @@
       content: ''; position: absolute;
       bottom: -2px; left: 0; right: 0;
       height: 2px; background: var(--primary);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1200px) {
+      .charts-grid { grid-template-columns: 1fr; }
+      .compliance-grid { grid-template-columns: 1fr 1fr; }
+      .kanban-board { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .header { left: 0; }
+      .main-content { margin-left: 0; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .compliance-grid { grid-template-columns: 1fr; }
+      .modules-grid { grid-template-columns: repeat(2, 1fr); }
+      .kanban-board { grid-template-columns: 1fr; }
+      .search-box { display: none; }
+      .form-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -879,33 +841,28 @@
     <span class="sidebar-logo">KAIJU SGI</span>
     <span class="sidebar-version">v1.0</span>
   </div>
-
   <p class="sidebar-section">Principal</p>
   <ul class="sidebar-menu">
     <li><a href="#" class="active" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard <span class="menu-badge success">Live</span></a></li>
     <li><a href="#" data-page="modules"><i class="fas fa-cubes"></i> Módulos SGI</a></li>
   </ul>
-
   <p class="sidebar-section">Gestão da Qualidade</p>
   <ul class="sidebar-menu">
     <li><a href="#" data-page="documents"><i class="fas fa-file-alt"></i> Documentos</a></li>
-    <li><a href="#" data-page="nc"><i class="fas fa-exclamation-triangle"></i> Não Conformidades <span class="menu-badge">12</span></a></li>
-    <li><a href="#" data-page="actions"><i class="fas fa-tasks"></i> Planos de Ação <span class="menu-badge warning">8</span></a></li>
+    <li><a href="#" data-page="nc"><i class="fas fa-exclamation-triangle"></i> Não Conformidades <span class="menu-badge" id="badge-nc">0</span></a></li>
+    <li><a href="#" data-page="actions"><i class="fas fa-tasks"></i> Planos de Ação <span class="menu-badge warning" id="badge-acoes">0</span></a></li>
     <li><a href="#" data-page="audits"><i class="fas fa-clipboard-check"></i> Auditorias</a></li>
   </ul>
-
   <p class="sidebar-section">Gestão de Riscos</p>
   <ul class="sidebar-menu">
     <li><a href="#" data-page="risks"><i class="fas fa-shield-alt"></i> Matriz de Riscos</a></li>
     <li><a href="#" data-page="indicators"><i class="fas fa-chart-line"></i> Indicadores (KPIs)</a></li>
   </ul>
-
   <p class="sidebar-section">SSO & Meio Ambiente</p>
   <ul class="sidebar-menu">
-    <li><a href="#" data-page="safety"><i class="fas fa-hard-hat"></i> Seg. do Trabalho <span class="menu-badge">3</span></a></li>
+    <li><a href="#" data-page="safety"><i class="fas fa-hard-hat"></i> Seg. do Trabalho</a></li>
     <li><a href="#" data-page="environment"><i class="fas fa-leaf"></i> Meio Ambiente</a></li>
   </ul>
-
   <p class="sidebar-section">Recursos</p>
   <ul class="sidebar-menu">
     <li><a href="#" data-page="training"><i class="fas fa-graduation-cap"></i> Treinamentos</a></li>
@@ -913,7 +870,6 @@
     <li><a href="#" data-page="compliance"><i class="fas fa-balance-scale"></i> Compliance</a></li>
     <li><a href="#" data-page="reports"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
   </ul>
-
   <p class="sidebar-section">Sistema</p>
   <ul class="sidebar-menu">
     <li><a href="#" data-page="settings"><i class="fas fa-cog"></i> Configurações</a></li>
@@ -924,9 +880,7 @@
 <!-- HEADER -->
 <header class="header" id="header">
   <div class="header-left">
-    <button class="toggle-sidebar" onclick="toggleSidebar()">
-      <i class="fas fa-bars"></i>
-    </button>
+    <button class="toggle-sidebar" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
     <div class="search-box">
       <i class="fas fa-search"></i>
       <input type="text" placeholder="Pesquisar documentos, NCs, ações...">
@@ -958,32 +912,32 @@
   <div class="notification-item unread">
     <div class="notification-icon" style="background:#fce4ec;color:#c62828;"><i class="fas fa-exclamation-circle"></i></div>
     <div class="notification-content">
-      <h4>NC #2024-047 aberta</h4>
-      <p>Nova não conformidade registrada na linha de produção B</p>
+      <h4>NC aberta — Escada sem corrimão</h4>
+      <p>Nova não conformidade registrada no setor Obras</p>
       <span class="notification-time">Há 5 minutos</span>
     </div>
   </div>
   <div class="notification-item unread">
     <div class="notification-icon" style="background:#fff3e0;color:#e65100;"><i class="fas fa-clock"></i></div>
     <div class="notification-content">
-      <h4>Ação PA-089 vencendo</h4>
-      <p>Plano de ação vence em 2 dias - Responsável: Carlos Silva</p>
+      <h4>Ação vencendo — Instalar corrimão</h4>
+      <p>Plano de ação vence em 2 dias — Responsável: Lucia Mendes</p>
       <span class="notification-time">Há 30 minutos</span>
     </div>
   </div>
   <div class="notification-item">
     <div class="notification-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-check-circle"></i></div>
     <div class="notification-content">
-      <h4>Auditoria finalizada</h4>
-      <p>Auditoria interna ISO 9001 - Setor Logística concluída</p>
+      <h4>Ação concluída — Extintores substituídos</h4>
+      <p>Ação #3 marcada como concluída por João Ferreira</p>
       <span class="notification-time">Há 2 horas</span>
     </div>
   </div>
   <div class="notification-item">
     <div class="notification-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fas fa-file-alt"></i></div>
     <div class="notification-content">
-      <h4>Documento revisado</h4>
-      <p>POP-QUA-015 atualizado para Rev.03</p>
+      <h4>PGR atualizado</h4>
+      <p>PGR Geral 2025 revisado para versão 3.0</p>
       <span class="notification-time">Há 3 horas</span>
     </div>
   </div>
@@ -992,7 +946,7 @@
 <!-- MAIN CONTENT -->
 <main class="main-content" id="mainContent">
 
-  <!-- DASHBOARD -->
+  <!-- ==================== DASHBOARD ==================== -->
   <div class="page-section active" id="page-dashboard">
     <div class="kaiju-banner">
       <div class="kaiju-banner-text">
@@ -1027,7 +981,7 @@
     </div>
 
     <div class="stats-grid">
-      <div class="stat-card" onclick="navigateTo('nc')">
+      <div class="stat-card" onclick="navigateTo('safety')">
         <div class="stat-info">
           <h3>ASOs Realizados</h3>
           <div class="stat-number" id="count-asos">0</div>
@@ -1035,15 +989,15 @@
         </div>
         <div class="stat-icon red"><i class="fas fa-file-medical"></i></div>
       </div>
-      <div class="stat-card" onclick="navigateTo('actions')">
+      <div class="stat-card" onclick="navigateTo('safety')">
         <div class="stat-info">
-          <h3>LTCATs Ativos</h3>
+          <h3>LTCATs Registrados</h3>
           <div class="stat-number" id="count-ltcats">0</div>
           <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
         </div>
         <div class="stat-icon blue"><i class="fas fa-file-contract"></i></div>
       </div>
-      <div class="stat-card" onclick="navigateTo('audits')">
+      <div class="stat-card" onclick="navigateTo('risks')">
         <div class="stat-info">
           <h3>PGRs Ativos</h3>
           <div class="stat-number" id="count-pgrs">0</div>
@@ -1051,7 +1005,7 @@
         </div>
         <div class="stat-icon green"><i class="fas fa-shield-alt"></i></div>
       </div>
-      <div class="stat-card" onclick="navigateTo('documents')">
+      <div class="stat-card" onclick="navigateTo('training')">
         <div class="stat-info">
           <h3>Treinamentos</h3>
           <div class="stat-number" id="count-treinamentos">0</div>
@@ -1059,7 +1013,23 @@
         </div>
         <div class="stat-icon purple"><i class="fas fa-graduation-cap"></i></div>
       </div>
-      <div class="stat-card" onclick="navigateTo('risks')">
+      <div class="stat-card" onclick="navigateTo('nc')">
+        <div class="stat-info">
+          <h3>NCs Abertas</h3>
+          <div class="stat-number" id="count-ncs">0</div>
+          <div class="stat-change negative"><i class="fas fa-database"></i> Dados reais da API</div>
+        </div>
+        <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+      </div>
+      <div class="stat-card" onclick="navigateTo('actions')">
+        <div class="stat-info">
+          <h3>Ações em Aberto</h3>
+          <div class="stat-number" id="count-acoes">0</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
+        </div>
+        <div class="stat-icon blue"><i class="fas fa-tasks"></i></div>
+      </div>
+      <div class="stat-card">
         <div class="stat-info">
           <h3>Riscos Críticos</h3>
           <div class="stat-number">5</div>
@@ -1067,7 +1037,7 @@
         </div>
         <div class="stat-icon yellow"><i class="fas fa-shield-alt"></i></div>
       </div>
-      <div class="stat-card" onclick="navigateTo('safety')">
+      <div class="stat-card">
         <div class="stat-info">
           <h3>Dias sem Acidente</h3>
           <div class="stat-number">127</div>
@@ -1109,14 +1079,20 @@
         <div class="chart-header">
           <span class="chart-title">📊 Dados por Mês — API Real</span>
           <div style="display:flex;gap:6px;">
-            <button style="padding:4px 10px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:white;font-size:0.78rem;cursor:pointer;">2025</button>
-            <button style="padding:4px 10px;border:1px solid var(--gray-200);border-radius:6px;background:white;font-size:0.78rem;cursor:pointer;">2024</button>
+            <button class="btn-ano" data-ano="2025" onclick="filtrarAno(2025)"
+              style="padding:4px 10px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:white;font-size:0.78rem;cursor:pointer;">
+              2025
+            </button>
+            <button class="btn-ano" data-ano="2024" onclick="filtrarAno(2024)"
+              style="padding:4px 10px;border:1px solid var(--gray-200);border-radius:6px;background:white;font-size:0.78rem;cursor:pointer;">
+              2024
+            </button>
           </div>
         </div>
         <div class="chart-container"><canvas id="ncChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-header"><span class="chart-title">📈 Distribuição de Dados</span></div>
+        <div class="chart-header"><span class="chart-title">📈 Distribuição NCs e Ações</span></div>
         <div class="chart-container"><canvas id="statusChart"></canvas></div>
       </div>
     </div>
@@ -1139,17 +1115,25 @@
           <div class="timeline-item">
             <div class="timeline-dot green"></div>
             <div class="timeline-content">
-              <div class="timeline-title">Dados Reais Disponíveis</div>
-              <div class="timeline-desc">ASOs, LTCATs, PGRs e Treinamentos integrados</div>
+              <div class="timeline-title">Seed de Dados Carregado</div>
+              <div class="timeline-desc">12 NCs · 14 Ações · 8 ASOs · 5 LTCATs · 6 PGRs · 8 Treinamentos</div>
               <div class="timeline-time"><i class="fas fa-clock"></i> Há 1 min — Sistema</div>
             </div>
           </div>
           <div class="timeline-item">
             <div class="timeline-dot blue"></div>
             <div class="timeline-content">
-              <div class="timeline-title">Frontend Atualizado</div>
-              <div class="timeline-desc">Dashboard conectado à API em tempo real</div>
+              <div class="timeline-title">Dashboard Atualizado</div>
+              <div class="timeline-desc">Gráficos e contadores conectados à API em tempo real</div>
               <div class="timeline-time"><i class="fas fa-clock"></i> Há 2 min — Sistema</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot yellow"></div>
+            <div class="timeline-content">
+              <div class="timeline-title">3 NCs Abertas Aguardando Tratativa</div>
+              <div class="timeline-desc">PCMSO desatualizado · Escada sem corrimão · NR-35 vencida</div>
+              <div class="timeline-time"><i class="fas fa-clock"></i> Pendente — Ação necessária</div>
             </div>
           </div>
         </div>
@@ -1159,17 +1143,24 @@
         <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Backend</span>
+              <span style="font-weight:600;font-size:0.88rem;">Backend (Render)</span>
               <span style="font-weight:700;color:var(--secondary);">🟢 Online</span>
             </div>
             <div style="font-size:0.75rem;color:var(--gray-500);">https://kaiju-sgi-api.onrender.com</div>
           </div>
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Frontend</span>
+              <span style="font-weight:600;font-size:0.88rem;">Frontend (Vercel)</span>
               <span style="font-weight:700;color:var(--secondary);">🟢 Online</span>
             </div>
             <div style="font-size:0.75rem;color:var(--gray-500);">https://kaiju-sgi.vercel.app</div>
+          </div>
+          <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-weight:600;font-size:0.88rem;">Banco de Dados</span>
+              <span style="font-weight:700;color:var(--warning);">🟡 Memória</span>
+            </div>
+            <div style="font-size:0.75rem;color:var(--gray-500);">Arrays em memória — migrar para PostgreSQL</div>
           </div>
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
@@ -1183,7 +1174,7 @@
     </div>
   </div>
 
-  <!-- MÓDULOS -->
+  <!-- ==================== MÓDULOS ==================== -->
   <div class="page-section" id="page-modules">
     <div class="page-header">
       <div class="page-title"><h1>📦 Módulos KAIJU SGI</h1><p>Todos os módulos do Sistema de Gestão Integrada</p></div>
@@ -1191,19 +1182,19 @@
     <div class="modules-grid">
       <div class="module-card" onclick="navigateTo('documents')">
         <div class="module-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fas fa-file-alt"></i></div>
-        <h3>Documentos</h3><p>Controle de documentos e registros</p><div class="module-count" id="mod-docs">356</div>
+        <h3>Documentos</h3><p>Controle de documentos e registros</p><div class="module-count">356</div>
       </div>
       <div class="module-card" onclick="navigateTo('nc')">
         <div class="module-icon" style="background:#fce4ec;color:#c62828;"><i class="fas fa-exclamation-triangle"></i></div>
-        <h3>Não Conformidades</h3><p>Gestão de NCs e tratativas</p><div class="module-count" id="mod-nc">47</div>
+        <h3>Não Conformidades</h3><p>Gestão de NCs e tratativas</p><div class="module-count" id="mod-nc">0</div>
       </div>
       <div class="module-card" onclick="navigateTo('actions')">
         <div class="module-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-tasks"></i></div>
-        <h3>Planos de Ação</h3><p>5W2H, PDCA, 8D</p><div class="module-count" id="mod-actions">83</div>
+        <h3>Planos de Ação</h3><p>5W2H, PDCA, 8D</p><div class="module-count" id="mod-actions">0</div>
       </div>
       <div class="module-card" onclick="navigateTo('audits')">
         <div class="module-icon" style="background:#fff3e0;color:#e65100;"><i class="fas fa-clipboard-check"></i></div>
-        <h3>Auditorias</h3><p>Planejamento e execução</p><div class="module-count" id="mod-audits">24</div>
+        <h3>Auditorias</h3><p>Planejamento e execução</p><div class="module-count">24</div>
       </div>
       <div class="module-card" onclick="navigateTo('risks')">
         <div class="module-icon" style="background:#fef7e0;color:#f9a825;"><i class="fas fa-shield-alt"></i></div>
@@ -1215,7 +1206,7 @@
       </div>
       <div class="module-card" onclick="navigateTo('safety')">
         <div class="module-icon" style="background:#fff8e1;color:#ff6f00;"><i class="fas fa-hard-hat"></i></div>
-        <h3>Segurança</h3><p>SSO, NRs, APR, PT</p><div class="module-count" id="mod-safety">156</div>
+        <h3>Segurança</h3><p>SSO, NRs, APR, PT</p><div class="module-count" id="mod-safety">0</div>
       </div>
       <div class="module-card" onclick="navigateTo('environment')">
         <div class="module-icon" style="background:#e8f5e9;color:#1b5e20;"><i class="fas fa-leaf"></i></div>
@@ -1223,7 +1214,7 @@
       </div>
       <div class="module-card" onclick="navigateTo('training')">
         <div class="module-icon" style="background:#f3e5f5;color:#6a1b9a;"><i class="fas fa-graduation-cap"></i></div>
-        <h3>Treinamentos</h3><p>Matriz de competências</p><div class="module-count" id="mod-training">89</div>
+        <h3>Treinamentos</h3><p>Matriz de competências</p><div class="module-count" id="mod-training">0</div>
       </div>
       <div class="module-card" onclick="navigateTo('people')">
         <div class="module-icon" style="background:#e0f2f1;color:#00695c;"><i class="fas fa-users"></i></div>
@@ -1232,7 +1223,7 @@
     </div>
   </div>
 
-  <!-- NÃO CONFORMIDADES -->
+  <!-- ==================== NÃO CONFORMIDADES ==================== -->
   <div class="page-section" id="page-nc">
     <div class="page-header">
       <div class="page-title"><h1>⚠️ Não Conformidades</h1><p>Registro, tratamento e análise de NCs</p></div>
@@ -1243,37 +1234,48 @@
       </div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-info"><h3>Abertas</h3><div class="stat-number">12</div></div><div class="stat-icon red"><i class="fas fa-folder-open"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Em Tratamento</h3><div class="stat-number">23</div></div><div class="stat-icon blue"><i class="fas fa-cog"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Verificação</h3><div class="stat-number">8</div></div><div class="stat-icon yellow"><i class="fas fa-search"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Encerradas (mês)</h3><div class="stat-number">15</div></div><div class="stat-icon green"><i class="fas fa-check-circle"></i></div></div>
+      <div class="stat-card">
+        <div class="stat-info"><h3>Abertas</h3><div class="stat-number" id="nc-stat-abertas">0</div></div>
+        <div class="stat-icon red"><i class="fas fa-folder-open"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info"><h3>Em Andamento</h3><div class="stat-number" id="nc-stat-andamento">0</div></div>
+        <div class="stat-icon blue"><i class="fas fa-cog"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info"><h3>Concluídas</h3><div class="stat-number" id="nc-stat-concluidas">0</div></div>
+        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info"><h3>Total</h3><div class="stat-number" id="nc-stat-total">0</div></div>
+        <div class="stat-icon purple"><i class="fas fa-list"></i></div>
+      </div>
     </div>
     <div class="table-card">
       <div class="table-header">
         <span class="table-title">Lista de Não Conformidades</span>
         <div style="display:flex;gap:10px;align-items:center;">
-          <input type="text" class="table-search" placeholder="Buscar NC...">
+          <input type="text" class="table-search" placeholder="Buscar NC..." oninput="renderTabelaNCs(this.value)">
         </div>
       </div>
       <table>
         <thead>
           <tr>
-            <th>Código</th><th>Descrição</th><th>Origem</th><th>Norma</th>
-            <th>Prioridade</th><th>Status</th><th>Responsável</th><th>Prazo</th><th>Ações</th>
+            <th>Código</th>
+            <th>Título</th>
+            <th>Setor</th>
+            <th>Origem</th>
+            <th>Gravidade</th>
+            <th>Status</th>
+            <th>Responsável</th>
+            <th>Prazo</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="nc-table-body">
           <tr>
-            <td><strong>NC-2024-047</strong></td>
-            <td>Produto fora da especificação - Lote #4521</td>
-            <td>Produção</td>
-            <td><span class="compliance-iso iso-9001">9001</span></td>
-            <td><div class="priority-indicator"><div class="priority-bar high"></div>Alta</div></td>
-            <td><span class="status-badge open"><span class="status-dot"></span>Aberta</span></td>
-            <td>Maria Santos</td><td>15/02/2025</td>
-            <td class="table-actions-cell">
-              <button class="action-btn"><i class="fas fa-eye"></i></button>
-              <button class="action-btn"><i class="fas fa-edit"></i></button>
+            <td colspan="9" style="text-align:center;padding:30px;color:var(--gray-500);">
+              <i class="fas fa-spinner fa-spin"></i> Carregando dados da API...
             </td>
           </tr>
         </tbody>
@@ -1281,58 +1283,66 @@
     </div>
   </div>
 
-  <!-- PLANOS DE AÇÃO -->
+  <!-- ==================== PLANOS DE AÇÃO ==================== -->
   <div class="page-section" id="page-actions">
     <div class="page-header">
-      <div class="page-title"><h1>📋 Planos de Ação</h1><p>Gestão de ações 5W2H / PDCA / 8D</p></div>
+      <div class="page-title"><h1>📋 Planos de Ação</h1><p>Gestão de ações corretivas, preventivas e de melhoria</p></div>
       <div class="page-actions">
-        <button class="btn btn-outline"><i class="fas fa-th-large"></i> Kanban</button>
+        <button class="btn btn-outline"><i class="fas fa-download"></i> Exportar</button>
         <button class="btn btn-primary" onclick="openModal('actionModal')"><i class="fas fa-plus"></i> Nova Ação</button>
       </div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-info"><h3>No Prazo</h3><div class="stat-number" style="color:var(--secondary)">68</div></div><div class="stat-icon green"><i class="fas fa-check"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Atrasadas</h3><div class="stat-number" style="color:var(--danger)">8</div></div><div class="stat-icon red"><i class="fas fa-clock"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Vencendo Hoje</h3><div class="stat-number" style="color:var(--warning)">3</div></div><div class="stat-icon yellow"><i class="fas fa-exclamation"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Concluídas (mês)</h3><div class="stat-number">22</div></div><div class="stat-icon blue"><i class="fas fa-trophy"></i></div></div>
+      <div class="stat-card">
+        <div class="stat-info"><h3>Em Aberto</h3><div class="stat-number" id="kanban-stat-prazo" style="color:var(--secondary)">0</div></div>
+        <div class="stat-icon green"><i class="fas fa-check"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info"><h3>Atrasadas</h3><div class="stat-number" id="kanban-stat-atrasadas" style="color:var(--danger)">0</div></div>
+        <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info"><h3>Concluídas</h3><div class="stat-number" id="kanban-stat-concluidas">0</div></div>
+        <div class="stat-icon blue"><i class="fas fa-trophy"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info"><h3>Total</h3><div class="stat-number" id="kanban-stat-total">0</div></div>
+        <div class="stat-icon purple"><i class="fas fa-list"></i></div>
+      </div>
     </div>
     <div class="kanban-board">
-      <div class="kanban-column">
+      <div class="kanban-column" id="kanban-pendente">
         <div class="kanban-column-header" style="border-color:#e65100;">
-          <h3>📥 A Fazer</h3>
-          <span class="kanban-count" style="background:#fff3e0;color:#e65100;">5</span>
+          <h3>📥 Pendente</h3>
+          <span class="kanban-count" style="background:#fff3e0;color:#e65100;">0</span>
         </div>
-        <div class="kanban-card" style="border-color:#e65100;">
-          <div class="kanban-card-title">Implementar controle estatístico no setor B</div>
-          <div class="kanban-card-meta"><span>📅 20/02/2025</span><span class="compliance-iso iso-9001">9001</span></div>
-        </div>
+        <div class="kanban-cards"></div>
       </div>
-      <div class="kanban-column">
+      <div class="kanban-column" id="kanban-andamento">
         <div class="kanban-column-header" style="border-color:#1565c0;">
           <h3>🔄 Em Andamento</h3>
-          <span class="kanban-count" style="background:#e3f2fd;color:#1565c0;">8</span>
+          <span class="kanban-count" style="background:#e3f2fd;color:#1565c0;">0</span>
         </div>
-        <div class="kanban-card" style="border-color:#1565c0;">
-          <div class="kanban-card-title">Atualizar matriz de aspectos ambientais</div>
-          <div class="kanban-card-meta"><span>📅 18/02/2025</span><span class="compliance-iso iso-14001">14001</span></div>
-        </div>
+        <div class="kanban-cards"></div>
       </div>
-      <div class="kanban-column">
-        <div class="kanban-column-header" style="border-color:#6a1b9a;">
-          <h3>🔍 Verificação</h3>
-          <span class="kanban-count" style="background:#f3e5f5;color:#6a1b9a;">3</span>
-        </div>
-      </div>
-      <div class="kanban-column">
+      <div class="kanban-column" id="kanban-concluida">
         <div class="kanban-column-header" style="border-color:#2e7d32;">
-          <h3>✅ Concluído</h3>
-          <span class="kanban-count" style="background:#e8f5e9;color:#2e7d32;">22</span>
+          <h3>✅ Concluída</h3>
+          <span class="kanban-count" style="background:#e8f5e9;color:#2e7d32;">0</span>
         </div>
+        <div class="kanban-cards"></div>
+      </div>
+      <div class="kanban-column" id="kanban-cancelada">
+        <div class="kanban-column-header" style="border-color:#6a1b9a;">
+          <h3>❌ Cancelada</h3>
+          <span class="kanban-count" style="background:#f3e5f5;color:#6a1b9a;">0</span>
+        </div>
+        <div class="kanban-cards"></div>
       </div>
     </div>
   </div>
 
-  <!-- MATRIZ DE RISCOS -->
+  <!-- ==================== MATRIZ DE RISCOS ==================== -->
   <div class="page-section" id="page-risks">
     <div class="page-header">
       <div class="page-title"><h1>🛡️ Matriz de Riscos</h1><p>Identificação, análise e tratamento de riscos e oportunidades</p></div>
@@ -1348,7 +1358,7 @@
     </div>
   </div>
 
-  <!-- DOCUMENTOS -->
+  <!-- ==================== DOCUMENTOS ==================== -->
   <div class="page-section" id="page-documents">
     <div class="page-header">
       <div class="page-title"><h1>📄 Gestão de Documentos</h1><p>Controle de documentos, revisões e aprovações</p></div>
@@ -1371,14 +1381,37 @@
             <td><span class="compliance-iso iso-9001">9001</span></td>
             <td><span class="status-badge completed"><span class="status-dot"></span>Vigente</span></td>
             <td>15/12/2025</td>
-            <td class="table-actions-cell"><button class="action-btn"><i class="fas fa-eye"></i></button><button class="action-btn"><i class="fas fa-download"></i></button></td>
+            <td class="table-actions-cell">
+              <button class="action-btn"><i class="fas fa-eye"></i></button>
+              <button class="action-btn"><i class="fas fa-download"></i></button>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>POP-QUA-015</strong></td><td>Procedimento de Controle de Qualidade</td><td>POP</td><td>Rev. 03</td>
+            <td><span class="compliance-iso iso-9001">9001</span></td>
+            <td><span class="status-badge completed"><span class="status-dot"></span>Vigente</span></td>
+            <td>20/11/2025</td>
+            <td class="table-actions-cell">
+              <button class="action-btn"><i class="fas fa-eye"></i></button>
+              <button class="action-btn"><i class="fas fa-download"></i></button>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>PGR-001</strong></td><td>Programa de Gerenciamento de Riscos</td><td>PGR</td><td>Rev. 02</td>
+            <td><span class="compliance-iso iso-45001">45001</span></td>
+            <td><span class="status-badge completed"><span class="status-dot"></span>Vigente</span></td>
+            <td>15/01/2026</td>
+            <td class="table-actions-cell">
+              <button class="action-btn"><i class="fas fa-eye"></i></button>
+              <button class="action-btn"><i class="fas fa-download"></i></button>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- AUDITORIAS -->
+  <!-- ==================== AUDITORIAS ==================== -->
   <div class="page-section" id="page-audits">
     <div class="page-header">
       <div class="page-title"><h1>🔍 Gestão de Auditorias</h1><p>Planejamento, execução e acompanhamento</p></div>
@@ -1392,7 +1425,7 @@
     </div>
   </div>
 
-  <!-- INDICADORES -->
+  <!-- ==================== INDICADORES ==================== -->
   <div class="page-section" id="page-indicators">
     <div class="page-header">
       <div class="page-title"><h1>📈 Indicadores (KPIs)</h1><p>Monitoramento de desempenho do SGI</p></div>
@@ -1409,20 +1442,20 @@
     </div>
   </div>
 
-  <!-- SEGURANÇA -->
+  <!-- ==================== SEGURANÇA ==================== -->
   <div class="page-section" id="page-safety">
     <div class="page-header">
       <div class="page-title"><h1>🦺 Segurança do Trabalho</h1><p>SSO, NRs, APR, Permissões de Trabalho</p></div>
     </div>
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-info"><h3>Dias sem Acidente</h3><div class="stat-number" style="color:var(--secondary)">127</div></div><div class="stat-icon green"><i class="fas fa-shield-alt"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Quase Acidentes</h3><div class="stat-number">8</div></div><div class="stat-icon yellow"><i class="fas fa-exclamation"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>DDS Realizados</h3><div class="stat-number">45</div></div><div class="stat-icon blue"><i class="fas fa-comments"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>APRs Ativas</h3><div class="stat-number">12</div></div><div class="stat-icon purple"><i class="fas fa-clipboard-list"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>ASOs Realizados</h3><div class="stat-number" id="safety-asos">0</div></div><div class="stat-icon blue"><i class="fas fa-file-medical"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>LTCATs Registrados</h3><div class="stat-number" id="safety-ltcats">0</div></div><div class="stat-icon red"><i class="fas fa-file-contract"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>PGRs Ativos</h3><div class="stat-number" id="safety-pgrs">0</div></div><div class="stat-icon yellow"><i class="fas fa-shield-alt"></i></div></div>
     </div>
   </div>
 
-  <!-- MEIO AMBIENTE -->
+  <!-- ==================== MEIO AMBIENTE ==================== -->
   <div class="page-section" id="page-environment">
     <div class="page-header">
       <div class="page-title"><h1>🌿 Gestão Ambiental</h1><p>Aspectos, impactos ambientais e licenças</p></div>
@@ -1435,21 +1468,47 @@
     </div>
   </div>
 
-  <!-- TREINAMENTOS -->
+  <!-- ==================== TREINAMENTOS ==================== -->
   <div class="page-section" id="page-training">
     <div class="page-header">
       <div class="page-title"><h1>🎓 Gestão de Treinamentos</h1><p>Matriz de competências e capacitação</p></div>
       <div class="page-actions"><button class="btn btn-primary"><i class="fas fa-plus"></i> Novo Treinamento</button></div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-info"><h3>Treinamentos Planejados</h3><div class="stat-number">32</div></div><div class="stat-icon blue"><i class="fas fa-calendar-alt"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Realizados</h3><div class="stat-number">24</div></div><div class="stat-icon green"><i class="fas fa-check"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Horas de Treinamento</h3><div class="stat-number">486</div></div><div class="stat-icon purple"><i class="fas fa-clock"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Eficácia Média</h3><div class="stat-number">91%</div></div><div class="stat-icon yellow"><i class="fas fa-star"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Total de Treinamentos</h3><div class="stat-number" id="training-total">0</div></div><div class="stat-icon blue"><i class="fas fa-graduation-cap"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Concluídos</h3><div class="stat-number" id="training-concluidos">0</div></div><div class="stat-icon green"><i class="fas fa-check"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Agendados</h3><div class="stat-number" id="training-agendados">0</div></div><div class="stat-icon yellow"><i class="fas fa-calendar-alt"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Horas de Treinamento</h3><div class="stat-number" id="training-horas">0</div></div><div class="stat-icon purple"><i class="fas fa-clock"></i></div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Lista de Treinamentos</span>
+        <input type="text" class="table-search" placeholder="Buscar treinamento..." oninput="renderTabelaTreinamentos(this.value)">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Instrutor</th>
+            <th>Carga Horária</th>
+            <th>Data</th>
+            <th>Vencimento</th>
+            <th>Participantes</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="treinamentos-table-body">
+          <tr>
+            <td colspan="7" style="text-align:center;padding:30px;color:var(--gray-500);">
+              <i class="fas fa-spinner fa-spin"></i> Carregando dados da API...
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <!-- PESSOAS -->
+  <!-- ==================== PESSOAS ==================== -->
   <div class="page-section" id="page-people">
     <div class="page-header">
       <div class="page-title"><h1>👥 Colaboradores</h1><p>Cadastro e competências dos colaboradores</p></div>
@@ -1458,10 +1517,11 @@
       <div class="stat-card"><div class="stat-info"><h3>Total Colaboradores</h3><div class="stat-number">245</div></div><div class="stat-icon blue"><i class="fas fa-users"></i></div></div>
       <div class="stat-card"><div class="stat-info"><h3>Auditores Internos</h3><div class="stat-number">12</div></div><div class="stat-icon green"><i class="fas fa-user-check"></i></div></div>
       <div class="stat-card"><div class="stat-info"><h3>ASOs Vencendo</h3><div class="stat-number">5</div></div><div class="stat-icon red"><i class="fas fa-id-card"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Setores</h3><div class="stat-number">8</div></div><div class="stat-icon yellow"><i class="fas fa-building"></i></div></div>
     </div>
   </div>
 
-  <!-- COMPLIANCE -->
+  <!-- ==================== COMPLIANCE ==================== -->
   <div class="page-section" id="page-compliance">
     <div class="page-header">
       <div class="page-title"><h1>⚖️ Compliance & Legislação</h1><p>Requisitos legais e outros requisitos aplicáveis</p></div>
@@ -1485,7 +1545,7 @@
     </div>
   </div>
 
-  <!-- RELATÓRIOS -->
+  <!-- ==================== RELATÓRIOS ==================== -->
   <div class="page-section" id="page-reports">
     <div class="page-header">
       <div class="page-title"><h1>📊 Relatórios</h1><p>Relatórios gerenciais e análise crítica</p></div>
@@ -1498,7 +1558,7 @@
     </div>
   </div>
 
-  <!-- CONFIGURAÇÕES -->
+  <!-- ==================== CONFIGURAÇÕES ==================== -->
   <div class="page-section" id="page-settings">
     <div class="page-header">
       <div class="page-title"><h1>⚙️ Configurações</h1><p>Configurações gerais do KAIJU SGI</p></div>
@@ -1506,16 +1566,16 @@
     <div class="chart-card" style="max-width:600px;">
       <h3 style="margin-bottom:20px;">Dados da Empresa</h3>
       <div class="form-group" style="margin-bottom:16px;">
-        <label>Nome da Empresa</label>
-        <input type="text" value="Empresa Exemplo LTDA" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+        <label style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">Nome da Empresa</label>
+        <input type="text" value="SECONCI" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>CNPJ</label>
+          <label style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">CNPJ</label>
           <input type="text" value="12.345.678/0001-90" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
         <div class="form-group">
-          <label>Representante da Direção</label>
+          <label style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">Representante da Direção</label>
           <input type="text" value="Admin KAIJU" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
       </div>
@@ -1525,7 +1585,7 @@
 
 </main>
 
-<!-- MODAL NC -->
+<!-- ==================== MODAL NC ==================== -->
 <div class="modal-overlay" id="ncModal">
   <div class="modal">
     <div class="modal-header">
@@ -1535,32 +1595,42 @@
     <div class="modal-body">
       <div class="form-row">
         <div class="form-group">
-          <label>Código</label>
-          <input type="text" id="nc-codigo" value="NC-2024-048" readonly style="background:#f8f9fa;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <label>Data de Abertura</label>
+          <input type="date" id="nc-data" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
         <div class="form-group">
-          <label>Data de Abertura</label>
-          <input type="date" id="nc-data" value="2025-02-12" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <label>Prazo para Resolução</label>
+          <input type="date" id="nc-prazo" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
       </div>
       <div class="form-group" style="margin-bottom:16px;">
-        <label>Descrição da Não Conformidade</label>
+        <label>Título da Não Conformidade</label>
+        <input type="text" id="nc-titulo" placeholder="Ex: Falta de EPI na área de obras..." style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Descrição Detalhada</label>
         <textarea id="nc-descricao" rows="3" placeholder="Descreva detalhadamente a não conformidade..." style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;resize:vertical;"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Origem</label>
           <select id="nc-origem" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-            <option>Auditoria Interna</option><option>Auditoria Externa</option>
-            <option>Reclamação de Cliente</option><option>Inspeção de Processo</option>
-            <option>Inspeção de SSO</option><option>Observação de Campo</option>
+            <option value="auditoria">Auditoria Interna</option>
+            <option value="auditoria">Auditoria Externa</option>
+            <option value="reclamacao">Reclamação de Cliente</option>
+            <option value="inspecao">Inspeção de Processo</option>
+            <option value="inspecao">Inspeção de SSO</option>
+            <option value="acidente">Acidente / Incidente</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Norma Relacionada</label>
-          <select id="nc-norma" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-            <option>ISO 9001:2015</option><option>ISO 14001:2015</option>
-            <option>ISO 45001:2018</option><option>Múltiplas</option>
+          <label>Setor</label>
+          <select id="nc-setor" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+            <option>Obras</option>
+            <option>Manutenção</option>
+            <option>Administrativo</option>
+            <option>SESMT</option>
+            <option>Geral</option>
           </select>
         </div>
       </div>
@@ -1568,20 +1638,24 @@
         <div class="form-group">
           <label>Responsável</label>
           <select id="nc-responsavel" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-            <option>Maria Santos</option><option>Carlos Oliveira</option>
-            <option>Pedro Lima</option><option>Ana Costa</option>
+            <option>Lucia Mendes</option>
+            <option>João Ferreira</option>
+            <option>Ana Costa</option>
+            <option>Carlos Silva</option>
+            <option>Roberto Alves</option>
+            <option>Fernanda Lima</option>
+            <option>Maria Oliveira</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Prazo</label>
-          <input type="date" id="nc-prazo" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <label>Gravidade</label>
+          <select id="nc-prioridade" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+            <option value="critica">Crítica</option>
+            <option value="alta">Alta</option>
+            <option value="media" selected>Média</option>
+            <option value="baixa">Baixa</option>
+          </select>
         </div>
-      </div>
-      <div class="form-group">
-        <label>Prioridade</label>
-        <select id="nc-prioridade" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-          <option>Crítica</option><option>Alta</option><option>Média</option><option>Baixa</option>
-        </select>
       </div>
     </div>
     <div class="modal-footer">
@@ -1591,7 +1665,7 @@
   </div>
 </div>
 
-<!-- MODAL AÇÃO -->
+<!-- ==================== MODAL AÇÃO ==================== -->
 <div class="modal-overlay" id="actionModal">
   <div class="modal">
     <div class="modal-header">
@@ -1600,45 +1674,69 @@
     </div>
     <div class="modal-body">
       <div class="form-group" style="margin-bottom:16px;">
-        <label>O QUÊ? (What) — Ação</label>
-        <textarea rows="2" placeholder="Descreva a ação a ser realizada..." style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;resize:vertical;"></textarea>
+        <label>O QUÊ? (What) — Título da Ação</label>
+        <input type="text" id="acao-titulo" placeholder="Ex: Instalar corrimão na escada..." style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
       </div>
       <div class="form-group" style="margin-bottom:16px;">
-        <label>POR QUÊ? (Why) — Justificativa</label>
-        <textarea rows="2" placeholder="Por que esta ação é necessária?" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;resize:vertical;"></textarea>
+        <label>POR QUÊ? (Why) — Justificativa / Descrição</label>
+        <textarea id="acao-descricao" rows="2" placeholder="Por que esta ação é necessária?" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;resize:vertical;"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>QUEM? (Who)</label>
-          <select style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-            <option>Maria Santos</option><option>Carlos Oliveira</option><option>Pedro Lima</option>
+          <label>QUEM? (Who) — Responsável</label>
+          <select id="acao-responsavel" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+            <option>Lucia Mendes</option>
+            <option>João Ferreira</option>
+            <option>Ana Costa</option>
+            <option>Carlos Silva</option>
+            <option>Roberto Alves</option>
+            <option>Fernanda Lima</option>
+            <option>Maria Oliveira</option>
           </select>
         </div>
         <div class="form-group">
-          <label>QUANDO? (When)</label>
-          <input type="date" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <label>QUANDO? (When) — Prazo</label>
+          <input type="date" id="acao-prazo" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
       </div>
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>COMO? (How) — Método</label>
-        <textarea rows="2" placeholder="Como será executada esta ação?" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;resize:vertical;"></textarea>
-      </div>
       <div class="form-row">
+        <div class="form-group">
+          <label>ONDE? (Where) — Setor</label>
+          <select id="acao-setor" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+            <option>Obras</option>
+            <option>Manutenção</option>
+            <option>Administrativo</option>
+            <option>SESMT</option>
+            <option>Geral</option>
+          </select>
+        </div>
         <div class="form-group">
           <label>Tipo de Ação</label>
-          <select style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-            <option>Ação Corretiva</option><option>Ação Preventiva</option><option>Ação de Melhoria</option>
+          <select id="acao-tipo" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+            <option value="corretiva">Ação Corretiva</option>
+            <option value="preventiva">Ação Preventiva</option>
+            <option value="melhoria">Ação de Melhoria</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prioridade</label>
+          <select id="acao-prioridade" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+            <option value="alta">Alta</option>
+            <option value="media" selected>Média</option>
+            <option value="baixa">Baixa</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Custo Estimado</label>
-          <input type="text" placeholder="R$ 0,00" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <label>NC Vinculada (opcional)</label>
+          <input type="number" id="acao-ncid" placeholder="ID da NC (ex: 1)" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('actionModal')">Cancelar</button>
-      <button class="btn btn-primary"><i class="fas fa-save"></i> Criar Ação</button>
+      <button class="btn btn-primary" onclick="saveAcao()"><i class="fas fa-save"></i> Criar Ação</button>
     </div>
   </div>
 </div>
@@ -1646,16 +1744,22 @@
 <!-- FAB -->
 <div class="fab-container">
   <div class="fab-menu" id="fabMenu">
-    <button class="fab-menu-item" onclick="openModal('ncModal')">
-      <span style="width:28px;height:28px;background:var(--danger);border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;"><i class="fas fa-exclamation-triangle"></i></span>
+    <button class="fab-menu-item" onclick="openModal('ncModal');toggleFab();">
+      <span style="width:28px;height:28px;background:var(--danger);border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;">
+        <i class="fas fa-exclamation-triangle"></i>
+      </span>
       Nova Não Conformidade
     </button>
-    <button class="fab-menu-item" onclick="openModal('actionModal')">
-      <span style="width:28px;height:28px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;"><i class="fas fa-tasks"></i></span>
+    <button class="fab-menu-item" onclick="openModal('actionModal');toggleFab();">
+      <span style="width:28px;height:28px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;">
+        <i class="fas fa-tasks"></i>
+      </span>
       Novo Plano de Ação
     </button>
-    <button class="fab-menu-item" onclick="navigateTo('audits')">
-      <span style="width:28px;height:28px;background:#6a1b9a;border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;"><i class="fas fa-clipboard-check"></i></span>
+    <button class="fab-menu-item" onclick="navigateTo('audits');toggleFab();">
+      <span style="width:28px;height:28px;background:#6a1b9a;border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;">
+        <i class="fas fa-clipboard-check"></i>
+      </span>
       Nova Auditoria
     </button>
   </div>
@@ -1664,267 +1768,745 @@
   </button>
 </div>
 
+<!-- ==================== JAVASCRIPT ==================== -->
 <script>
-  // ============================================
-  // 🔌 CONEXÃO COM API KAIJU SGI
-  // ============================================
-  const API_URL = 'https://kaiju-sgi-api.onrender.com';
+// ============================================
+// 🔌 KAIJU SGI — JavaScript Completo v2.0
+// ============================================
+const API_URL = 'https://kaiju-sgi-api.onrender.com';
 
-  // Funções de API
-  async function apiGet(endpoint) {
-    try {
-      const response = await fetch(`${API_URL}${endpoint}`);
-      return await response.json();
-    } catch (error) {
-      console.error('Erro na API:', error);
-      return [];
+// ── Helpers de API ───────────────────────────
+async function apiGet(endpoint) {
+  try {
+    const res  = await fetch(`${API_URL}${endpoint}`);
+    const json = await res.json();
+    return json.data !== undefined ? json.data : json;
+  } catch (err) {
+    console.error('Erro API GET:', endpoint, err);
+    return [];
+  }
+}
+
+async function apiPost(endpoint, body) {
+  try {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('Erro API POST:', endpoint, err);
+    return null;
+  }
+}
+
+// ── Dados globais ─────────────────────────────
+let dadosGlobais = {
+  asos: [], ltcats: [], pgrs: [],
+  treinamentos: [], ncs: [], acoes: []
+};
+
+// ── Carregar todos os dados ───────────────────
+async function carregarTodosDados() {
+  const [asos, ltcats, pgrs, treinamentos, ncs, acoes] = await Promise.all([
+    apiGet('/api/asos'),
+    apiGet('/api/ltcats'),
+    apiGet('/api/pgrs'),
+    apiGet('/api/treinamentos'),
+    apiGet('/api/ncs'),
+    apiGet('/api/acoes')
+  ]);
+  dadosGlobais = { asos, ltcats, pgrs, treinamentos, ncs, acoes };
+  return dadosGlobais;
+}
+
+// ── Helper set element ────────────────────────
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// ── Atualizar Dashboard ───────────────────────
+async function updateDashboardStats() {
+  await carregarTodosDados();
+  const { asos, ltcats, pgrs, treinamentos, ncs, acoes } = dadosGlobais;
+
+  // Banner superior
+  setEl('stat-asos',   asos.length);
+  setEl('stat-ltcats', ltcats.length);
+  setEl('stat-pgrs',   pgrs.length);
+
+  // Cards dashboard
+  setEl('count-asos',         asos.length);
+  setEl('count-ltcats',       ltcats.length);
+  setEl('count-pgrs',         pgrs.length);
+  setEl('count-treinamentos', treinamentos.length);
+  setEl('count-ncs',          ncs.filter(n => n.status === 'aberta').length);
+  setEl('count-acoes',        acoes.filter(a => a.status !== 'concluida' && a.status !== 'cancelada').length);
+
+  // Módulos
+  setEl('mod-nc',       ncs.length);
+  setEl('mod-actions',  acoes.length);
+  setEl('mod-training', treinamentos.length);
+  setEl('mod-safety',   ltcats.length + pgrs.length);
+
+  // Página Segurança
+  setEl('safety-asos',  asos.length);
+  setEl('safety-ltcats',ltcats.length);
+  setEl('safety-pgrs',  pgrs.length);
+
+  // Página Treinamentos
+  setEl('training-total',     treinamentos.length);
+  setEl('training-concluidos',treinamentos.filter(t => t.status === 'concluido').length);
+  setEl('training-agendados', treinamentos.filter(t => t.status === 'agendado').length);
+  const totalHoras = treinamentos.reduce((acc, t) => acc + (t.cargaHoraria || 0), 0);
+  setEl('training-horas', totalHoras);
+
+  // Stats página NC
+  setEl('nc-stat-abertas',   ncs.filter(n => n.status === 'aberta').length);
+  setEl('nc-stat-andamento', ncs.filter(n => n.status === 'em_andamento').length);
+  setEl('nc-stat-concluidas',ncs.filter(n => n.status === 'concluida').length);
+  setEl('nc-stat-total',     ncs.length);
+
+  // Badges sidebar
+  const badgeNc = document.getElementById('badge-nc');
+  if (badgeNc) badgeNc.textContent = ncs.filter(n => n.status === 'aberta').length;
+
+  const badgeAcoes = document.getElementById('badge-acoes');
+  if (badgeAcoes) badgeAcoes.textContent = acoes.filter(a =>
+    a.status === 'pendente' || a.status === 'em_andamento'
+  ).length;
+
+  return dadosGlobais;
+}
+
+// ── Agrupar por mês ───────────────────────────
+function agruparPorMes(lista, campoData, ano) {
+  const meses = Array(12).fill(0);
+  lista.forEach(item => {
+    if (!item[campoData]) return;
+    const d = new Date(item[campoData]);
+    if (!ano || d.getFullYear() === parseInt(ano)) {
+      meses[d.getMonth()]++;
     }
+  });
+  return meses;
+}
+
+// ── GRÁFICOS ──────────────────────────────────
+let chartNC     = null;
+let chartStatus = null;
+let anoAtivo    = 2025;
+
+async function initCharts() {
+  const { asos, treinamentos, ncs, acoes } = dadosGlobais;
+  const labels = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  // ── Gráfico de Barras ──
+  const ncCtx = document.getElementById('ncChart');
+  if (ncCtx) {
+    if (chartNC) chartNC.destroy();
+    chartNC = new Chart(ncCtx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'NCs Abertas',
+            data: agruparPorMes(ncs, 'dataAbertura', anoAtivo),
+            backgroundColor: 'rgba(234,67,53,0.15)',
+            borderColor: '#ea4335',
+            borderWidth: 2,
+            borderRadius: 6
+          },
+          {
+            label: 'ASOs Realizados',
+            data: agruparPorMes(asos, 'dataExame', anoAtivo),
+            backgroundColor: 'rgba(0,210,255,0.15)',
+            borderColor: '#00d2ff',
+            borderWidth: 2,
+            borderRadius: 6
+          },
+          {
+            label: 'Treinamentos',
+            data: agruparPorMes(treinamentos, 'dataRealizacao', anoAtivo),
+            backgroundColor: 'rgba(52,168,83,0.15)',
+            borderColor: '#34a853',
+            borderWidth: 2,
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { stepSize: 1 } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
   }
 
-  async function apiPost(endpoint, data) {
-    try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Erro na API:', error);
-      return null;
+  // ── Gráfico de Rosca ──
+  const statusCtx = document.getElementById('statusChart');
+  if (statusCtx) {
+    if (chartStatus) chartStatus.destroy();
+    chartStatus = new Chart(statusCtx.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: [
+          'NCs Abertas','NCs Andamento','NCs Concluídas',
+          'Ações Pendentes','Ações Andamento','Ações Concluídas'
+        ],
+        datasets: [{
+          data: [
+            ncs.filter(n => n.status === 'aberta').length,
+            ncs.filter(n => n.status === 'em_andamento').length,
+            ncs.filter(n => n.status === 'concluida').length,
+            acoes.filter(a => a.status === 'pendente').length,
+            acoes.filter(a => a.status === 'em_andamento').length,
+            acoes.filter(a => a.status === 'concluida').length
+          ],
+          backgroundColor: ['#ea4335','#fbbc04','#34a853','#ff6b35','#4285f4','#00d2ff'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+        cutout: '60%'
+      }
+    });
+  }
+}
+
+// ── Filtrar por Ano ───────────────────────────
+function filtrarAno(ano) {
+  anoAtivo = ano;
+
+  document.querySelectorAll('.btn-ano').forEach(btn => {
+    const ativo = parseInt(btn.dataset.ano) === ano;
+    btn.style.background  = ativo ? 'var(--primary)' : 'white';
+    btn.style.color       = ativo ? 'white' : 'var(--gray-700)';
+    btn.style.borderColor = ativo ? 'var(--primary)' : 'var(--gray-200)';
+  });
+
+  const { asos, treinamentos, ncs } = dadosGlobais;
+  const labels = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const ncCtx = document.getElementById('ncChart');
+  if (!ncCtx) return;
+
+  if (chartNC) chartNC.destroy();
+  chartNC = new Chart(ncCtx.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'NCs Abertas',
+          data: agruparPorMes(ncs, 'dataAbertura', ano),
+          backgroundColor: 'rgba(234,67,53,0.15)',
+          borderColor: '#ea4335', borderWidth: 2, borderRadius: 6
+        },
+        {
+          label: 'ASOs Realizados',
+          data: agruparPorMes(asos, 'dataExame', ano),
+          backgroundColor: 'rgba(0,210,255,0.15)',
+          borderColor: '#00d2ff', borderWidth: 2, borderRadius: 6
+        },
+        {
+          label: 'Treinamentos',
+          data: agruparPorMes(treinamentos, 'dataRealizacao', ano),
+          backgroundColor: 'rgba(52,168,83,0.15)',
+          borderColor: '#34a853', borderWidth: 2, borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { stepSize: 1 } },
+        x: { grid: { display: false } }
+      }
     }
+  });
+}
+
+// ── Tabela de NCs ─────────────────────────────
+function renderTabelaNCs(filtro = '') {
+  const tbody = document.getElementById('nc-table-body');
+  if (!tbody) return;
+
+  let lista = dadosGlobais.ncs;
+  if (filtro) {
+    const f = filtro.toLowerCase();
+    lista = lista.filter(nc =>
+      nc.titulo.toLowerCase().includes(f)      ||
+      nc.setor.toLowerCase().includes(f)       ||
+      nc.responsavel.toLowerCase().includes(f) ||
+      nc.status.toLowerCase().includes(f)      ||
+      nc.gravidade.toLowerCase().includes(f)
+    );
   }
 
-  // Atualiza dashboard com dados da API
-  async function updateDashboardStats() {
-    const asos = await apiGet('/api/asos');
-    const ltcats = await apiGet('/api/ltcats');
-    const pgrs = await apiGet('/api/pgrs');
-    const treinamentos = await apiGet('/api/treinamentos');
-
-    // Atualiza banner
-    document.getElementById('stat-asos').textContent = asos.length;
-    document.getElementById('stat-ltcats').textContent = ltcats.length;
-    document.getElementById('stat-pgrs').textContent = pgrs.length;
-
-    // Atualiza cards
-    document.getElementById('count-asos').textContent = asos.length;
-    document.getElementById('count-ltcats').textContent = ltcats.length;
-    document.getElementById('count-pgrs').textContent = pgrs.length;
-    document.getElementById('count-treinamentos').textContent = treinamentos.length;
-
-    // Atualiza módulos
-    document.getElementById('mod-training').textContent = treinamentos.length;
-    document.getElementById('mod-safety').textContent = ltcats.length + pgrs.length;
-
-    return { asos, ltcats, pgrs, treinamentos };
+  if (lista.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--gray-500);">Nenhuma NC encontrada</td></tr>`;
+    return;
   }
 
-  // Refresh dados
-  async function refreshData() {
-    const btn = document.querySelector('.btn-outline');
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+  tbody.innerHTML = lista.map(nc => `
+    <tr>
+      <td><strong>NC-${String(nc.id).padStart(3,'0')}</strong></td>
+      <td>${nc.titulo}</td>
+      <td>${nc.setor}</td>
+      <td>${badgeOrigem(nc.origem)}</td>
+      <td>${badgeGravidade(nc.gravidade)}</td>
+      <td>${badgeStatusNC(nc.status)}</td>
+      <td>${nc.responsavel}</td>
+      <td>${nc.dataPrevista || '—'}</td>
+      <td class="table-actions-cell">
+        <button class="action-btn" onclick="verNC(${nc.id})" title="Ver detalhes">
+          <i class="fas fa-eye"></i>
+        </button>
+        <button class="action-btn" onclick="alterarStatusNC(${nc.id})" title="Alterar status">
+          <i class="fas fa-edit"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function badgeOrigem(origem) {
+  const cores  = { auditoria:'iso-9001', inspecao:'iso-45001', reclamacao:'iso-14001', acidente:'iso-45001' };
+  const labels = { auditoria:'Auditoria', inspecao:'Inspeção', reclamacao:'Reclamação', acidente:'Acidente' };
+  return `<span class="compliance-iso ${cores[origem]||'iso-9001'}">${labels[origem]||origem}</span>`;
+}
+
+function badgeGravidade(g) {
+  const map = {
+    baixa:  { cls:'completed', label:'Baixa' },
+    media:  { cls:'progress',  label:'Média' },
+    alta:   { cls:'open',      label:'Alta' },
+    critica:{ cls:'critical',  label:'Crítica' }
+  };
+  const { cls, label } = map[g] || { cls:'pending', label: g };
+  return `<span class="status-badge ${cls}"><span class="status-dot"></span>${label}</span>`;
+}
+
+function badgeStatusNC(status) {
+  const map = {
+    aberta:       { cls:'open',      label:'Aberta' },
+    em_andamento: { cls:'progress',  label:'Em andamento' },
+    concluida:    { cls:'completed', label:'Concluída' },
+    cancelada:    { cls:'pending',   label:'Cancelada' }
+  };
+  const { cls, label } = map[status] || { cls:'pending', label: status };
+  return `<span class="status-badge ${cls}"><span class="status-dot"></span>${label}</span>`;
+}
+
+function verNC(id) {
+  const nc = dadosGlobais.ncs.find(n => n.id === id);
+  if (!nc) return;
+  alert(
+    `NC-${String(nc.id).padStart(3,'0')} — ${nc.titulo}\n\n` +
+    `Status: ${nc.status}\n` +
+    `Gravidade: ${nc.gravidade}\n` +
+    `Setor: ${nc.setor}\n` +
+    `Responsável: ${nc.responsavel}\n` +
+    `Abertura: ${nc.dataAbertura}\n` +
+    `Prevista: ${nc.dataPrevista || 'não definida'}\n\n` +
+    `${nc.observacoes || 'Sem observações'}`
+  );
+}
+
+async function alterarStatusNC(id) {
+  const nc = dadosGlobais.ncs.find(n => n.id === id);
+  if (!nc) return;
+  const opcoes = ['aberta','em_andamento','concluida','cancelada'];
+  const escolha = prompt(
+    `NC-${String(nc.id).padStart(3,'0')}: ${nc.titulo}\n` +
+    `Status atual: ${nc.status}\n\n` +
+    `Novo status:\n0 - aberta\n1 - em_andamento\n2 - concluida\n3 - cancelada\n\nDigite o número:`
+  );
+  if (escolha === null) return;
+  const novoStatus = opcoes[parseInt(escolha)];
+  if (!novoStatus) { alert('Opção inválida'); return; }
+  try {
+    const res = await fetch(`${API_URL}/api/ncs/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: novoStatus })
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert(`✅ Status atualizado para: ${novoStatus}`);
+      await updateDashboardStats();
+      renderTabelaNCs();
+      renderKanban();
+    }
+  } catch (err) {
+    alert('❌ Erro ao atualizar status');
+  }
+}
+
+// ── Tabela de Treinamentos ────────────────────
+function renderTabelaTreinamentos(filtro = '') {
+  const tbody = document.getElementById('treinamentos-table-body');
+  if (!tbody) return;
+
+  let lista = dadosGlobais.treinamentos;
+  if (filtro) {
+    const f = filtro.toLowerCase();
+    lista = lista.filter(t =>
+      t.titulo.toLowerCase().includes(f) ||
+      t.instrutor.toLowerCase().includes(f) ||
+      t.status.toLowerCase().includes(f)
+    );
+  }
+
+  if (lista.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-500);">Nenhum treinamento encontrado</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = lista.map(t => {
+    const statusCls = t.status === 'concluido' ? 'completed' : t.status === 'agendado' ? 'progress' : 'pending';
+    const statusLabel = t.status === 'concluido' ? 'Concluído' : t.status === 'agendado' ? 'Agendado' : t.status;
+    return `
+      <tr>
+        <td><strong>${t.titulo}</strong></td>
+        <td>${t.instrutor}</td>
+        <td>${t.cargaHoraria}h</td>
+        <td>${t.dataRealizacao || '—'}</td>
+        <td>${t.dataVencimento || '—'}</td>
+        <td>${t.participantes ? t.participantes.length : 0} participante(s)</td>
+        <td><span class="status-badge ${statusCls}"><span class="status-dot"></span>${statusLabel}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ── Kanban de Ações ───────────────────────────
+function renderKanban() {
+  const { acoes } = dadosGlobais;
+
+  const colunas = {
+    pendente:     { el: 'kanban-pendente',  cor: '#e65100' },
+    em_andamento: { el: 'kanban-andamento', cor: '#1565c0' },
+    concluida:    { el: 'kanban-concluida', cor: '#2e7d32' },
+    cancelada:    { el: 'kanban-cancelada', cor: '#6a1b9a' }
+  };
+
+  Object.entries(colunas).forEach(([status, cfg]) => {
+    const lista  = acoes.filter(a => a.status === status);
+    const colEl  = document.getElementById(cfg.el);
+    if (!colEl) return;
+
+    const counter = colEl.querySelector('.kanban-count');
+    if (counter) counter.textContent = lista.length;
+
+    const cardsEl = colEl.querySelector('.kanban-cards');
+    if (!cardsEl) return;
+
+    if (lista.length === 0) {
+      cardsEl.innerHTML = `<div style="text-align:center;padding:20px;color:var(--gray-500);font-size:0.82rem;">Nenhuma ação</div>`;
+      return;
+    }
+
+    cardsEl.innerHTML = lista.map(acao => {
+      const priorMap = {
+        alta:  { cls:'critical', label:'🔴 Alta' },
+        media: { cls:'open',     label:'🟡 Média' },
+        baixa: { cls:'completed',label:'🟢 Baixa' }
+      };
+      const prio = priorMap[acao.prioridade] || { cls:'pending', label: acao.prioridade };
+
+      return `
+        <div class="kanban-card" style="border-color:${cfg.cor};" onclick="verAcao(${acao.id})">
+          <div class="kanban-card-title">${acao.titulo}</div>
+          <div style="font-size:0.75rem;color:var(--gray-500);margin:4px 0;">
+            ${acao.setor} · ${acao.responsavel}
+          </div>
+          ${acao.progresso > 0 ? `
+            <div style="margin:8px 0 4px;">
+              <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--gray-500);margin-bottom:4px;">
+                <span>Progresso</span><span>${acao.progresso}%</span>
+              </div>
+              <div style="background:var(--gray-200);border-radius:4px;height:4px;">
+                <div style="width:${acao.progresso}%;background:${cfg.cor};border-radius:4px;height:4px;transition:width 0.3s;"></div>
+              </div>
+            </div>
+          ` : ''}
+          <div class="kanban-card-meta">
+            <span>📅 ${acao.dataPrevista || '—'}</span>
+            <span class="status-badge ${prio.cls}" style="font-size:0.68rem;padding:2px 8px;">${prio.label}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  });
+
+  // Stats do Kanban
+  setEl('kanban-stat-prazo',     acoes.filter(a => a.status === 'pendente' || a.status === 'em_andamento').length);
+  setEl('kanban-stat-atrasadas', acoes.filter(a => {
+    if (!a.dataPrevista || a.status === 'concluida' || a.status === 'cancelada') return false;
+    return new Date(a.dataPrevista) < new Date();
+  }).length);
+  setEl('kanban-stat-concluidas', acoes.filter(a => a.status === 'concluida').length);
+  setEl('kanban-stat-total',      acoes.length);
+}
+
+function verAcao(id) {
+  const acao = dadosGlobais.acoes.find(a => a.id === id);
+  if (!acao) return;
+  alert(
+    `Ação #${acao.id} — ${acao.titulo}\n\n` +
+    `Tipo: ${acao.tipo}\n` +
+    `Status: ${acao.status}\n` +
+    `Progresso: ${acao.progresso}%\n` +
+    `Setor: ${acao.setor}\n` +
+    `Responsável: ${acao.responsavel}\n` +
+    `Prevista: ${acao.dataPrevista || 'não definida'}\n\n` +
+    `${acao.observacoes || 'Sem observações'}`
+  );
+}
+
+// ── Salvar NC ─────────────────────────────────
+async function saveNC() {
+  const titulo      = document.getElementById('nc-titulo').value.trim();
+  const descricao   = document.getElementById('nc-descricao').value.trim();
+  const responsavel = document.getElementById('nc-responsavel').value;
+  const origem      = document.getElementById('nc-origem').value;
+  const setor       = document.getElementById('nc-setor').value;
+  const gravidade   = document.getElementById('nc-prioridade').value;
+  const dataPrev    = document.getElementById('nc-prazo').value;
+
+  if (!titulo) { alert('⚠️ Preencha o título da NC'); return; }
+
+  const body = {
+    titulo,
+    descricao:    descricao || titulo,
+    tipo:         'interna',
+    gravidade,
+    origem,
+    setor,
+    responsavel,
+    dataPrevista: dataPrev || null
+  };
+
+  const result = await apiPost('/api/ncs', body);
+
+  if (result && result.success) {
+    alert(`✅ NC registrada com sucesso!\nCódigo: NC-${String(result.data.id).padStart(3,'0')}`);
+    closeModal('ncModal');
+    document.getElementById('nc-titulo').value    = '';
+    document.getElementById('nc-descricao').value = '';
+    await updateDashboardStats();
+    renderTabelaNCs();
+    renderKanban();
+  } else {
+    alert('❌ Erro ao registrar NC:\n' + (result?.message || 'Erro desconhecido'));
+  }
+}
+
+// ── Salvar Ação ───────────────────────────────
+async function saveAcao() {
+  const titulo      = document.getElementById('acao-titulo').value.trim();
+  const descricao   = document.getElementById('acao-descricao').value.trim();
+  const responsavel = document.getElementById('acao-responsavel').value;
+  const setor       = document.getElementById('acao-setor').value;
+  const tipo        = document.getElementById('acao-tipo').value;
+  const prioridade  = document.getElementById('acao-prioridade').value;
+  const dataPrev    = document.getElementById('acao-prazo').value;
+  const ncId        = document.getElementById('acao-ncid').value;
+
+  if (!titulo) { alert('⚠️ Preencha o título da ação'); return; }
+
+  const body = {
+    titulo,
+    descricao:    descricao || titulo,
+    tipo,
+    responsavel,
+    setor,
+    prioridade,
+    dataPrevista: dataPrev || null,
+    ncId:         ncId ? parseInt(ncId) : null
+  };
+
+  const result = await apiPost('/api/acoes', body);
+
+  if (result && result.success) {
+    alert(`✅ Ação criada com sucesso!\nID: #${result.data.id}`);
+    closeModal('actionModal');
+    document.getElementById('acao-titulo').value    = '';
+    document.getElementById('acao-descricao').value = '';
+    document.getElementById('acao-ncid').value      = '';
+    await updateDashboardStats();
+    renderKanban();
+  } else {
+    alert('❌ Erro ao criar ação:\n' + (result?.message || 'Erro desconhecido'));
+  }
+}
+
+// ── Refresh geral ─────────────────────────────
+async function refreshData() {
+  const btn = document.querySelector('[onclick="refreshData()"]');
+  if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+
+  await updateDashboardStats();
+  if (chartNC || chartStatus) {
+    if (chartNC)     chartNC.destroy();
+    if (chartStatus) chartStatus.destroy();
+    chartNC = null; chartStatus = null;
+  }
+  await initCharts();
+  renderTabelaNCs();
+  renderKanban();
+  renderTabelaTreinamentos();
+
+  if (btn) btn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar';
+}
+
+// ── Loading ───────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+  }, 1800);
+});
+
+// ── Login / Logout ────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const senha  = document.getElementById('loginPassword').value;
+
+  if (email !== 'admin@empresa.com' || senha !== 'admin123') {
+    alert('Credenciais inválidas!\nUse: admin@empresa.com / admin123');
+    return;
+  }
+
+  document.getElementById('loginScreen').classList.add('hidden');
+
+  setTimeout(async () => {
     await updateDashboardStats();
     await initCharts();
-    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar';
-  }
+  }, 300);
+}
 
-  // LOADING
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      document.getElementById('loadingOverlay').classList.add('hidden');
-    }, 1800);
+function logout() {
+  document.getElementById('loginScreen').classList.remove('hidden');
+}
+
+// ── Sidebar toggle ────────────────────────────
+let sidebarCollapsed = false;
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const header  = document.getElementById('header');
+  const main    = document.getElementById('mainContent');
+  sidebarCollapsed = !sidebarCollapsed;
+  if (sidebarCollapsed) {
+    sidebar.style.width   = '70px';
+    header.style.left     = '70px';
+    main.style.marginLeft = '70px';
+  } else {
+    sidebar.style.width   = '';
+    header.style.left     = '';
+    main.style.marginLeft = '';
+  }
+}
+
+// ── Navegação ─────────────────────────────────
+function navigateTo(page) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
+
+  const menuLink = document.querySelector(`[data-page="${page}"]`);
+  if (menuLink) menuLink.classList.add('active');
+
+  if (page === 'nc')         renderTabelaNCs();
+  if (page === 'actions')    renderKanban();
+  if (page === 'training')   renderTabelaTreinamentos();
+  if (page === 'indicators') setTimeout(initKpiCharts, 100);
+
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('.sidebar-menu a[data-page]').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    navigateTo(this.dataset.page);
   });
+});
 
-  // LOGIN
-  function doLogin() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    setTimeout(() => {
-      updateDashboardStats();
-      initCharts();
-    }, 300);
-  }
-  function logout() {
-    document.getElementById('loginScreen').classList.remove('hidden');
-  }
+// ── Modais ────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-  // SIDEBAR
-  let sidebarCollapsed = false;
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const header = document.getElementById('header');
-    const main = document.getElementById('mainContent');
-    sidebarCollapsed = !sidebarCollapsed;
-    if (sidebarCollapsed) {
-      sidebar.style.width = '70px';
-      header.style.left = '70px';
-      main.style.marginLeft = '70px';
-    } else {
-      sidebar.style.width = '';
-      header.style.left = '';
-      main.style.marginLeft = '';
-    }
-  }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+  });
+});
 
-  // NAVIGATION
-  function navigateTo(page) {
-    document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-    const pageEl = document.getElementById('page-' + page);
-    if (pageEl) pageEl.classList.add('active');
-    const menuLink = document.querySelector(`[data-page="${page}"]`);
-    if (menuLink) menuLink.classList.add('active');
-    if (page === 'indicators') setTimeout(initKpiCharts, 100);
-    window.scrollTo(0, 0);
-  }
+// ── Notificações ──────────────────────────────
+function toggleNotifications() {
+  document.getElementById('notificationPanel').classList.toggle('open');
+}
 
-  document.querySelectorAll('.sidebar-menu a[data-page]').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      navigateTo(this.dataset.page);
+// ── FAB ───────────────────────────────────────
+function toggleFab() {
+  document.getElementById('fabMenu').classList.toggle('active');
+}
+
+// ── KPI Charts ────────────────────────────────
+function initKpiCharts() {
+  const kpiCtx = document.getElementById('kpiChart');
+  if (kpiCtx && !kpiCtx._chartInstance) {
+    kpiCtx._chartInstance = new Chart(kpiCtx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['Jan','Fev','Mar','Abr','Mai','Jun'],
+        datasets: [
+          { label: 'Satisfação Cliente (%)', data: [92,94,93,95,96,96.2], borderColor: '#34a853', tension: 0.4, fill: false },
+          { label: 'Eficácia Ações (%)',     data: [85,82,88,86,90,88.5], borderColor: '#4285f4', tension: 0.4, fill: false },
+          { label: 'Conformidade (%)',        data: [88,90,89,91,92,91],   borderColor: '#fbbc04', tension: 0.4, fill: false }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { min: 75, max: 100 }, x: { grid: { display: false } } }
+      }
     });
-  });
-
-  // MODALS
-  function openModal(id) { document.getElementById(id).classList.add('active'); }
-  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-  
-  async function saveNC() {
-    const ncData = {
-      colaborador: document.getElementById('nc-responsavel').value,
-      tipo: document.getElementById('nc-origem').value,
-      data: document.getElementById('nc-data').value,
-      resultado: 'pendente',
-      cid: document.getElementById('nc-norma').value,
-      resolutividade: false
-    };
-
-    const result = await apiPost('/api/asos', ncData);
-    
-    if (result) {
-      alert('✅ NC registrada com sucesso!\nCódigo: NC-' + result.id);
-      closeModal('ncModal');
-      updateDashboardStats();
-    } else {
-      alert('❌ Erro ao registrar NC');
-    }
   }
 
-  document.querySelectorAll('.modal-overlay').forEach(o => {
-    o.addEventListener('click', function(e) {
-      if (e.target === this) this.classList.remove('active');
+  const areaCtx = document.getElementById('areaChart');
+  if (areaCtx && !areaCtx._chartInstance) {
+    areaCtx._chartInstance = new Chart(areaCtx.getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: ['Qualidade','Meio Ambiente','SSO','Documentos','Treinamentos','Auditorias'],
+        datasets: [{
+          label: 'Performance KAIJU SGI',
+          data: [94,87,91,96,73,88],
+          backgroundColor: 'rgba(0,210,255,0.1)',
+          borderColor: '#00d2ff', borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: { r: { min: 50, max: 100 } }
+      }
     });
-  });
-
-  // NOTIFICATIONS
-  function toggleNotifications() {
-    document.getElementById('notificationPanel').classList.toggle('open');
   }
-
-  // FAB
-  function toggleFab() {
-    document.getElementById('fabMenu').classList.toggle('active');
-  }
-
-  // CHARTS
-  let chartsInit = false;
-  async function initCharts() {
-    if (chartsInit) return;
-    chartsInit = true;
-
-    // Busca dados reais da API
-    const { asos, ltcats, pgrs, treinamentos } = await updateDashboardStats();
-
-    // NC Chart
-    const ncCtx = document.getElementById('ncChart');
-    if (ncCtx) {
-      new Chart(ncCtx.getContext('2d'), {
-        type: 'bar',
-        data: {
-          labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
-          datasets: [
-            {
-              label: 'ASOs Realizados',
-              data: [8,12,6,9,5,7,4,8,3,6,4,5],
-              backgroundColor: 'rgba(0,210,255,0.15)',
-              borderColor: '#00d2ff', borderWidth: 2, borderRadius: 6
-            }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'top' } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
-            x: { grid: { display: false } }
-          }
-        }
-      });
-    }
-
-    // Status Chart
-    const statusCtx = document.getElementById('statusChart');
-    if (statusCtx) {
-      new Chart(statusCtx.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          labels: ['ASOs','LTCATs','PGRs','Treinamentos'],
-          datasets: [{
-            data: [asos.length, ltcats.length, pgrs.length, treinamentos.length],
-            backgroundColor: ['#00d2ff','#34a853','#4285f4','#fbbc04'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom' } },
-          cutout: '65%'
-        }
-      });
-    }
-  }
-
-  function initKpiCharts() {
-    const kpiCtx = document.getElementById('kpiChart');
-    if (kpiCtx && !kpiCtx._chartInstance) {
-      kpiCtx._chartInstance = new Chart(kpiCtx.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: ['Jan','Fev','Mar','Abr','Mai','Jun'],
-          datasets: [
-            { label: 'Satisfação Cliente (%)', data: [92,94,93,95,96,96.2], borderColor: '#34a853', tension: 0.4, fill: false },
-            { label: 'Eficácia Ações (%)', data: [85,82,88,86,90,88.5], borderColor: '#4285f4', tension: 0.4, fill: false },
-            { label: 'Conformidade (%)', data: [88,90,89,91,92,91], borderColor: '#fbbc04', tension: 0.4, fill: false }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'top' } },
-          scales: { y: { min: 75, max: 100 }, x: { grid: { display: false } } }
-        }
-      });
-    }
-
-    const areaCtx = document.getElementById('areaChart');
-    if (areaCtx && !areaCtx._chartInstance) {
-      areaCtx._chartInstance = new Chart(areaCtx.getContext('2d'), {
-        type: 'radar',
-        data: {
-          labels: ['Qualidade','Meio Ambiente','SSO','Documentos','Treinamentos','Auditorias'],
-          datasets: [{
-            label: 'Performance KAIJU SGI',
-            data: [94,87,91,96,73,88],
-            backgroundColor: 'rgba(0,210,255,0.1)',
-            borderColor: '#00d2ff', borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { r: { min: 50, max: 100 } }
-        }
-      });
-    }
-  }
+}
 </script>
 </body>
 </html>
