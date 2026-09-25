@@ -1,0 +1,71 @@
+# KAIJU SGI — Contexto do projeto
+
+> Briefing registrado em 25/09/2026. Estado "atual" abaixo foi medido lendo o código nessa data;
+> confira no disco antes de afirmar qualquer coisa como verdade presente.
+
+## Produto
+
+SaaS de gestão integrada **SST + Qualidade + Meio Ambiente** (ISO 9001, ISO 14001, ISO 45001),
+multi-tenant, para **qualquer empresa**. Produto próprio do Diovanni (dono), com intenção de venda
+futura. Não é vinculado a nenhum cliente — a menção a "SECONCI" no `kaiju-sgi-api` é resquício.
+
+## Estado atual (medido em 25/09/2026)
+
+### `dllifilho-debug/kaiju-sgi` (este repositório)
+- Um único `index.html` (~108 KB), publicado no Vercel (`kaiju-sgi.vercel.app`, plano Hobby).
+- **Login falso**: `doLogin()` compara com `admin@empresa.com` / `admin123` no próprio JS, e a
+  senha aparece na tela (campo pré-preenchido e texto "Demo").
+- **Números fixos no HTML**: conformidade ISO 94 % / 87 % / 91 %, "127 dias sem acidente",
+  "+2 novos".
+- `API_URL = https://kaiju-sgi-api.onrender.com`.
+
+### `dllifilho-debug/kaiju-sgi-api` (repositório separado)
+- Express 5 no Render. Dados em arrays na memória — cada reinício volta ao `seed.js`.
+- `pg`, `bcryptjs`, `jsonwebtoken` instalados e nunca usados.
+- Sem autenticação: qualquer um cria/apaga. CORS aberto.
+- `node_modules` versionado (893 arquivos).
+- **Erro conceitual**: a rota `/api/ltcats` guarda afastamentos/CAT. LTCAT é o Laudo Técnico das
+  Condições Ambientais do Trabalho (Lei 8.213/1991, art. 58, §1º) — documento previdenciário,
+  não registro de afastamento. CAT é a Comunicação de Acidente de Trabalho (Lei 8.213/1991, art. 22).
+- **Dado sensível exposto**: o seed coloca CID dentro do ASO. Isso não pode existir em sistema
+  acessado pela empresa-cliente.
+
+## Decisões tomadas (não reabrir sem o dono)
+
+1. **Supabase** (Postgres + Auth + RLS + Storage) substitui a API Express, que será aposentada.
+   Sem backend próprio por enquanto; FastAPI só se uma regra de negócio exigir.
+2. **Frontend** continua no Vercel, com `supabase-js`. Framework só quando a tela crescer.
+3. **Repositórios públicos** (decisão do dono). Consequência: a chave `service_role` do Supabase
+   **nunca** vai para o git. A chave `anon` pode ir — quem protege os dados é a RLS.
+4. **Multi-tenant no banco**: toda tabela de negócio tem `empresa_id`; isolamento por RLS, nunca
+   por filtro no frontend. Papéis: `admin` (dono), `tecnico_sst`, `medico`, `cliente_leitura`.
+5. **Dado de saúde**: CID/diagnóstico nunca acessível à empresa-cliente — NR-7 define o conteúdo
+   do ASO sem diagnóstico; sigilo médico; LGPD (Lei 13.709/2018) art. 5º, II e art. 11 (dado
+   sensível). O dono do SaaS é **operador**; cada empresa-cliente é **controladora**.
+
+## Plano
+
+| Etapa | Entrega |
+|---|---|
+| 0.1 | Tirar `node_modules` do git no `kaiju-sgi-api` (+ `.gitignore`). |
+| 0.2 | Esquema multi-tenant (empresas, usuários×empresa×papel, estabelecimentos/obras, PGRs, NCs, ações, treinamentos, ASOs sem CID) + políticas RLS + testes provando que empresa A não lê nem escreve na empresa B. **Entregar primeiro como proposta para revisão — nada é criado no Supabase antes do ok.** |
+| 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. |
+| 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. |
+| 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. |
+
+## Repositórios relacionados (Python/Streamlit — ficam SEPARADOS)
+
+- `dllifilho-debug/automacao-pgr-agente-pcmso`: motor de matriz de exames do PCMSO a partir do PGR
+  (regras NR-7/NR-15), método rigoroso de testes, `CLAUDE.md` próprio.
+- `dllifilho-debug/app-auditoria-nrs`: laudo de não conformidades a partir de fotos; cita item de
+  NR verbatim dos PDFs do MTE ("o modelo escolhe, o código cita"). Publicado em
+  `auditoria-nrs-08.streamlit.app`.
+
+**Integração**: cada app ganha "Enviar para o Kaiju", gravando no Supabase **com o login do
+usuário** (a RLS vale para eles também). Nenhum app carrega `service_role`. Não juntar códigos.
+
+## Fontes oficiais
+
+- NRs vigentes: Gov.br/MTE — Normas Regulamentadoras Vigentes.
+- NHOs: Gov.br/Fundacentro — biblioteca de Normas de Higiene Ocupacional.
+- Nunca usar versões de terceiros; sinalizar quando uma norma estiver em revisão.
