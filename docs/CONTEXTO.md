@@ -48,7 +48,7 @@ futura. Não é vinculado a nenhum cliente — a menção a "SECONCI" no `kaiju-
 6. `admin` é **por empresa** (papel no vínculo), sem superadmin global que ignore a RLS. O dono do
    SaaS entra como membro de cada empresa que atende. **(aprovado pelo dono)**
 
-Itens 7–10: recomendação aplicada nas migrations, **pendente de confirmação do dono**.
+Itens 7–10: confirmados pelo dono em 26/09/2026.
 
 7. Tabela `trabalhadores` (com CPF) incluída — ASO e treinamento dependem dela.
 8. Sem exclusão física fora de `membros`; histórico encerrado por `status`/`ativo`.
