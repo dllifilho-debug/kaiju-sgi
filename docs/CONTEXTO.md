@@ -43,6 +43,21 @@ futura. Não é vinculado a nenhum cliente — a menção a "SECONCI" no `kaiju-
    do ASO sem diagnóstico; sigilo médico; LGPD (Lei 13.709/2018) art. 5º, II e art. 11 (dado
    sensível). O dono do SaaS é **operador**; cada empresa-cliente é **controladora**.
 
+### Decisões da etapa 0.2 (26/09/2026)
+
+6. `admin` é **por empresa** (papel no vínculo), sem superadmin global que ignore a RLS. O dono do
+   SaaS entra como membro de cada empresa que atende. **(aprovado pelo dono)**
+
+Itens 7–10: recomendação aplicada nas migrations, **pendente de confirmação do dono**.
+
+7. Tabela `trabalhadores` (com CPF) incluída — ASO e treinamento dependem dela.
+8. Sem exclusão física fora de `membros`; histórico encerrado por `status`/`ativo`.
+9. Cadastro público de usuário desligado; empresa e primeiro admin criados pelo dono no painel/SQL.
+   Convite pela aplicação fica para uma Edge Function (secret no Supabase, nunca no git).
+10. Controle de documentos (ISO 9001) e aspectos/impactos ambientais (ISO 14001): fora da 0.2.
+
+Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
+
 ## Plano
 
 | Etapa | Entrega |
