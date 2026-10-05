@@ -20,7 +20,8 @@ futura. Não é vinculado a nenhum cliente — a menção a "SECONCI" no `kaiju-
 - Express 5 no Render. Dados em arrays na memória — cada reinício volta ao `seed.js`.
 - `pg`, `bcryptjs`, `jsonwebtoken` instalados e nunca usados.
 - Sem autenticação: qualquer um cria/apaga. CORS aberto. **Desde a 0.3 o frontend não usa mais
-  esta API**; ela segue no ar no Render (aposentar — decisão pendente do dono).
+  esta API.** Serviço **suspenso** no Render pelo dono em 05/10/2026 (não apagado; reversível
+  com "Resume service"). Código preservado no GitHub.
 - ~~`node_modules` versionado (893 arquivos).~~ Resolvido na etapa 0.1 (05/10/2026).
 - **Erro conceitual**: a rota `/api/ltcats` guarda afastamentos/CAT. LTCAT é o Laudo Técnico das
   Condições Ambientais do Trabalho (Lei 8.213/1991, art. 58, §1º) — documento previdenciário,
@@ -64,6 +65,8 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 - Migrations 0001–0003 aplicadas pelo SQL Editor em 05/10/2026.
 - Migration 0004 (campos de NC/ação da tela, aprovada pelo dono em 05/10/2026) aplicada pelo SQL
   Editor em 05/10/2026; testes no banco real: 535 ok, 0 falhas.
+- Auth: Site URL `https://kaiju-sgi.vercel.app` e Redirect URL `https://kaiju-sgi.vercel.app/**`
+  configurados pelo dono em 05/10/2026.
 - O projeto `seconci-sst` (mesma org) é outro banco, de uso ainda não identificado: **não mexer**.
 - Primeiro usuário: o dono, `admin` da "Empresa Demonstração (teste)" (CNPJ fictício
   11111111000111), criados em 05/10/2026.
@@ -81,9 +84,6 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 
 ### Pendências
 
-- Supabase → Authentication → URL Configuration: Site URL `https://kaiju-sgi.vercel.app` e
-  Redirect URL `https://kaiju-sgi.vercel.app/**` — confirmar se o dono salvou.
-- Aposentar a API Express no Render (sugestão: suspender o serviço, sem apagar).
 - Itens de norma citados em comentários ainda não conferidos no texto vigente (Gov.br/MTE):
   NR-1 1.5.4.4.6 e NR-7 7.5.19.1.
 - Testes de tela (Playwright + Supabase simulado) ficaram fora do repositório; versionar se
