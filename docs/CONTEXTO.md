@@ -64,8 +64,8 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 - Criado com *Automatically expose new tables* desligado e *automatic RLS* ligado; cadastro público
   de usuários desligado; *Confirm email* ligado.
 - Migrations 0001–0003 aplicadas pelo SQL Editor em 05/10/2026.
-- Migration 0004 (campos de NC/ação da tela, aprovada pelo dono em 05/10/2026): aplicar antes do
-  deploy do frontend da 0.3.
+- Migration 0004 (campos de NC/ação da tela, aprovada pelo dono em 05/10/2026) aplicada pelo SQL
+  Editor em 05/10/2026; testes no banco real: 535 ok, 0 falhas.
 - O projeto `seconci-sst` (mesma org) é outro banco, de uso ainda não identificado: **não mexer**.
 
 ## Plano
