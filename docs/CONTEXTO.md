@@ -84,8 +84,11 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 
 ### Pendências
 
-- Itens de norma citados em comentários ainda não conferidos no texto vigente (Gov.br/MTE):
-  NR-1 1.5.4.4.6 e NR-7 7.5.19.1.
+- Confirmar no Gov.br/MTE se a NR-7 teve alteração após a Portaria MTP nº 567/2022 (o PDF
+  conferido é dessa versão) [A MEDIR].
+- Etapa 2: a tabela `asos` guarda só NR-7 7.5.19.1 e) e g) (+ tipo e data); se o Kaiju for
+  **emitir** ASO, faltam c) perigos/riscos do PGR, d) exames e datas, f) médico responsável
+  pelo PCMSO.
 - Testes de tela (Playwright + Supabase simulado) ficaram fora do repositório; versionar se
   o frontend crescer.
 
@@ -98,6 +101,17 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 | 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. | ✅ 05/10/2026 — `kaiju-sgi` PR #4; testado pelo dono no site oficial. |
 | 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. | **Próxima.** Começar lendo `dllifilho-debug/app-auditoria-nrs` e trazendo proposta antes de codar. |
 | 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. | — |
+
+## Normas conferidas no texto oficial
+
+Fonte: PDFs oficiais em `dllifilho-debug/automacao-pgr-agente-pcmso/normas` (Gov.br/MTE),
+conferidos em 05/10/2026.
+
+| Item | Arquivo (última alteração) | Conteúdo usado no Kaiju |
+|---|---|---|
+| NR-1 1.5.4.4.6 | `nr-01-atualizada-2025-i-3` (Portaria MTE nº 765/2025) | Avaliação de riscos revista a cada 2 anos ou nas situações listadas; 1.5.4.4.6.1: até 3 anos com certificação de SGSST (numeração retificada, DOU 30/07/2025) → `pgrs.data_revisao_prevista`. |
+| NR-7 7.5.6 | `nr-07-atualizada-2022-1` (Portaria MTP nº 567/2022) | Exames admissional, periódico, retorno ao trabalho, mudança de riscos ocupacionais, demissional → enum `tipo_aso`. |
+| NR-7 7.5.19.1 | `nr-07-atualizada-2022-1` (Portaria MTP nº 567/2022) | Conteúdo mínimo do ASO (a–g), sem diagnóstico → `asos` sem CID. |
 
 ## Repositórios relacionados (Python/Streamlit — ficam SEPARADOS)
 
