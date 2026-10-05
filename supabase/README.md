@@ -26,6 +26,15 @@ Sem Docker (Postgres 16 + pgTAP + pg_prove):
 PGHOST=... PGPORT=... PGUSER=postgres supabase/tests-local/run.sh
 ```
 
+No SQL Editor do Supabase (sem CLI): gerar o script e colar numa aba nova.
+
+```bash
+python3 supabase/tests-local/gerar_sql_editor.py > testes_sql_editor.sql
+```
+
+O script termina **sempre** com o erro `RESULTADO: N ok, M falhas` — proposital: o erro desfaz a
+transação e nada dos testes fica gravado. Esperado: `M = 0`.
+
 O shim (`tests-local/shim_supabase.sql`) emula só o que as migrations usam: papéis
 `anon`/`authenticated`/`service_role`, `auth.uid()`, default privileges do schema `public` e
 `storage.objects`. Não aplicar em projeto Supabase.
@@ -45,6 +54,8 @@ O shim (`tests-local/shim_supabase.sql`) emula só o que as migrations usam: pap
 - Vínculo inativo ou empresa inativa = nenhum acesso.
 - A empresa sempre mantém pelo menos um admin ativo (erro `KJ001`).
 - `empresa_id` não muda depois de gravado (erro `KJ002`).
+- Storage: o Supabase bloqueia `DELETE` direto em `storage.objects` (`storage.protect_delete`,
+  erro `42501`); exclusão de arquivo só pela API de Storage, onde vale a política acima.
 
 ## Ao aplicar num projeto Supabase (após ok do dono)
 

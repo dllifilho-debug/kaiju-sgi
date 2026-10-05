@@ -381,10 +381,17 @@ select pg_temp.caso('storage: arquivo na raiz do bucket é negado', 'a_admin',
 select pg_temp.caso('storage: outro bucket sem política é negado', 'a_admin',
   format($q$insert into storage.objects (bucket_id, name) values ('outro', %L)$q$,
          pg_temp.fx('emp_A') || '/x.pdf'), 'erro=42501');
+-- O Supabase bloqueia DELETE direto em storage.objects (storage.protect_delete); a API de
+-- Storage liga storage.allow_delete_query antes de excluir. Primeiro o bloqueio, depois a
+-- política medida pelo mesmo caminho da API.
+select pg_temp.caso('storage: DELETE direto por SQL é bloqueado', 'a_admin',
+  $q$delete from storage.objects where bucket_id = 'documentos'$q$, 'erro=42501');
+select set_config('storage.allow_delete_query', 'true', true);
 select pg_temp.caso('storage: técnico não exclui', 'a_tec',
   $q$delete from storage.objects where bucket_id = 'documentos'$q$, 'ok=0');
 select pg_temp.caso('storage: admin exclui só da própria empresa', 'a_admin',
   $q$delete from storage.objects where bucket_id = 'documentos'$q$, 'ok=1');
+select set_config('storage.allow_delete_query', 'false', true);
 
 -- ---------------------------------------------------------------------------
 -- Asserções
@@ -392,7 +399,7 @@ select pg_temp.caso('storage: admin exclui só da própria empresa', 'a_admin',
 select plan((select count(*)::int + 1 from casos));
 
 -- Guarda contra a matriz encolher sem ninguém perceber.
-select is((select count(*)::int from casos), 448 + 30 + 3 + 4 + 7 + 6 + 14 + 11,
+select is((select count(*)::int from casos), 448 + 30 + 3 + 4 + 7 + 6 + 14 + 12,
   'quantidade de casos gerados');
 
 select is(obtido, esperado, descricao) from casos order by ordem;

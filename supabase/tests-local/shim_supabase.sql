@@ -80,6 +80,28 @@ create table storage.objects (
 alter table storage.objects enable row level security;
 alter table storage.buckets enable row level security;
 
+-- Cópia de storage.protect_delete medida no Supabase real em 05/10/2026: DELETE direto por
+-- SQL é bloqueado; a API de Storage liga storage.allow_delete_query antes de excluir.
+-- Gatilho por instrução (FOR EACH STATEMENT) inferido do RETURN NULL: numa versão por linha,
+-- nenhuma exclusão aconteceria nem com a flag ligada. Confirmado pelos testes no Supabase.
+create function storage.protect_delete()
+returns trigger
+language plpgsql
+as $$
+begin
+  if coalesce(current_setting('storage.allow_delete_query', true), 'false') != 'true' then
+    raise exception 'Direct deletion from storage tables is not allowed. Use the Storage API instead.'
+      using hint = 'This prevents accidental data loss from orphaned objects.',
+            errcode = '42501';
+  end if;
+  return null;
+end;
+$$;
+
+create trigger protect_objects_delete
+  before delete on storage.objects
+  for each statement execute function storage.protect_delete();
+
 create function storage.foldername(name text)
 returns text[]
 language plpgsql
