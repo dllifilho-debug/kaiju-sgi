@@ -298,6 +298,13 @@ select pg_temp.caso('created_by não é forjável', 'a_tec',
               values (%L, 'inspecao', 'x', %L) returning created_by)
             select count(*) from i where created_by = %L$q$,
          pg_temp.fx('emp_A'), pg_temp.fx('u_a_admin'), pg_temp.fx('u_a_tec')), 'linhas=1');
+select pg_temp.caso('progresso de ação fora de 0–100 é recusado', 'a_tec',
+  format($q$insert into public.acoes (empresa_id, descricao, progresso) values (%L, 'x', 101)$q$,
+         pg_temp.fx('emp_A')), 'erro=23514');
+select pg_temp.caso('prazo da NC anterior à identificação é recusado', 'a_tec',
+  format($q$insert into public.nao_conformidades (empresa_id, origem, descricao, data_identificacao, prazo)
+            values (%L, 'inspecao', 'x', current_date, current_date - 1)$q$,
+         pg_temp.fx('emp_A')), 'erro=23514');
 select pg_temp.caso('origem_externa_id idempotente por empresa', 'a_tec',
   format($q$insert into public.nao_conformidades (empresa_id, origem, origem_externa_id, descricao)
             values (%1$L, 'auditoria_nr', 'foto-1', 'x'), (%1$L, 'auditoria_nr', 'foto-1', 'y')$q$,
@@ -399,7 +406,7 @@ select set_config('storage.allow_delete_query', 'false', true);
 select plan((select count(*)::int + 1 from casos));
 
 -- Guarda contra a matriz encolher sem ninguém perceber.
-select is((select count(*)::int from casos), 448 + 30 + 3 + 4 + 7 + 6 + 14 + 12,
+select is((select count(*)::int from casos), 448 + 30 + 3 + 4 + 9 + 6 + 14 + 12,
   'quantidade de casos gerados');
 
 select is(obtido, esperado, descricao) from casos order by ordem;

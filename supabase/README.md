@@ -8,6 +8,7 @@ migrations/
   20260926000001_esquema_base.sql   tabelas, tipos, FKs compostas, trigger carimbar
   20260926000002_rls.sql            privilégios, funções auxiliares, políticas
   20260926000003_storage.sql        bucket privado "documentos" + políticas
+  20261005000004_campos_nc_acao.sql campos de tratamento de NC/ação usados pelo frontend
 tests/                              pgTAP (rodam também com `supabase test db`)
 tests-local/                        shim + runner para Postgres puro, sem Docker
 ```
