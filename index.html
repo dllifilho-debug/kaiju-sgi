@@ -6,7 +6,12 @@
   <title>KAIJU SGI - Sistema de Gestão Integrada</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+          integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"
+          integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok"
+          crossorigin="anonymous"></script>
   <style>
     :root {
       --primary: #1a73e8;
@@ -800,6 +805,21 @@
       .search-box { display: none; }
       .form-row { grid-template-columns: 1fr; }
     }
+    .em-dev {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fff8e1; border: 1px solid #ffe082; color: #6d4c00;
+      border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.88rem;
+    }
+    .em-dev i { margin-top: 3px; }
+    .login-erro {
+      display: none; margin-top: 14px; padding: 10px 14px; border-radius: 10px;
+      background: rgba(234,67,53,0.12); border: 1px solid rgba(234,67,53,0.4);
+      color: #ffb4ab; font-size: 0.85rem; text-align: center;
+    }
+    .empresa-select {
+      max-width: 240px; padding: 8px 12px; border: 1px solid var(--gray-200);
+      border-radius: 10px; background: white; font-family: inherit; font-size: 0.85rem;
+    }
   </style>
 </head>
 <body>
@@ -822,16 +842,18 @@
     <p class="login-subtitle">ISO 9001 · ISO 14001 · ISO 45001</p>
     <div class="form-group">
       <label>E-mail</label>
-      <input type="email" id="loginEmail" placeholder="admin@empresa.com" value="admin@empresa.com">
+      <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="username"
+             onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div class="form-group">
       <label>Senha</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" value="admin123">
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button class="btn-login" onclick="doLogin()">
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">
       <i class="fas fa-dragon"></i> &nbsp;Entrar no KAIJU SGI
     </button>
-    <div class="login-demo">Demo: admin@empresa.com / admin123</div>
+    <div class="login-erro" id="loginErro" role="alert"></div>
   </div>
 </div>
 
@@ -887,17 +909,17 @@
     </div>
   </div>
   <div class="header-right">
+    <select id="empresaSelect" class="empresa-select" title="Empresa" onchange="trocarEmpresa(this.value)"></select>
     <button class="header-btn" onclick="toggleNotifications()">
       <i class="fas fa-bell"></i>
-      <span class="notification-dot"></span>
     </button>
     <button class="header-btn"><i class="fas fa-envelope"></i></button>
     <button class="header-btn"><i class="fas fa-question-circle"></i></button>
     <div class="user-profile">
-      <div class="user-avatar">KJ</div>
+      <div class="user-avatar" id="userAvatar">—</div>
       <div class="user-info">
-        <div class="user-name">Admin KAIJU</div>
-        <div class="user-role">Gestor da Qualidade</div>
+        <div class="user-name" id="userName">—</div>
+        <div class="user-role" id="userRole">—</div>
       </div>
     </div>
   </div>
@@ -909,38 +931,7 @@
     <h3>Notificações</h3>
     <button class="modal-close" onclick="toggleNotifications()"><i class="fas fa-times"></i></button>
   </div>
-  <div class="notification-item unread">
-    <div class="notification-icon" style="background:#fce4ec;color:#c62828;"><i class="fas fa-exclamation-circle"></i></div>
-    <div class="notification-content">
-      <h4>NC aberta — Escada sem corrimão</h4>
-      <p>Nova não conformidade registrada no setor Obras</p>
-      <span class="notification-time">Há 5 minutos</span>
-    </div>
-  </div>
-  <div class="notification-item unread">
-    <div class="notification-icon" style="background:#fff3e0;color:#e65100;"><i class="fas fa-clock"></i></div>
-    <div class="notification-content">
-      <h4>Ação vencendo — Instalar corrimão</h4>
-      <p>Plano de ação vence em 2 dias — Responsável: Lucia Mendes</p>
-      <span class="notification-time">Há 30 minutos</span>
-    </div>
-  </div>
-  <div class="notification-item">
-    <div class="notification-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-check-circle"></i></div>
-    <div class="notification-content">
-      <h4>Ação concluída — Extintores substituídos</h4>
-      <p>Ação #3 marcada como concluída por João Ferreira</p>
-      <span class="notification-time">Há 2 horas</span>
-    </div>
-  </div>
-  <div class="notification-item">
-    <div class="notification-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fas fa-file-alt"></i></div>
-    <div class="notification-content">
-      <h4>PGR atualizado</h4>
-      <p>PGR Geral 2025 revisado para versão 3.0</p>
-      <span class="notification-time">Há 3 horas</span>
-    </div>
-  </div>
+  <div style="padding:24px;text-align:center;color:var(--gray-500);font-size:0.88rem;">Nenhuma notificação por enquanto.</div>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -959,8 +950,8 @@
           <div class="kaiju-stat-label">ASOs</div>
         </div>
         <div class="kaiju-stat">
-          <div class="kaiju-stat-num" id="stat-ltcats">0</div>
-          <div class="kaiju-stat-label">LTCATs</div>
+          <div class="kaiju-stat-num" id="stat-trabalhadores">0</div>
+          <div class="kaiju-stat-label">Trabalhadores</div>
         </div>
         <div class="kaiju-stat">
           <div class="kaiju-stat-num" id="stat-pgrs">0</div>
@@ -972,11 +963,10 @@
     <div class="page-header">
       <div class="page-title">
         <h1>Dashboard Geral</h1>
-        <p>Atualizado em tempo real — Dados da API</p>
+        <p id="dash-empresa">—</p>
       </div>
       <div class="page-actions">
         <button class="btn btn-outline" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Atualizar</button>
-        <button class="btn btn-kaiju"><i class="fas fa-server"></i> API Conectada</button>
       </div>
     </div>
 
@@ -985,23 +975,23 @@
         <div class="stat-info">
           <h3>ASOs Realizados</h3>
           <div class="stat-number" id="count-asos">0</div>
-          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados do banco</div>
         </div>
         <div class="stat-icon red"><i class="fas fa-file-medical"></i></div>
       </div>
-      <div class="stat-card" onclick="navigateTo('safety')">
+      <div class="stat-card" onclick="navigateTo('people')">
         <div class="stat-info">
-          <h3>LTCATs Registrados</h3>
-          <div class="stat-number" id="count-ltcats">0</div>
-          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
+          <h3>Trabalhadores Ativos</h3>
+          <div class="stat-number" id="count-trabalhadores">0</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados do banco</div>
         </div>
         <div class="stat-icon blue"><i class="fas fa-file-contract"></i></div>
       </div>
       <div class="stat-card" onclick="navigateTo('risks')">
         <div class="stat-info">
-          <h3>PGRs Ativos</h3>
+          <h3>PGRs Vigentes</h3>
           <div class="stat-number" id="count-pgrs">0</div>
-          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados do banco</div>
         </div>
         <div class="stat-icon green"><i class="fas fa-shield-alt"></i></div>
       </div>
@@ -1009,7 +999,7 @@
         <div class="stat-info">
           <h3>Treinamentos</h3>
           <div class="stat-number" id="count-treinamentos">0</div>
-          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados do banco</div>
         </div>
         <div class="stat-icon purple"><i class="fas fa-graduation-cap"></i></div>
       </div>
@@ -1017,7 +1007,7 @@
         <div class="stat-info">
           <h3>NCs Abertas</h3>
           <div class="stat-number" id="count-ncs">0</div>
-          <div class="stat-change negative"><i class="fas fa-database"></i> Dados reais da API</div>
+          <div class="stat-change negative"><i class="fas fa-database"></i> Dados do banco</div>
         </div>
         <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
       </div>
@@ -1025,23 +1015,23 @@
         <div class="stat-info">
           <h3>Ações em Aberto</h3>
           <div class="stat-number" id="count-acoes">0</div>
-          <div class="stat-change positive"><i class="fas fa-database"></i> Dados reais da API</div>
+          <div class="stat-change positive"><i class="fas fa-database"></i> Dados do banco</div>
         </div>
         <div class="stat-icon blue"><i class="fas fa-tasks"></i></div>
       </div>
       <div class="stat-card">
         <div class="stat-info">
           <h3>Riscos Críticos</h3>
-          <div class="stat-number">5</div>
-          <div class="stat-change negative"><i class="fas fa-arrow-up"></i> +2 novos</div>
+          <div class="stat-number">—</div>
+          <div class="stat-change"><i class="fas fa-tools"></i> Em desenvolvimento</div>
         </div>
         <div class="stat-icon yellow"><i class="fas fa-shield-alt"></i></div>
       </div>
       <div class="stat-card">
         <div class="stat-info">
           <h3>Dias sem Acidente</h3>
-          <div class="stat-number">127</div>
-          <div class="stat-change positive"><i class="fas fa-shield-alt"></i> Meta: 180</div>
+          <div class="stat-number">—</div>
+          <div class="stat-change"><i class="fas fa-tools"></i> Em desenvolvimento</div>
         </div>
         <div class="stat-icon kaiju"><i class="fas fa-hard-hat"></i></div>
       </div>
@@ -1053,41 +1043,32 @@
           <span class="compliance-title">ISO 9001:2015</span>
           <span class="compliance-iso iso-9001">Qualidade</span>
         </div>
-        <div class="progress-bar-container"><div class="progress-bar blue" style="width:94%"></div></div>
-        <div class="compliance-stats"><span>Conformidade</span><span class="compliance-percent">94%</span></div>
+        <div class="progress-bar-container"><div class="progress-bar blue" style="width:0%"></div></div>
+        <div class="compliance-stats"><span>Em desenvolvimento</span><span class="compliance-percent">—</span></div>
       </div>
       <div class="compliance-card">
         <div class="compliance-header">
           <span class="compliance-title">ISO 14001:2015</span>
           <span class="compliance-iso iso-14001">Meio Ambiente</span>
         </div>
-        <div class="progress-bar-container"><div class="progress-bar green" style="width:87%"></div></div>
-        <div class="compliance-stats"><span>Conformidade</span><span class="compliance-percent">87%</span></div>
+        <div class="progress-bar-container"><div class="progress-bar green" style="width:0%"></div></div>
+        <div class="compliance-stats"><span>Em desenvolvimento</span><span class="compliance-percent">—</span></div>
       </div>
       <div class="compliance-card">
         <div class="compliance-header">
           <span class="compliance-title">ISO 45001:2018</span>
           <span class="compliance-iso iso-45001">SSO</span>
         </div>
-        <div class="progress-bar-container"><div class="progress-bar orange" style="width:91%"></div></div>
-        <div class="compliance-stats"><span>Conformidade</span><span class="compliance-percent">91%</span></div>
+        <div class="progress-bar-container"><div class="progress-bar orange" style="width:0%"></div></div>
+        <div class="compliance-stats"><span>Em desenvolvimento</span><span class="compliance-percent">—</span></div>
       </div>
     </div>
 
     <div class="charts-grid">
       <div class="chart-card">
         <div class="chart-header">
-          <span class="chart-title">📊 Dados por Mês — API Real</span>
-          <div style="display:flex;gap:6px;">
-            <button class="btn-ano" data-ano="2025" onclick="filtrarAno(2025)"
-              style="padding:4px 10px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:white;font-size:0.78rem;cursor:pointer;">
-              2025
-            </button>
-            <button class="btn-ano" data-ano="2024" onclick="filtrarAno(2024)"
-              style="padding:4px 10px;border:1px solid var(--gray-200);border-radius:6px;background:white;font-size:0.78rem;cursor:pointer;">
-              2024
-            </button>
-          </div>
+          <span class="chart-title">📊 Registros por Mês</span>
+          <div id="anos-grafico" style="display:flex;gap:6px;"></div>
         </div>
         <div class="chart-container"><canvas id="ncChart"></canvas></div>
       </div>
@@ -1101,79 +1082,28 @@
       <div class="chart-card">
         <div class="chart-header">
           <span class="chart-title">🕐 Atividades Recentes</span>
-          <button class="btn btn-outline" style="padding:5px 12px;font-size:0.78rem;">Ver todas</button>
         </div>
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-dot red"></div>
-            <div class="timeline-content">
-              <div class="timeline-title">API Conectada com Sucesso</div>
-              <div class="timeline-desc">Backend rodando em https://kaiju-sgi-api.onrender.com</div>
-              <div class="timeline-time"><i class="fas fa-clock"></i> Agora — Sistema</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-dot green"></div>
-            <div class="timeline-content">
-              <div class="timeline-title">Seed de Dados Carregado</div>
-              <div class="timeline-desc">12 NCs · 14 Ações · 8 ASOs · 5 LTCATs · 6 PGRs · 8 Treinamentos</div>
-              <div class="timeline-time"><i class="fas fa-clock"></i> Há 1 min — Sistema</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-dot blue"></div>
-            <div class="timeline-content">
-              <div class="timeline-title">Dashboard Atualizado</div>
-              <div class="timeline-desc">Gráficos e contadores conectados à API em tempo real</div>
-              <div class="timeline-time"><i class="fas fa-clock"></i> Há 2 min — Sistema</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-dot yellow"></div>
-            <div class="timeline-content">
-              <div class="timeline-title">3 NCs Abertas Aguardando Tratativa</div>
-              <div class="timeline-desc">PCMSO desatualizado · Escada sem corrimão · NR-35 vencida</div>
-              <div class="timeline-time"><i class="fas fa-clock"></i> Pendente — Ação necessária</div>
-            </div>
-          </div>
-        </div>
+        <div class="timeline" id="timeline-recente"></div>
       </div>
       <div class="chart-card">
-        <div class="chart-header"><span class="chart-title">🎯 Status da API</span></div>
+        <div class="chart-header"><span class="chart-title">🔐 Sessão</span></div>
         <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Backend (Render)</span>
-              <span style="font-weight:700;color:var(--secondary);">🟢 Online</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--gray-500);">https://kaiju-sgi-api.onrender.com</div>
+            <div style="font-weight:600;font-size:0.88rem;margin-bottom:6px;">Usuário</div>
+            <div style="font-size:0.8rem;color:var(--gray-500);" id="sessao-usuario">—</div>
           </div>
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Frontend (Vercel)</span>
-              <span style="font-weight:700;color:var(--secondary);">🟢 Online</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--gray-500);">https://kaiju-sgi.vercel.app</div>
+            <div style="font-weight:600;font-size:0.88rem;margin-bottom:6px;">Empresa e papel</div>
+            <div style="font-size:0.8rem;color:var(--gray-500);" id="sessao-empresa">—</div>
           </div>
           <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">Banco de Dados</span>
-              <span style="font-weight:700;color:var(--warning);">🟡 Memória</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--gray-500);">Arrays em memória — migrar para PostgreSQL</div>
-          </div>
-          <div style="padding:14px;background:var(--gray-100);border-radius:10px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-weight:600;font-size:0.88rem;">GitHub</span>
-              <span style="font-weight:700;color:var(--primary);">🔵 Conectado</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--gray-500);">dllifilho-debug/kaiju-sgi-api</div>
+            <div style="font-weight:600;font-size:0.88rem;margin-bottom:6px;">Banco de dados</div>
+            <div style="font-size:0.8rem;color:var(--gray-500);" id="sessao-banco">—</div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
   <!-- ==================== MÓDULOS ==================== -->
   <div class="page-section" id="page-modules">
     <div class="page-header">
@@ -1182,7 +1112,7 @@
     <div class="modules-grid">
       <div class="module-card" onclick="navigateTo('documents')">
         <div class="module-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fas fa-file-alt"></i></div>
-        <h3>Documentos</h3><p>Controle de documentos e registros</p><div class="module-count">356</div>
+        <h3>Documentos</h3><p>Controle de documentos e registros</p><div class="module-count">—</div>
       </div>
       <div class="module-card" onclick="navigateTo('nc')">
         <div class="module-icon" style="background:#fce4ec;color:#c62828;"><i class="fas fa-exclamation-triangle"></i></div>
@@ -1194,15 +1124,15 @@
       </div>
       <div class="module-card" onclick="navigateTo('audits')">
         <div class="module-icon" style="background:#fff3e0;color:#e65100;"><i class="fas fa-clipboard-check"></i></div>
-        <h3>Auditorias</h3><p>Planejamento e execução</p><div class="module-count">24</div>
+        <h3>Auditorias</h3><p>Planejamento e execução</p><div class="module-count">—</div>
       </div>
       <div class="module-card" onclick="navigateTo('risks')">
         <div class="module-icon" style="background:#fef7e0;color:#f9a825;"><i class="fas fa-shield-alt"></i></div>
-        <h3>Gestão de Riscos</h3><p>Matriz de riscos e oportunidades</p><div class="module-count">32</div>
+        <h3>Gestão de Riscos</h3><p>Matriz de riscos e oportunidades</p><div class="module-count">—</div>
       </div>
       <div class="module-card" onclick="navigateTo('indicators')">
         <div class="module-icon" style="background:#e8eaf6;color:#3f51b5;"><i class="fas fa-chart-line"></i></div>
-        <h3>Indicadores KPIs</h3><p>Monitoramento e análise</p><div class="module-count">18</div>
+        <h3>Indicadores KPIs</h3><p>Monitoramento e análise</p><div class="module-count">—</div>
       </div>
       <div class="module-card" onclick="navigateTo('safety')">
         <div class="module-icon" style="background:#fff8e1;color:#ff6f00;"><i class="fas fa-hard-hat"></i></div>
@@ -1210,7 +1140,7 @@
       </div>
       <div class="module-card" onclick="navigateTo('environment')">
         <div class="module-icon" style="background:#e8f5e9;color:#1b5e20;"><i class="fas fa-leaf"></i></div>
-        <h3>Meio Ambiente</h3><p>Aspectos e impactos</p><div class="module-count">42</div>
+        <h3>Meio Ambiente</h3><p>Aspectos e impactos</p><div class="module-count">—</div>
       </div>
       <div class="module-card" onclick="navigateTo('training')">
         <div class="module-icon" style="background:#f3e5f5;color:#6a1b9a;"><i class="fas fa-graduation-cap"></i></div>
@@ -1218,7 +1148,7 @@
       </div>
       <div class="module-card" onclick="navigateTo('people')">
         <div class="module-icon" style="background:#e0f2f1;color:#00695c;"><i class="fas fa-users"></i></div>
-        <h3>Colaboradores</h3><p>Gestão de pessoas SGI</p><div class="module-count">245</div>
+        <h3>Colaboradores</h3><p>Gestão de pessoas SGI</p><div class="module-count">—</div>
       </div>
     </div>
   </div>
@@ -1275,7 +1205,7 @@
         <tbody id="nc-table-body">
           <tr>
             <td colspan="9" style="text-align:center;padding:30px;color:var(--gray-500);">
-              <i class="fas fa-spinner fa-spin"></i> Carregando dados da API...
+              <i class="fas fa-spinner fa-spin"></i> Carregando...
             </td>
           </tr>
         </tbody>
@@ -1350,11 +1280,12 @@
         <button class="btn btn-primary"><i class="fas fa-plus"></i> Novo Risco</button>
       </div>
     </div>
+    <div class="em-dev"><i class="fas fa-tools"></i> <div><strong>Módulo em desenvolvimento.</strong> Os números desta tela aparecerão quando o módulo estiver conectado ao banco.</div></div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-info"><h3>Riscos Extremos</h3><div class="stat-number" style="color:#b71c1c">2</div></div><div class="stat-icon red"><i class="fas fa-skull-crossbones"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Riscos Altos</h3><div class="stat-number" style="color:#e65100">5</div></div><div class="stat-icon yellow"><i class="fas fa-exclamation-circle"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Riscos Moderados</h3><div class="stat-number" style="color:#f9a825">12</div></div><div class="stat-icon" style="background:#fff8e1;color:#f9a825;"><i class="fas fa-minus-circle"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Riscos Baixos</h3><div class="stat-number" style="color:var(--secondary)">13</div></div><div class="stat-icon green"><i class="fas fa-check-circle"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Riscos Extremos</h3><div class="stat-number" style="color:#b71c1c">—</div></div><div class="stat-icon red"><i class="fas fa-skull-crossbones"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Riscos Altos</h3><div class="stat-number" style="color:#e65100">—</div></div><div class="stat-icon yellow"><i class="fas fa-exclamation-circle"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Riscos Moderados</h3><div class="stat-number" style="color:#f9a825">—</div></div><div class="stat-icon" style="background:#fff8e1;color:#f9a825;"><i class="fas fa-minus-circle"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Riscos Baixos</h3><div class="stat-number" style="color:var(--secondary)">—</div></div><div class="stat-icon green"><i class="fas fa-check-circle"></i></div></div>
     </div>
   </div>
 
@@ -1366,6 +1297,7 @@
         <button class="btn btn-primary"><i class="fas fa-plus"></i> Novo Documento</button>
       </div>
     </div>
+    <div class="em-dev"><i class="fas fa-tools"></i> <div><strong>Módulo em desenvolvimento.</strong> Os números desta tela aparecerão quando o módulo estiver conectado ao banco.</div></div>
     <div class="table-card">
       <div class="table-header">
         <span class="table-title">Documentos Controlados</span>
@@ -1376,36 +1308,7 @@
           <tr><th>Código</th><th>Título</th><th>Tipo</th><th>Revisão</th><th>Norma</th><th>Status</th><th>Válido até</th><th>Ações</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>MQ-001</strong></td><td>Manual da Qualidade</td><td>Manual</td><td>Rev. 05</td>
-            <td><span class="compliance-iso iso-9001">9001</span></td>
-            <td><span class="status-badge completed"><span class="status-dot"></span>Vigente</span></td>
-            <td>15/12/2025</td>
-            <td class="table-actions-cell">
-              <button class="action-btn"><i class="fas fa-eye"></i></button>
-              <button class="action-btn"><i class="fas fa-download"></i></button>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>POP-QUA-015</strong></td><td>Procedimento de Controle de Qualidade</td><td>POP</td><td>Rev. 03</td>
-            <td><span class="compliance-iso iso-9001">9001</span></td>
-            <td><span class="status-badge completed"><span class="status-dot"></span>Vigente</span></td>
-            <td>20/11/2025</td>
-            <td class="table-actions-cell">
-              <button class="action-btn"><i class="fas fa-eye"></i></button>
-              <button class="action-btn"><i class="fas fa-download"></i></button>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>PGR-001</strong></td><td>Programa de Gerenciamento de Riscos</td><td>PGR</td><td>Rev. 02</td>
-            <td><span class="compliance-iso iso-45001">45001</span></td>
-            <td><span class="status-badge completed"><span class="status-dot"></span>Vigente</span></td>
-            <td>15/01/2026</td>
-            <td class="table-actions-cell">
-              <button class="action-btn"><i class="fas fa-eye"></i></button>
-              <button class="action-btn"><i class="fas fa-download"></i></button>
-            </td>
-          </tr>
+          <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--gray-500);">Nenhum documento cadastrado.</td></tr>
         </tbody>
       </table>
     </div>
@@ -1417,11 +1320,12 @@
       <div class="page-title"><h1>🔍 Gestão de Auditorias</h1><p>Planejamento, execução e acompanhamento</p></div>
       <div class="page-actions"><button class="btn btn-primary"><i class="fas fa-plus"></i> Nova Auditoria</button></div>
     </div>
+    <div class="em-dev"><i class="fas fa-tools"></i> <div><strong>Módulo em desenvolvimento.</strong> Os números desta tela aparecerão quando o módulo estiver conectado ao banco.</div></div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-info"><h3>Planejadas</h3><div class="stat-number">6</div></div><div class="stat-icon blue"><i class="fas fa-calendar"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Em Execução</h3><div class="stat-number">2</div></div><div class="stat-icon yellow"><i class="fas fa-play-circle"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Concluídas</h3><div class="stat-number">18</div></div><div class="stat-icon green"><i class="fas fa-check-double"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Achados</h3><div class="stat-number">34</div></div><div class="stat-icon red"><i class="fas fa-search-plus"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Planejadas</h3><div class="stat-number">—</div></div><div class="stat-icon blue"><i class="fas fa-calendar"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Em Execução</h3><div class="stat-number">—</div></div><div class="stat-icon yellow"><i class="fas fa-play-circle"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Concluídas</h3><div class="stat-number">—</div></div><div class="stat-icon green"><i class="fas fa-check-double"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Achados</h3><div class="stat-number">—</div></div><div class="stat-icon red"><i class="fas fa-search-plus"></i></div></div>
     </div>
   </div>
 
@@ -1430,28 +1334,18 @@
     <div class="page-header">
       <div class="page-title"><h1>📈 Indicadores (KPIs)</h1><p>Monitoramento de desempenho do SGI</p></div>
     </div>
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-header"><span class="chart-title">Tendência de Indicadores</span></div>
-        <div class="chart-container"><canvas id="kpiChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header"><span class="chart-title">Performance por Área</span></div>
-        <div class="chart-container"><canvas id="areaChart"></canvas></div>
-      </div>
-    </div>
+    <div class="em-dev"><i class="fas fa-tools"></i> <div><strong>Módulo em desenvolvimento.</strong> Os números desta tela aparecerão quando o módulo estiver conectado ao banco.</div></div>
   </div>
-
   <!-- ==================== SEGURANÇA ==================== -->
   <div class="page-section" id="page-safety">
     <div class="page-header">
       <div class="page-title"><h1>🦺 Segurança do Trabalho</h1><p>SSO, NRs, APR, Permissões de Trabalho</p></div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-info"><h3>Dias sem Acidente</h3><div class="stat-number" style="color:var(--secondary)">127</div></div><div class="stat-icon green"><i class="fas fa-shield-alt"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Dias sem Acidente</h3><div class="stat-number" style="color:var(--secondary)">—</div></div><div class="stat-icon green"><i class="fas fa-shield-alt"></i></div></div>
       <div class="stat-card"><div class="stat-info"><h3>ASOs Realizados</h3><div class="stat-number" id="safety-asos">0</div></div><div class="stat-icon blue"><i class="fas fa-file-medical"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>LTCATs Registrados</h3><div class="stat-number" id="safety-ltcats">0</div></div><div class="stat-icon red"><i class="fas fa-file-contract"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>PGRs Ativos</h3><div class="stat-number" id="safety-pgrs">0</div></div><div class="stat-icon yellow"><i class="fas fa-shield-alt"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>ASOs a Vencer (30 dias)</h3><div class="stat-number" id="safety-asos-vencendo">0</div></div><div class="stat-icon red"><i class="fas fa-file-contract"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>PGRs Vigentes</h3><div class="stat-number" id="safety-pgrs">0</div></div><div class="stat-icon yellow"><i class="fas fa-shield-alt"></i></div></div>
     </div>
   </div>
 
@@ -1460,11 +1354,12 @@
     <div class="page-header">
       <div class="page-title"><h1>🌿 Gestão Ambiental</h1><p>Aspectos, impactos ambientais e licenças</p></div>
     </div>
+    <div class="em-dev"><i class="fas fa-tools"></i> <div><strong>Módulo em desenvolvimento.</strong> Os números desta tela aparecerão quando o módulo estiver conectado ao banco.</div></div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-info"><h3>Aspectos Significativos</h3><div class="stat-number">15</div></div><div class="stat-icon yellow"><i class="fas fa-leaf"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Licenças Ativas</h3><div class="stat-number">8</div></div><div class="stat-icon green"><i class="fas fa-certificate"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Resíduos (ton/mês)</h3><div class="stat-number">23.5</div></div><div class="stat-icon blue"><i class="fas fa-recycle"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Água (m³/mês)</h3><div class="stat-number">450</div></div><div class="stat-icon" style="background:#e0f7fa;color:#006064;"><i class="fas fa-tint"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Aspectos Significativos</h3><div class="stat-number">—</div></div><div class="stat-icon yellow"><i class="fas fa-leaf"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Licenças Ativas</h3><div class="stat-number">—</div></div><div class="stat-icon green"><i class="fas fa-certificate"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Resíduos (ton/mês)</h3><div class="stat-number">—</div></div><div class="stat-icon blue"><i class="fas fa-recycle"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Água (m³/mês)</h3><div class="stat-number">—</div></div><div class="stat-icon" style="background:#e0f7fa;color:#006064;"><i class="fas fa-tint"></i></div></div>
     </div>
   </div>
 
@@ -1476,8 +1371,8 @@
     </div>
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-info"><h3>Total de Treinamentos</h3><div class="stat-number" id="training-total">0</div></div><div class="stat-icon blue"><i class="fas fa-graduation-cap"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Concluídos</h3><div class="stat-number" id="training-concluidos">0</div></div><div class="stat-icon green"><i class="fas fa-check"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Agendados</h3><div class="stat-number" id="training-agendados">0</div></div><div class="stat-icon yellow"><i class="fas fa-calendar-alt"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Válidos</h3><div class="stat-number" id="training-concluidos">0</div></div><div class="stat-icon green"><i class="fas fa-check"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Vencidos</h3><div class="stat-number" id="training-vencidos">0</div></div><div class="stat-icon yellow"><i class="fas fa-calendar-alt"></i></div></div>
       <div class="stat-card"><div class="stat-info"><h3>Horas de Treinamento</h3><div class="stat-number" id="training-horas">0</div></div><div class="stat-icon purple"><i class="fas fa-clock"></i></div></div>
     </div>
     <div class="table-card">
@@ -1493,14 +1388,14 @@
             <th>Carga Horária</th>
             <th>Data</th>
             <th>Vencimento</th>
-            <th>Participantes</th>
+            <th>Trabalhador</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody id="treinamentos-table-body">
           <tr>
             <td colspan="7" style="text-align:center;padding:30px;color:var(--gray-500);">
-              <i class="fas fa-spinner fa-spin"></i> Carregando dados da API...
+              <i class="fas fa-spinner fa-spin"></i> Carregando...
             </td>
           </tr>
         </tbody>
@@ -1514,10 +1409,10 @@
       <div class="page-title"><h1>👥 Colaboradores</h1><p>Cadastro e competências dos colaboradores</p></div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-info"><h3>Total Colaboradores</h3><div class="stat-number">245</div></div><div class="stat-icon blue"><i class="fas fa-users"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Auditores Internos</h3><div class="stat-number">12</div></div><div class="stat-icon green"><i class="fas fa-user-check"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>ASOs Vencendo</h3><div class="stat-number">5</div></div><div class="stat-icon red"><i class="fas fa-id-card"></i></div></div>
-      <div class="stat-card"><div class="stat-info"><h3>Setores</h3><div class="stat-number">8</div></div><div class="stat-icon yellow"><i class="fas fa-building"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Trabalhadores Ativos</h3><div class="stat-number" id="pessoas-total">0</div></div><div class="stat-icon blue"><i class="fas fa-users"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Auditores Internos</h3><div class="stat-number">—</div></div><div class="stat-icon green"><i class="fas fa-user-check"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>ASOs a Vencer (30 dias)</h3><div class="stat-number" id="pessoas-asos-vencendo">0</div></div><div class="stat-icon red"><i class="fas fa-id-card"></i></div></div>
+      <div class="stat-card"><div class="stat-info"><h3>Setores</h3><div class="stat-number">—</div></div><div class="stat-icon yellow"><i class="fas fa-building"></i></div></div>
     </div>
   </div>
 
@@ -1526,21 +1421,22 @@
     <div class="page-header">
       <div class="page-title"><h1>⚖️ Compliance & Legislação</h1><p>Requisitos legais e outros requisitos aplicáveis</p></div>
     </div>
+    <div class="em-dev"><i class="fas fa-tools"></i> <div><strong>Módulo em desenvolvimento.</strong> Os números desta tela aparecerão quando o módulo estiver conectado ao banco.</div></div>
     <div class="compliance-grid">
       <div class="compliance-card">
         <div class="compliance-header"><span class="compliance-title">Requisitos Legais</span><span class="compliance-iso iso-9001">Qualidade</span></div>
-        <div class="progress-bar-container"><div class="progress-bar blue" style="width:96%"></div></div>
-        <div class="compliance-stats"><span>Atendimento</span><span class="compliance-percent">96%</span></div>
+        <div class="progress-bar-container"><div class="progress-bar blue" style="width:0%"></div></div>
+        <div class="compliance-stats"><span>Atendimento</span><span class="compliance-percent">—</span></div>
       </div>
       <div class="compliance-card">
         <div class="compliance-header"><span class="compliance-title">Licenças Ambientais</span><span class="compliance-iso iso-14001">Ambiental</span></div>
-        <div class="progress-bar-container"><div class="progress-bar green" style="width:100%"></div></div>
-        <div class="compliance-stats"><span>Atendimento</span><span class="compliance-percent">100%</span></div>
+        <div class="progress-bar-container"><div class="progress-bar green" style="width:0%"></div></div>
+        <div class="compliance-stats"><span>Atendimento</span><span class="compliance-percent">—</span></div>
       </div>
       <div class="compliance-card">
         <div class="compliance-header"><span class="compliance-title">NRs Aplicáveis</span><span class="compliance-iso iso-45001">SSO</span></div>
-        <div class="progress-bar-container"><div class="progress-bar orange" style="width:89%"></div></div>
-        <div class="compliance-stats"><span>Atendimento</span><span class="compliance-percent">89%</span></div>
+        <div class="progress-bar-container"><div class="progress-bar orange" style="width:0%"></div></div>
+        <div class="compliance-stats"><span>Atendimento</span><span class="compliance-percent">—</span></div>
       </div>
     </div>
   </div>
@@ -1550,6 +1446,7 @@
     <div class="page-header">
       <div class="page-title"><h1>📊 Relatórios</h1><p>Relatórios gerenciais e análise crítica</p></div>
     </div>
+    <div class="em-dev"><i class="fas fa-tools"></i> <div><strong>Módulo em desenvolvimento.</strong> Os números desta tela aparecerão quando o módulo estiver conectado ao banco.</div></div>
     <div class="modules-grid">
       <div class="module-card"><div class="module-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fas fa-chart-bar"></i></div><h3>Análise Crítica</h3><p>Relatório para RAC</p></div>
       <div class="module-card"><div class="module-icon" style="background:#fce4ec;color:#c62828;"><i class="fas fa-file-pdf"></i></div><h3>Relatório de NCs</h3><p>Consolidado mensal</p></div>
@@ -1567,19 +1464,19 @@
       <h3 style="margin-bottom:20px;">Dados da Empresa</h3>
       <div class="form-group" style="margin-bottom:16px;">
         <label style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">Nome da Empresa</label>
-        <input type="text" value="SECONCI" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+        <input type="text" id="cfg-razao" readonly style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
       </div>
       <div class="form-row">
         <div class="form-group">
           <label style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">CNPJ</label>
-          <input type="text" value="12.345.678/0001-90" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <input type="text" id="cfg-cnpj" readonly style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
         <div class="form-group">
-          <label style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">Representante da Direção</label>
-          <input type="text" value="Admin KAIJU" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <label style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">Seu papel nesta empresa</label>
+          <input type="text" id="cfg-papel" readonly style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
       </div>
-      <button class="btn btn-primary"><i class="fas fa-save"></i> Salvar Configurações</button>
+      <p style="font-size:0.8rem;color:var(--gray-500);">Alteração dos dados da empresa: em desenvolvimento.</p>
     </div>
   </div>
 
@@ -1615,12 +1512,11 @@
         <div class="form-group">
           <label>Origem</label>
           <select id="nc-origem" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-            <option value="auditoria">Auditoria Interna</option>
-            <option value="auditoria">Auditoria Externa</option>
-            <option value="reclamacao">Reclamação de Cliente</option>
-            <option value="inspecao">Inspeção de Processo</option>
-            <option value="inspecao">Inspeção de SSO</option>
-            <option value="acidente">Acidente / Incidente</option>
+            <option value="inspecao">Inspeção</option>
+            <option value="auditoria_nr">Auditoria de NR</option>
+            <option value="auditoria_iso">Auditoria ISO</option>
+            <option value="incidente">Acidente / Incidente</option>
+            <option value="outro">Outro</option>
           </select>
         </div>
         <div class="form-group">
@@ -1637,15 +1533,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>Responsável</label>
-          <select id="nc-responsavel" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-            <option>Lucia Mendes</option>
-            <option>João Ferreira</option>
-            <option>Ana Costa</option>
-            <option>Carlos Silva</option>
-            <option>Roberto Alves</option>
-            <option>Fernanda Lima</option>
-            <option>Maria Oliveira</option>
-          </select>
+          <input type="text" id="nc-responsavel" placeholder="Nome do responsável" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
         <div class="form-group">
           <label>Gravidade</label>
@@ -1684,15 +1572,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>QUEM? (Who) — Responsável</label>
-          <select id="acao-responsavel" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
-            <option>Lucia Mendes</option>
-            <option>João Ferreira</option>
-            <option>Ana Costa</option>
-            <option>Carlos Silva</option>
-            <option>Roberto Alves</option>
-            <option>Fernanda Lima</option>
-            <option>Maria Oliveira</option>
-          </select>
+          <input type="text" id="acao-responsavel" placeholder="Nome do responsável" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
         </div>
         <div class="form-group">
           <label>QUANDO? (When) — Prazo</label>
@@ -1730,7 +1610,7 @@
         </div>
         <div class="form-group">
           <label>NC Vinculada (opcional)</label>
-          <input type="number" id="acao-ncid" placeholder="ID da NC (ex: 1)" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+          <select id="acao-ncid" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;"><option value="">— nenhuma —</option></select>
         </div>
       </div>
     </div>
@@ -1771,259 +1651,362 @@
 <!-- ==================== JAVASCRIPT ==================== -->
 <script>
 // ============================================
-// 🔌 KAIJU SGI — JavaScript Completo v2.0
+// 🔌 KAIJU SGI — JavaScript v3 (Supabase)
 // ============================================
-const API_URL = 'https://kaiju-sgi-api.onrender.com';
+// A chave publishable é pública por desenho: o isolamento entre empresas é feito pela RLS
+// no banco (supabase/migrations). Filtrar por empresa_id aqui é só para a tela.
+const SUPABASE_URL = 'https://rrleosgoxebbxmkgxpwz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_U5JhospTixr9utKq85Jkqg_bevQXxJo';
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-// ── Helpers de API ───────────────────────────
-async function apiGet(endpoint) {
-  try {
-    const res  = await fetch(`${API_URL}${endpoint}`);
-    const json = await res.json();
-    return json.data !== undefined ? json.data : json;
-  } catch (err) {
-    console.error('Erro API GET:', endpoint, err);
-    return [];
-  }
-}
-
-async function apiPost(endpoint, body) {
-  try {
-    const res = await fetch(`${API_URL}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    return await res.json();
-  } catch (err) {
-    console.error('Erro API POST:', endpoint, err);
-    return null;
-  }
-}
-
-// ── Dados globais ─────────────────────────────
-let dadosGlobais = {
-  asos: [], ltcats: [], pgrs: [],
-  treinamentos: [], ncs: [], acoes: []
+const PAPEIS = {
+  admin: 'Administrador',
+  tecnico_sst: 'Técnico de SST',
+  medico: 'Médico do Trabalho',
+  cliente_leitura: 'Cliente (leitura)'
 };
+const NC_STATUS = {
+  aberta:        { cls: 'open',      label: 'Aberta' },
+  em_tratamento: { cls: 'progress',  label: 'Em tratamento' },
+  encerrada:     { cls: 'completed', label: 'Encerrada' },
+  cancelada:     { cls: 'pending',   label: 'Cancelada' }
+};
+const NC_ORIGEM = {
+  auditoria_nr:  { cls: 'iso-45001', label: 'Auditoria NR' },
+  auditoria_iso: { cls: 'iso-9001',  label: 'Auditoria ISO' },
+  inspecao:      { cls: 'iso-45001', label: 'Inspeção' },
+  incidente:     { cls: 'iso-45001', label: 'Incidente' },
+  outro:         { cls: 'iso-14001', label: 'Outro' }
+};
+const SEVERIDADE = {
+  baixa:   { cls: 'completed', label: 'Baixa' },
+  media:   { cls: 'progress',  label: 'Média' },
+  alta:    { cls: 'open',      label: 'Alta' },
+  critica: { cls: 'critical',  label: 'Crítica' }
+};
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
-// ── Carregar todos os dados ───────────────────
-async function carregarTodosDados() {
-  const [asos, ltcats, pgrs, treinamentos, ncs, acoes] = await Promise.all([
-    apiGet('/api/asos'),
-    apiGet('/api/ltcats'),
-    apiGet('/api/pgrs'),
-    apiGet('/api/treinamentos'),
-    apiGet('/api/ncs'),
-    apiGet('/api/acoes')
-  ]);
-  dadosGlobais = { asos, ltcats, pgrs, treinamentos, ncs, acoes };
-  return dadosGlobais;
+let sessao = { usuario: null, vinculos: [], empresaId: null, papel: null };
+let dadosGlobais = vazio();
+
+function vazio() {
+  return { asos: [], pgrs: [], treinamentos: [], ncs: [], acoes: [], trabalhadores: 0 };
 }
 
-// ── Helper set element ────────────────────────
+// ── Utilidades ────────────────────────────────
+// Todo dado do banco passa por esc() antes de ir para innerHTML: o conteúdo é digitado
+// por usuários e a sessão fica no localStorage — XSS aqui seria roubo de sessão.
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
 function setEl(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
 }
 
-// ── Atualizar Dashboard ───────────────────────
-async function updateDashboardStats() {
-  await carregarTodosDados();
-  const { asos, ltcats, pgrs, treinamentos, ncs, acoes } = dadosGlobais;
+// Datas do banco vêm como 'AAAA-MM-DD'; ler por partes evita deslocamento de fuso.
+function fmtData(iso) {
+  if (!iso) return '—';
+  const [a, m, d] = String(iso).slice(0, 10).split('-');
+  return `${d}/${m}/${a}`;
+}
 
-  // Banner superior
-  setEl('stat-asos',   asos.length);
-  setEl('stat-ltcats', ltcats.length);
-  setEl('stat-pgrs',   pgrs.length);
+function fmtDataHora(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+}
 
-  // Cards dashboard
-  setEl('count-asos',         asos.length);
-  setEl('count-ltcats',       ltcats.length);
-  setEl('count-pgrs',         pgrs.length);
-  setEl('count-treinamentos', treinamentos.length);
-  setEl('count-ncs',          ncs.filter(n => n.status === 'aberta').length);
-  setEl('count-acoes',        acoes.filter(a => a.status !== 'concluida' && a.status !== 'cancelada').length);
+function hojeISO(deslocDias = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + deslocDias);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
-  // Módulos
-  setEl('mod-nc',       ncs.length);
-  setEl('mod-actions',  acoes.length);
-  setEl('mod-training', treinamentos.length);
-  setEl('mod-safety',   ltcats.length + pgrs.length);
+function codigoNC(id) {
+  return 'NC-' + String(id).slice(0, 6).toUpperCase();
+}
 
-  // Página Segurança
-  setEl('safety-asos',  asos.length);
-  setEl('safety-ltcats',ltcats.length);
-  setEl('safety-pgrs',  pgrs.length);
+function badge(map, chave) {
+  const { cls, label } = map[chave] || { cls: 'pending', label: chave || '—' };
+  return `<span class="status-badge ${cls}"><span class="status-dot"></span>${esc(label)}</span>`;
+}
 
-  // Página Treinamentos
-  setEl('training-total',     treinamentos.length);
-  setEl('training-concluidos',treinamentos.filter(t => t.status === 'concluido').length);
-  setEl('training-agendados', treinamentos.filter(t => t.status === 'agendado').length);
-  const totalHoras = treinamentos.reduce((acc, t) => acc + (t.cargaHoraria || 0), 0);
-  setEl('training-horas', totalHoras);
+function lerPreferencia(chave) {
+  try { return localStorage.getItem(chave); } catch { return null; }
+}
 
-  // Stats página NC
-  setEl('nc-stat-abertas',   ncs.filter(n => n.status === 'aberta').length);
-  setEl('nc-stat-andamento', ncs.filter(n => n.status === 'em_andamento').length);
-  setEl('nc-stat-concluidas',ncs.filter(n => n.status === 'concluida').length);
-  setEl('nc-stat-total',     ncs.length);
+function gravarPreferencia(chave, valor) {
+  try { localStorage.setItem(chave, valor); } catch { /* navegação privada: segue sem lembrar */ }
+}
 
-  // Badges sidebar
-  const badgeNc = document.getElementById('badge-nc');
-  if (badgeNc) badgeNc.textContent = ncs.filter(n => n.status === 'aberta').length;
+function podeEscreverSST() {
+  return sessao.papel === 'admin' || sessao.papel === 'tecnico_sst';
+}
 
-  const badgeAcoes = document.getElementById('badge-acoes');
-  if (badgeAcoes) badgeAcoes.textContent = acoes.filter(a =>
-    a.status === 'pendente' || a.status === 'em_andamento'
-  ).length;
+function traduzErroDb(error) {
+  if (!error) return 'Erro desconhecido.';
+  if (error.code === '42501') return 'Seu papel nesta empresa não permite esta operação.';
+  if (error.code === '23514') return 'Dados inválidos: confira as datas (o prazo não pode ser anterior à abertura).';
+  if (error.code === '23505') return 'Registro duplicado.';
+  return error.message || 'Erro desconhecido.';
+}
 
+function traduzErroAuth(error) {
+  const msg = (error && error.message) || '';
+  if (/invalid login credentials/i.test(msg)) return 'E-mail ou senha incorretos.';
+  if (/email not confirmed/i.test(msg)) return 'E-mail ainda não confirmado. Verifique sua caixa de entrada.';
+  if (/rate limit|too many/i.test(msg)) return 'Muitas tentativas. Aguarde alguns minutos.';
+  return 'Não foi possível entrar: ' + msg;
+}
+
+// ── Login / sessão ────────────────────────────
+function mostrarErroLogin(texto) {
+  const el = document.getElementById('loginErro');
+  el.textContent = texto;
+  el.style.display = texto ? 'block' : 'none';
+}
+
+function estadoBotaoLogin(carregando) {
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = carregando;
+  btn.innerHTML = carregando
+    ? '<i class="fas fa-spinner fa-spin"></i> &nbsp;Entrando...'
+    : '<i class="fas fa-dragon"></i> &nbsp;Entrar no KAIJU SGI';
+}
+
+async function doLogin() {
+  if (!sb) return;
+  const email = document.getElementById('loginEmail').value.trim();
+  const senha = document.getElementById('loginPassword').value;
+  mostrarErroLogin('');
+  if (!email || !senha) { mostrarErroLogin('Informe e-mail e senha.'); return; }
+
+  estadoBotaoLogin(true);
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error) {
+    estadoBotaoLogin(false);
+    mostrarErroLogin(traduzErroAuth(error));
+    return;
+  }
+  document.getElementById('loginPassword').value = '';
+  await entrarNoSistema(data.user);
+  estadoBotaoLogin(false);
+}
+
+async function entrarNoSistema(usuario) {
+  const { data, error } = await sb
+    .from('membros')
+    .select('empresa_id, papel, empresas(razao_social, cnpj)')
+    .eq('usuario_id', usuario.id);
+
+  if (error) {
+    mostrarErroLogin('Erro ao carregar seus vínculos: ' + traduzErroDb(error));
+    return;
+  }
+  // A RLS só devolve vínculos ativos em empresas ativas.
+  const vinculos = (data || []).filter(v => v.empresas);
+  if (vinculos.length === 0) {
+    await sb.auth.signOut();
+    mostrarErroLogin('Seu usuário não tem acesso a nenhuma empresa ativa. Fale com o administrador.');
+    return;
+  }
+
+  vinculos.sort((a, b) => a.empresas.razao_social.localeCompare(b.empresas.razao_social, 'pt-BR'));
+  const preferida = lerPreferencia('kaiju.empresa');
+  const escolhido = vinculos.find(v => v.empresa_id === preferida) || vinculos[0];
+
+  sessao = { usuario, vinculos, empresaId: escolhido.empresa_id, papel: escolhido.papel };
+  preencherCabecalho();
+  document.getElementById('loginScreen').classList.add('hidden');
+  await refreshData();
+}
+
+function preencherCabecalho() {
+  const email = sessao.usuario.email || '';
+  const vinculo = sessao.vinculos.find(v => v.empresa_id === sessao.empresaId);
+  setEl('userAvatar', email.slice(0, 2).toUpperCase() || '—');
+  setEl('userName', email);
+  setEl('userRole', PAPEIS[sessao.papel] || sessao.papel);
+
+  const sel = document.getElementById('empresaSelect');
+  sel.innerHTML = sessao.vinculos.map(v =>
+    `<option value="${esc(v.empresa_id)}"${v.empresa_id === sessao.empresaId ? ' selected' : ''}>${esc(v.empresas.razao_social)}</option>`
+  ).join('');
+  sel.disabled = sessao.vinculos.length < 2;
+
+  setEl('dash-empresa', vinculo ? vinculo.empresas.razao_social : '—');
+  setEl('sessao-usuario', email);
+  setEl('sessao-empresa', vinculo ? `${vinculo.empresas.razao_social} · ${PAPEIS[sessao.papel] || sessao.papel}` : '—');
+  const razao = document.getElementById('cfg-razao');
+  const cnpj  = document.getElementById('cfg-cnpj');
+  const papel = document.getElementById('cfg-papel');
+  if (razao) razao.value = vinculo ? vinculo.empresas.razao_social : '';
+  if (cnpj)  cnpj.value  = vinculo ? vinculo.empresas.cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5') : '';
+  if (papel) papel.value = PAPEIS[sessao.papel] || '';
+}
+
+async function trocarEmpresa(empresaId) {
+  const vinculo = sessao.vinculos.find(v => v.empresa_id === empresaId);
+  if (!vinculo) return;
+  sessao.empresaId = vinculo.empresa_id;
+  sessao.papel = vinculo.papel;
+  gravarPreferencia('kaiju.empresa', empresaId);
+  preencherCabecalho();
+  await refreshData();
+}
+
+async function logout() {
+  if (sb) await sb.auth.signOut();
+  sessao = { usuario: null, vinculos: [], empresaId: null, papel: null };
+  dadosGlobais = vazio();
+  if (chartNC)     { chartNC.destroy();     chartNC = null; }
+  if (chartStatus) { chartStatus.destroy(); chartStatus = null; }
+  document.getElementById('loginScreen').classList.remove('hidden');
+  mostrarErroLogin('');
+}
+
+// ── Carregar dados da empresa ativa ───────────
+async function carregarTodosDados() {
+  const emp = sessao.empresaId;
+  const q = (tabela, colunas, ordem) =>
+    sb.from(tabela).select(colunas).eq('empresa_id', emp).order(ordem, { ascending: false });
+
+  const [asos, pgrs, treinos, ncs, acoes, trab] = await Promise.all([
+    q('asos', 'id, trabalhador_id, tipo, data_exame, resultado, proximo_exame', 'data_exame'),
+    q('pgrs', 'id, versao, status, data_elaboracao, data_revisao_prevista', 'data_elaboracao'),
+    q('treinamentos_realizados',
+      'id, data_realizacao, valido_ate, instrutor, treinamentos(nome, nr_ref, carga_horaria_h), trabalhadores(nome)',
+      'data_realizacao'),
+    q('nao_conformidades',
+      'id, titulo, descricao, setor, origem, severidade, status, responsavel, prazo, data_identificacao, norma_ref, item_ref, created_at',
+      'data_identificacao'),
+    q('acoes', 'id, titulo, descricao, tipo, prioridade, setor, progresso, status, responsavel, prazo, nc_id, created_at',
+      'created_at'),
+    sb.from('trabalhadores').select('id', { count: 'exact', head: true })
+      .eq('empresa_id', emp).is('data_desligamento', null)
+  ]);
+
+  const falha = [asos, pgrs, treinos, ncs, acoes, trab].find(r => r.error);
+  if (falha) throw new Error(traduzErroDb(falha.error));
+
+  dadosGlobais = {
+    asos: asos.data, pgrs: pgrs.data, treinamentos: treinos.data,
+    ncs: ncs.data, acoes: acoes.data, trabalhadores: trab.count || 0
+  };
   return dadosGlobais;
 }
 
-// ── Agrupar por mês ───────────────────────────
-function agruparPorMes(lista, campoData, ano) {
+// Último ASO de cada trabalhador (lista já vem por data_exame desc) com próximo exame
+// até a data-limite — base: periodicidade do PCMSO (NR-7).
+function asosAVencer(diasAFrente) {
+  const limite = hojeISO(diasAFrente);
+  const vistos = new Set();
+  let n = 0;
+  for (const a of dadosGlobais.asos) {
+    if (vistos.has(a.trabalhador_id)) continue;
+    vistos.add(a.trabalhador_id);
+    if (a.proximo_exame && a.proximo_exame <= limite) n++;
+  }
+  return n;
+}
+
+function treinamentoVencido(t) {
+  return Boolean(t.valido_ate) && t.valido_ate < hojeISO();
+}
+
+// ── Contadores ────────────────────────────────
+function atualizarContadores() {
+  const { asos, pgrs, treinamentos, ncs, acoes, trabalhadores } = dadosGlobais;
+  const pgrsVigentes  = pgrs.filter(p => p.status === 'vigente').length;
+  const ncsAbertas    = ncs.filter(n => n.status === 'aberta').length;
+  const acoesEmAberto = acoes.filter(a => a.status === 'pendente' || a.status === 'em_andamento').length;
+  const vencendo30    = asosAVencer(30);
+  const vencidos      = treinamentos.filter(treinamentoVencido).length;
+
+  setEl('stat-asos', asos.length);
+  setEl('stat-trabalhadores', trabalhadores);
+  setEl('stat-pgrs', pgrs.length);
+
+  setEl('count-asos', asos.length);
+  setEl('count-trabalhadores', trabalhadores);
+  setEl('count-pgrs', pgrsVigentes);
+  setEl('count-treinamentos', treinamentos.length);
+  setEl('count-ncs', ncsAbertas);
+  setEl('count-acoes', acoesEmAberto);
+
+  setEl('mod-nc', ncs.length);
+  setEl('mod-actions', acoes.length);
+  setEl('mod-training', treinamentos.length);
+  setEl('mod-safety', asos.length + pgrs.length);
+
+  setEl('safety-asos', asos.length);
+  setEl('safety-asos-vencendo', vencendo30);
+  setEl('safety-pgrs', pgrsVigentes);
+
+  setEl('pessoas-total', trabalhadores);
+  setEl('pessoas-asos-vencendo', vencendo30);
+
+  setEl('training-total', treinamentos.length);
+  setEl('training-concluidos', treinamentos.length - vencidos);
+  setEl('training-vencidos', vencidos);
+  const horas = treinamentos.reduce((s, t) => s + Number(t.treinamentos?.carga_horaria_h || 0), 0);
+  setEl('training-horas', Number.isInteger(horas) ? horas : horas.toFixed(1));
+
+  setEl('nc-stat-abertas', ncsAbertas);
+  setEl('nc-stat-andamento', ncs.filter(n => n.status === 'em_tratamento').length);
+  setEl('nc-stat-concluidas', ncs.filter(n => n.status === 'encerrada').length);
+  setEl('nc-stat-total', ncs.length);
+
+  setEl('badge-nc', ncsAbertas);
+  setEl('badge-acoes', acoesEmAberto);
+}
+
+// ── Gráficos ──────────────────────────────────
+let chartNC = null;
+let chartStatus = null;
+let anoAtivo = new Date().getFullYear();
+
+function porMes(lista, campo, ano) {
   const meses = Array(12).fill(0);
-  lista.forEach(item => {
-    if (!item[campoData]) return;
-    const d = new Date(item[campoData]);
-    if (!ano || d.getFullYear() === parseInt(ano)) {
-      meses[d.getMonth()]++;
-    }
-  });
+  for (const item of lista) {
+    const v = item[campo];
+    if (v && Number(String(v).slice(0, 4)) === ano) meses[Number(String(v).slice(5, 7)) - 1]++;
+  }
   return meses;
 }
 
-// ── GRÁFICOS ──────────────────────────────────
-let chartNC     = null;
-let chartStatus = null;
-let anoAtivo    = 2025;
-
-async function initCharts() {
-  const { asos, treinamentos, ncs, acoes } = dadosGlobais;
-  const labels = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-
-  // ── Gráfico de Barras ──
-  const ncCtx = document.getElementById('ncChart');
-  if (ncCtx) {
-    if (chartNC) chartNC.destroy();
-    chartNC = new Chart(ncCtx.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'NCs Abertas',
-            data: agruparPorMes(ncs, 'dataAbertura', anoAtivo),
-            backgroundColor: 'rgba(234,67,53,0.15)',
-            borderColor: '#ea4335',
-            borderWidth: 2,
-            borderRadius: 6
-          },
-          {
-            label: 'ASOs Realizados',
-            data: agruparPorMes(asos, 'dataExame', anoAtivo),
-            backgroundColor: 'rgba(0,210,255,0.15)',
-            borderColor: '#00d2ff',
-            borderWidth: 2,
-            borderRadius: 6
-          },
-          {
-            label: 'Treinamentos',
-            data: agruparPorMes(treinamentos, 'dataRealizacao', anoAtivo),
-            backgroundColor: 'rgba(52,168,83,0.15)',
-            borderColor: '#34a853',
-            borderWidth: 2,
-            borderRadius: 6
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { stepSize: 1 } },
-          x: { grid: { display: false } }
-        }
-      }
-    });
-  }
-
-  // ── Gráfico de Rosca ──
-  const statusCtx = document.getElementById('statusChart');
-  if (statusCtx) {
-    if (chartStatus) chartStatus.destroy();
-    chartStatus = new Chart(statusCtx.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: [
-          'NCs Abertas','NCs Andamento','NCs Concluídas',
-          'Ações Pendentes','Ações Andamento','Ações Concluídas'
-        ],
-        datasets: [{
-          data: [
-            ncs.filter(n => n.status === 'aberta').length,
-            ncs.filter(n => n.status === 'em_andamento').length,
-            ncs.filter(n => n.status === 'concluida').length,
-            acoes.filter(a => a.status === 'pendente').length,
-            acoes.filter(a => a.status === 'em_andamento').length,
-            acoes.filter(a => a.status === 'concluida').length
-          ],
-          backgroundColor: ['#ea4335','#fbbc04','#34a853','#ff6b35','#4285f4','#00d2ff'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
-        cutout: '60%'
-      }
-    });
-  }
+function desenharAnos() {
+  const atual = new Date().getFullYear();
+  const el = document.getElementById('anos-grafico');
+  if (!el) return;
+  el.innerHTML = [atual, atual - 1].map(ano => {
+    const ativo = ano === anoAtivo;
+    return `<button class="btn-ano" onclick="filtrarAno(${ano})"
+      style="padding:4px 10px;border:1px solid ${ativo ? 'var(--primary)' : 'var(--gray-200)'};border-radius:6px;
+      background:${ativo ? 'var(--primary)' : 'white'};color:${ativo ? 'white' : 'var(--gray-700)'};
+      font-size:0.78rem;cursor:pointer;">${ano}</button>`;
+  }).join('');
 }
 
-// ── Filtrar por Ano ───────────────────────────
-function filtrarAno(ano) {
-  anoAtivo = ano;
-
-  document.querySelectorAll('.btn-ano').forEach(btn => {
-    const ativo = parseInt(btn.dataset.ano) === ano;
-    btn.style.background  = ativo ? 'var(--primary)' : 'white';
-    btn.style.color       = ativo ? 'white' : 'var(--gray-700)';
-    btn.style.borderColor = ativo ? 'var(--primary)' : 'var(--gray-200)';
-  });
-
+function desenharGraficoMensal() {
+  const ctx = document.getElementById('ncChart');
+  if (!ctx || typeof Chart === 'undefined') return;
   const { asos, treinamentos, ncs } = dadosGlobais;
-  const labels = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const ncCtx = document.getElementById('ncChart');
-  if (!ncCtx) return;
-
   if (chartNC) chartNC.destroy();
-  chartNC = new Chart(ncCtx.getContext('2d'), {
+  chartNC = new Chart(ctx.getContext('2d'), {
     type: 'bar',
     data: {
-      labels,
+      labels: MESES,
       datasets: [
-        {
-          label: 'NCs Abertas',
-          data: agruparPorMes(ncs, 'dataAbertura', ano),
-          backgroundColor: 'rgba(234,67,53,0.15)',
-          borderColor: '#ea4335', borderWidth: 2, borderRadius: 6
-        },
-        {
-          label: 'ASOs Realizados',
-          data: agruparPorMes(asos, 'dataExame', ano),
-          backgroundColor: 'rgba(0,210,255,0.15)',
-          borderColor: '#00d2ff', borderWidth: 2, borderRadius: 6
-        },
-        {
-          label: 'Treinamentos',
-          data: agruparPorMes(treinamentos, 'dataRealizacao', ano),
-          backgroundColor: 'rgba(52,168,83,0.15)',
-          borderColor: '#34a853', borderWidth: 2, borderRadius: 6
-        }
+        { label: 'NCs Registradas', data: porMes(ncs, 'data_identificacao', anoAtivo),
+          backgroundColor: 'rgba(234,67,53,0.15)', borderColor: '#ea4335', borderWidth: 2, borderRadius: 6 },
+        { label: 'ASOs Realizados', data: porMes(asos, 'data_exame', anoAtivo),
+          backgroundColor: 'rgba(0,210,255,0.15)', borderColor: '#00d2ff', borderWidth: 2, borderRadius: 6 },
+        { label: 'Treinamentos', data: porMes(treinamentos, 'data_realizacao', anoAtivo),
+          backgroundColor: 'rgba(52,168,83,0.15)', borderColor: '#34a853', borderWidth: 2, borderRadius: 6 }
       ]
     },
     options: {
@@ -2037,6 +2020,70 @@ function filtrarAno(ano) {
   });
 }
 
+function desenharGraficoStatus() {
+  const ctx = document.getElementById('statusChart');
+  if (!ctx || typeof Chart === 'undefined') return;
+  const { ncs, acoes } = dadosGlobais;
+  if (chartStatus) chartStatus.destroy();
+  chartStatus = new Chart(ctx.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['NCs Abertas', 'NCs em Tratamento', 'NCs Encerradas',
+               'Ações Pendentes', 'Ações em Andamento', 'Ações Concluídas'],
+      datasets: [{
+        data: [
+          ncs.filter(n => n.status === 'aberta').length,
+          ncs.filter(n => n.status === 'em_tratamento').length,
+          ncs.filter(n => n.status === 'encerrada').length,
+          acoes.filter(a => a.status === 'pendente').length,
+          acoes.filter(a => a.status === 'em_andamento').length,
+          acoes.filter(a => a.status === 'concluida').length
+        ],
+        backgroundColor: ['#ea4335', '#fbbc04', '#34a853', '#ff6b35', '#4285f4', '#00d2ff'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+      cutout: '60%'
+    }
+  });
+}
+
+function filtrarAno(ano) {
+  anoAtivo = ano;
+  desenharAnos();
+  desenharGraficoMensal();
+}
+
+// ── Atividades recentes ───────────────────────
+function renderTimeline() {
+  const el = document.getElementById('timeline-recente');
+  if (!el) return;
+  const itens = [
+    ...dadosGlobais.ncs.map(n => ({ quando: n.created_at, cor: 'red',
+      titulo: `NC registrada — ${n.titulo || n.descricao}`, desc: `${codigoNC(n.id)} · ${NC_STATUS[n.status]?.label || n.status}` })),
+    ...dadosGlobais.acoes.map(a => ({ quando: a.created_at, cor: 'blue',
+      titulo: `Ação criada — ${a.titulo || a.descricao}`, desc: `Status: ${a.status}` }))
+  ].sort((x, y) => String(y.quando).localeCompare(String(x.quando))).slice(0, 6);
+
+  if (itens.length === 0) {
+    el.innerHTML = `<div style="padding:20px;color:var(--gray-500);font-size:0.85rem;">
+      Nenhum registro ainda. Use o botão <strong>+</strong> para registrar a primeira NC.</div>`;
+    return;
+  }
+  el.innerHTML = itens.map(i => `
+    <div class="timeline-item">
+      <div class="timeline-dot ${i.cor}"></div>
+      <div class="timeline-content">
+        <div class="timeline-title">${esc(i.titulo)}</div>
+        <div class="timeline-desc">${esc(i.desc)}</div>
+        <div class="timeline-time"><i class="fas fa-clock"></i> ${esc(fmtDataHora(i.quando))}</div>
+      </div>
+    </div>`).join('');
+}
+
 // ── Tabela de NCs ─────────────────────────────
 function renderTabelaNCs(filtro = '') {
   const tbody = document.getElementById('nc-table-body');
@@ -2046,12 +2093,8 @@ function renderTabelaNCs(filtro = '') {
   if (filtro) {
     const f = filtro.toLowerCase();
     lista = lista.filter(nc =>
-      nc.titulo.toLowerCase().includes(f)      ||
-      nc.setor.toLowerCase().includes(f)       ||
-      nc.responsavel.toLowerCase().includes(f) ||
-      nc.status.toLowerCase().includes(f)      ||
-      nc.gravidade.toLowerCase().includes(f)
-    );
+      [nc.titulo, nc.descricao, nc.setor, nc.responsavel, nc.status, nc.severidade, nc.norma_ref]
+        .some(v => String(v || '').toLowerCase().includes(f)));
   }
 
   if (lista.length === 0) {
@@ -2059,99 +2102,63 @@ function renderTabelaNCs(filtro = '') {
     return;
   }
 
-  tbody.innerHTML = lista.map(nc => `
+  tbody.innerHTML = lista.map(nc => {
+    const origem = NC_ORIGEM[nc.origem] || { cls: 'iso-9001', label: nc.origem };
+    return `
     <tr>
-      <td><strong>NC-${String(nc.id).padStart(3,'0')}</strong></td>
-      <td>${nc.titulo}</td>
-      <td>${nc.setor}</td>
-      <td>${badgeOrigem(nc.origem)}</td>
-      <td>${badgeGravidade(nc.gravidade)}</td>
-      <td>${badgeStatusNC(nc.status)}</td>
-      <td>${nc.responsavel}</td>
-      <td>${nc.dataPrevista || '—'}</td>
+      <td><strong>${esc(codigoNC(nc.id))}</strong></td>
+      <td>${esc(nc.titulo || nc.descricao)}</td>
+      <td>${esc(nc.setor || '—')}</td>
+      <td><span class="compliance-iso ${origem.cls}">${esc(origem.label)}</span></td>
+      <td>${nc.severidade ? badge(SEVERIDADE, nc.severidade) : '—'}</td>
+      <td>${badge(NC_STATUS, nc.status)}</td>
+      <td>${esc(nc.responsavel || '—')}</td>
+      <td>${esc(fmtData(nc.prazo))}</td>
       <td class="table-actions-cell">
-        <button class="action-btn" onclick="verNC(${nc.id})" title="Ver detalhes">
-          <i class="fas fa-eye"></i>
-        </button>
-        <button class="action-btn" onclick="alterarStatusNC(${nc.id})" title="Alterar status">
-          <i class="fas fa-edit"></i>
-        </button>
+        <button class="action-btn" onclick="verNC('${esc(nc.id)}')" title="Ver detalhes"><i class="fas fa-eye"></i></button>
+        <button class="action-btn" onclick="alterarStatusNC('${esc(nc.id)}')" title="Alterar status"><i class="fas fa-edit"></i></button>
       </td>
-    </tr>
-  `).join('');
-}
-
-function badgeOrigem(origem) {
-  const cores  = { auditoria:'iso-9001', inspecao:'iso-45001', reclamacao:'iso-14001', acidente:'iso-45001' };
-  const labels = { auditoria:'Auditoria', inspecao:'Inspeção', reclamacao:'Reclamação', acidente:'Acidente' };
-  return `<span class="compliance-iso ${cores[origem]||'iso-9001'}">${labels[origem]||origem}</span>`;
-}
-
-function badgeGravidade(g) {
-  const map = {
-    baixa:  { cls:'completed', label:'Baixa' },
-    media:  { cls:'progress',  label:'Média' },
-    alta:   { cls:'open',      label:'Alta' },
-    critica:{ cls:'critical',  label:'Crítica' }
-  };
-  const { cls, label } = map[g] || { cls:'pending', label: g };
-  return `<span class="status-badge ${cls}"><span class="status-dot"></span>${label}</span>`;
-}
-
-function badgeStatusNC(status) {
-  const map = {
-    aberta:       { cls:'open',      label:'Aberta' },
-    em_andamento: { cls:'progress',  label:'Em andamento' },
-    concluida:    { cls:'completed', label:'Concluída' },
-    cancelada:    { cls:'pending',   label:'Cancelada' }
-  };
-  const { cls, label } = map[status] || { cls:'pending', label: status };
-  return `<span class="status-badge ${cls}"><span class="status-dot"></span>${label}</span>`;
+    </tr>`;
+  }).join('');
 }
 
 function verNC(id) {
   const nc = dadosGlobais.ncs.find(n => n.id === id);
   if (!nc) return;
+  const norma = [nc.norma_ref, nc.item_ref].filter(Boolean).join(' item ');
   alert(
-    `NC-${String(nc.id).padStart(3,'0')} — ${nc.titulo}\n\n` +
-    `Status: ${nc.status}\n` +
-    `Gravidade: ${nc.gravidade}\n` +
-    `Setor: ${nc.setor}\n` +
-    `Responsável: ${nc.responsavel}\n` +
-    `Abertura: ${nc.dataAbertura}\n` +
-    `Prevista: ${nc.dataPrevista || 'não definida'}\n\n` +
-    `${nc.observacoes || 'Sem observações'}`
+    `${codigoNC(nc.id)} — ${nc.titulo || nc.descricao}\n\n` +
+    `Status: ${NC_STATUS[nc.status]?.label || nc.status}\n` +
+    `Gravidade: ${SEVERIDADE[nc.severidade]?.label || '—'}\n` +
+    `Origem: ${NC_ORIGEM[nc.origem]?.label || nc.origem}\n` +
+    (norma ? `Referência: ${norma}\n` : '') +
+    `Setor: ${nc.setor || '—'}\n` +
+    `Responsável: ${nc.responsavel || '—'}\n` +
+    `Abertura: ${fmtData(nc.data_identificacao)}\n` +
+    `Prazo: ${fmtData(nc.prazo)}\n\n` +
+    `${nc.descricao || ''}`
   );
 }
 
 async function alterarStatusNC(id) {
   const nc = dadosGlobais.ncs.find(n => n.id === id);
   if (!nc) return;
-  const opcoes = ['aberta','em_andamento','concluida','cancelada'];
+  if (!podeEscreverSST()) { alert('Seu papel nesta empresa não permite alterar NCs.'); return; }
+  const opcoes = ['aberta', 'em_tratamento', 'encerrada', 'cancelada'];
   const escolha = prompt(
-    `NC-${String(nc.id).padStart(3,'0')}: ${nc.titulo}\n` +
-    `Status atual: ${nc.status}\n\n` +
-    `Novo status:\n0 - aberta\n1 - em_andamento\n2 - concluida\n3 - cancelada\n\nDigite o número:`
+    `${codigoNC(nc.id)}: ${nc.titulo || nc.descricao}\n` +
+    `Status atual: ${NC_STATUS[nc.status]?.label || nc.status}\n\n` +
+    `Novo status:\n0 - Aberta\n1 - Em tratamento\n2 - Encerrada\n3 - Cancelada\n\nDigite o número:`
   );
   if (escolha === null) return;
-  const novoStatus = opcoes[parseInt(escolha)];
-  if (!novoStatus) { alert('Opção inválida'); return; }
-  try {
-    const res = await fetch(`${API_URL}/api/ncs/${id}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: novoStatus })
-    });
-    const json = await res.json();
-    if (json.success) {
-      alert(`✅ Status atualizado para: ${novoStatus}`);
-      await updateDashboardStats();
-      renderTabelaNCs();
-      renderKanban();
-    }
-  } catch (err) {
-    alert('❌ Erro ao atualizar status');
-  }
+  const novo = opcoes[parseInt(escolha, 10)];
+  if (!novo) { alert('Opção inválida'); return; }
+
+  const { data, error } = await sb.from('nao_conformidades').update({ status: novo }).eq('id', id).select('id');
+  if (error) { alert('❌ ' + traduzErroDb(error)); return; }
+  // UPDATE barrado pela RLS não dá erro: volta 0 linhas.
+  if (!data || data.length === 0) { alert('❌ Nenhuma alteração: seu papel nesta empresa não permite alterar NCs.'); return; }
+  await refreshData();
 }
 
 // ── Tabela de Treinamentos ────────────────────
@@ -2163,10 +2170,8 @@ function renderTabelaTreinamentos(filtro = '') {
   if (filtro) {
     const f = filtro.toLowerCase();
     lista = lista.filter(t =>
-      t.titulo.toLowerCase().includes(f) ||
-      t.instrutor.toLowerCase().includes(f) ||
-      t.status.toLowerCase().includes(f)
-    );
+      [t.treinamentos?.nome, t.treinamentos?.nr_ref, t.instrutor, t.trabalhadores?.nome]
+        .some(v => String(v || '').toLowerCase().includes(f)));
   }
 
   if (lista.length === 0) {
@@ -2175,26 +2180,24 @@ function renderTabelaTreinamentos(filtro = '') {
   }
 
   tbody.innerHTML = lista.map(t => {
-    const statusCls = t.status === 'concluido' ? 'completed' : t.status === 'agendado' ? 'progress' : 'pending';
-    const statusLabel = t.status === 'concluido' ? 'Concluído' : t.status === 'agendado' ? 'Agendado' : t.status;
+    const vencido = treinamentoVencido(t);
+    const nome = [t.treinamentos?.nome, t.treinamentos?.nr_ref ? `(${t.treinamentos.nr_ref})` : ''].filter(Boolean).join(' ');
     return `
       <tr>
-        <td><strong>${t.titulo}</strong></td>
-        <td>${t.instrutor}</td>
-        <td>${t.cargaHoraria}h</td>
-        <td>${t.dataRealizacao || '—'}</td>
-        <td>${t.dataVencimento || '—'}</td>
-        <td>${t.participantes ? t.participantes.length : 0} participante(s)</td>
-        <td><span class="status-badge ${statusCls}"><span class="status-dot"></span>${statusLabel}</span></td>
-      </tr>
-    `;
+        <td><strong>${esc(nome || '—')}</strong></td>
+        <td>${esc(t.instrutor || '—')}</td>
+        <td>${t.treinamentos?.carga_horaria_h != null ? esc(t.treinamentos.carga_horaria_h) + 'h' : '—'}</td>
+        <td>${esc(fmtData(t.data_realizacao))}</td>
+        <td>${esc(fmtData(t.valido_ate))}</td>
+        <td>${esc(t.trabalhadores?.nome || '—')}</td>
+        <td><span class="status-badge ${vencido ? 'open' : 'completed'}"><span class="status-dot"></span>${vencido ? 'Vencido' : 'Válido'}</span></td>
+      </tr>`;
   }).join('');
 }
 
 // ── Kanban de Ações ───────────────────────────
 function renderKanban() {
   const { acoes } = dadosGlobais;
-
   const colunas = {
     pendente:     { el: 'kanban-pendente',  cor: '#e65100' },
     em_andamento: { el: 'kanban-andamento', cor: '#1565c0' },
@@ -2203,13 +2206,11 @@ function renderKanban() {
   };
 
   Object.entries(colunas).forEach(([status, cfg]) => {
-    const lista  = acoes.filter(a => a.status === status);
-    const colEl  = document.getElementById(cfg.el);
+    const lista = acoes.filter(a => a.status === status);
+    const colEl = document.getElementById(cfg.el);
     if (!colEl) return;
-
     const counter = colEl.querySelector('.kanban-count');
     if (counter) counter.textContent = lista.length;
-
     const cardsEl = colEl.querySelector('.kanban-cards');
     if (!cardsEl) return;
 
@@ -2219,187 +2220,167 @@ function renderKanban() {
     }
 
     cardsEl.innerHTML = lista.map(acao => {
-      const priorMap = {
-        alta:  { cls:'critical', label:'🔴 Alta' },
-        media: { cls:'open',     label:'🟡 Média' },
-        baixa: { cls:'completed',label:'🟢 Baixa' }
-      };
-      const prio = priorMap[acao.prioridade] || { cls:'pending', label: acao.prioridade };
-
+      const prio = SEVERIDADE[acao.prioridade];
+      const progresso = Number(acao.progresso || 0);
       return `
-        <div class="kanban-card" style="border-color:${cfg.cor};" onclick="verAcao(${acao.id})">
-          <div class="kanban-card-title">${acao.titulo}</div>
+        <div class="kanban-card" style="border-color:${cfg.cor};" onclick="verAcao('${esc(acao.id)}')">
+          <div class="kanban-card-title">${esc(acao.titulo || acao.descricao)}</div>
           <div style="font-size:0.75rem;color:var(--gray-500);margin:4px 0;">
-            ${acao.setor} · ${acao.responsavel}
+            ${esc(acao.setor || '—')} · ${esc(acao.responsavel || '—')}
           </div>
-          ${acao.progresso > 0 ? `
+          ${progresso > 0 ? `
             <div style="margin:8px 0 4px;">
               <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--gray-500);margin-bottom:4px;">
-                <span>Progresso</span><span>${acao.progresso}%</span>
+                <span>Progresso</span><span>${progresso}%</span>
               </div>
               <div style="background:var(--gray-200);border-radius:4px;height:4px;">
-                <div style="width:${acao.progresso}%;background:${cfg.cor};border-radius:4px;height:4px;transition:width 0.3s;"></div>
+                <div style="width:${progresso}%;background:${cfg.cor};border-radius:4px;height:4px;"></div>
               </div>
-            </div>
-          ` : ''}
+            </div>` : ''}
           <div class="kanban-card-meta">
-            <span>📅 ${acao.dataPrevista || '—'}</span>
-            <span class="status-badge ${prio.cls}" style="font-size:0.68rem;padding:2px 8px;">${prio.label}</span>
+            <span>📅 ${esc(fmtData(acao.prazo))}</span>
+            ${prio ? `<span class="status-badge ${prio.cls}" style="font-size:0.68rem;padding:2px 8px;">${esc(prio.label)}</span>` : ''}
           </div>
-        </div>
-      `;
+        </div>`;
     }).join('');
   });
 
-  // Stats do Kanban
-  setEl('kanban-stat-prazo',     acoes.filter(a => a.status === 'pendente' || a.status === 'em_andamento').length);
-  setEl('kanban-stat-atrasadas', acoes.filter(a => {
-    if (!a.dataPrevista || a.status === 'concluida' || a.status === 'cancelada') return false;
-    return new Date(a.dataPrevista) < new Date();
-  }).length);
+  const hoje = hojeISO();
+  setEl('kanban-stat-prazo', acoes.filter(a => a.status === 'pendente' || a.status === 'em_andamento').length);
+  setEl('kanban-stat-atrasadas', acoes.filter(a =>
+    a.prazo && a.prazo < hoje && a.status !== 'concluida' && a.status !== 'cancelada').length);
   setEl('kanban-stat-concluidas', acoes.filter(a => a.status === 'concluida').length);
-  setEl('kanban-stat-total',      acoes.length);
+  setEl('kanban-stat-total', acoes.length);
 }
 
 function verAcao(id) {
   const acao = dadosGlobais.acoes.find(a => a.id === id);
   if (!acao) return;
+  const nc = acao.nc_id ? dadosGlobais.ncs.find(n => n.id === acao.nc_id) : null;
   alert(
-    `Ação #${acao.id} — ${acao.titulo}\n\n` +
-    `Tipo: ${acao.tipo}\n` +
+    `${acao.titulo || acao.descricao}\n\n` +
+    `Tipo: ${acao.tipo || '—'}\n` +
     `Status: ${acao.status}\n` +
-    `Progresso: ${acao.progresso}%\n` +
-    `Setor: ${acao.setor}\n` +
-    `Responsável: ${acao.responsavel}\n` +
-    `Prevista: ${acao.dataPrevista || 'não definida'}\n\n` +
-    `${acao.observacoes || 'Sem observações'}`
+    `Progresso: ${acao.progresso || 0}%\n` +
+    `Setor: ${acao.setor || '—'}\n` +
+    `Responsável: ${acao.responsavel || '—'}\n` +
+    `Prazo: ${fmtData(acao.prazo)}\n` +
+    (nc ? `NC vinculada: ${codigoNC(nc.id)} — ${nc.titulo || nc.descricao}\n` : '') +
+    `\n${acao.descricao || ''}`
   );
 }
 
 // ── Salvar NC ─────────────────────────────────
-async function saveNC() {
-  const titulo      = document.getElementById('nc-titulo').value.trim();
-  const descricao   = document.getElementById('nc-descricao').value.trim();
-  const responsavel = document.getElementById('nc-responsavel').value;
-  const origem      = document.getElementById('nc-origem').value;
-  const setor       = document.getElementById('nc-setor').value;
-  const gravidade   = document.getElementById('nc-prioridade').value;
-  const dataPrev    = document.getElementById('nc-prazo').value;
+function valor(id) {
+  return document.getElementById(id).value.trim();
+}
 
+async function saveNC() {
+  if (!podeEscreverSST()) { alert('Seu papel nesta empresa não permite registrar NCs.'); return; }
+  const titulo = valor('nc-titulo');
   if (!titulo) { alert('⚠️ Preencha o título da NC'); return; }
 
-  const body = {
+  const linha = {
+    empresa_id:  sessao.empresaId,
     titulo,
-    descricao:    descricao || titulo,
-    tipo:         'interna',
-    gravidade,
-    origem,
-    setor,
-    responsavel,
-    dataPrevista: dataPrev || null
+    descricao:   valor('nc-descricao') || titulo,
+    origem:      valor('nc-origem'),
+    setor:       valor('nc-setor') || null,
+    responsavel: valor('nc-responsavel') || null,
+    severidade:  valor('nc-prioridade') || null,
+    prazo:       valor('nc-prazo') || null
   };
+  const data = valor('nc-data');
+  if (data) linha.data_identificacao = data;
 
-  const result = await apiPost('/api/ncs', body);
+  const { data: nova, error } = await sb.from('nao_conformidades').insert(linha).select('id').single();
+  if (error) { alert('❌ Erro ao registrar NC:\n' + traduzErroDb(error)); return; }
 
-  if (result && result.success) {
-    alert(`✅ NC registrada com sucesso!\nCódigo: NC-${String(result.data.id).padStart(3,'0')}`);
-    closeModal('ncModal');
-    document.getElementById('nc-titulo').value    = '';
-    document.getElementById('nc-descricao').value = '';
-    await updateDashboardStats();
-    renderTabelaNCs();
-    renderKanban();
-  } else {
-    alert('❌ Erro ao registrar NC:\n' + (result?.message || 'Erro desconhecido'));
-  }
+  alert(`✅ NC registrada!\nCódigo: ${codigoNC(nova.id)}`);
+  closeModal('ncModal');
+  ['nc-titulo', 'nc-descricao', 'nc-responsavel', 'nc-prazo', 'nc-data'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  await refreshData();
 }
 
 // ── Salvar Ação ───────────────────────────────
-async function saveAcao() {
-  const titulo      = document.getElementById('acao-titulo').value.trim();
-  const descricao   = document.getElementById('acao-descricao').value.trim();
-  const responsavel = document.getElementById('acao-responsavel').value;
-  const setor       = document.getElementById('acao-setor').value;
-  const tipo        = document.getElementById('acao-tipo').value;
-  const prioridade  = document.getElementById('acao-prioridade').value;
-  const dataPrev    = document.getElementById('acao-prazo').value;
-  const ncId        = document.getElementById('acao-ncid').value;
+function preencherNCsParaAcao() {
+  const sel = document.getElementById('acao-ncid');
+  if (!sel) return;
+  const abertas = dadosGlobais.ncs.filter(n => n.status === 'aberta' || n.status === 'em_tratamento');
+  sel.innerHTML = '<option value="">— nenhuma —</option>' + abertas.map(n =>
+    `<option value="${esc(n.id)}">${esc(codigoNC(n.id))} — ${esc(n.titulo || n.descricao)}</option>`).join('');
+}
 
+async function saveAcao() {
+  if (!podeEscreverSST()) { alert('Seu papel nesta empresa não permite criar ações.'); return; }
+  const titulo = valor('acao-titulo');
   if (!titulo) { alert('⚠️ Preencha o título da ação'); return; }
 
-  const body = {
+  const linha = {
+    empresa_id:  sessao.empresaId,
     titulo,
-    descricao:    descricao || titulo,
-    tipo,
-    responsavel,
-    setor,
-    prioridade,
-    dataPrevista: dataPrev || null,
-    ncId:         ncId ? parseInt(ncId) : null
+    descricao:   valor('acao-descricao') || titulo,
+    responsavel: valor('acao-responsavel') || null,
+    prazo:       valor('acao-prazo') || null,
+    setor:       valor('acao-setor') || null,
+    tipo:        valor('acao-tipo') || null,
+    prioridade:  valor('acao-prioridade') || null,
+    nc_id:       valor('acao-ncid') || null
   };
 
-  const result = await apiPost('/api/acoes', body);
+  const { error } = await sb.from('acoes').insert(linha);
+  if (error) { alert('❌ Erro ao criar ação:\n' + traduzErroDb(error)); return; }
 
-  if (result && result.success) {
-    alert(`✅ Ação criada com sucesso!\nID: #${result.data.id}`);
-    closeModal('actionModal');
-    document.getElementById('acao-titulo').value    = '';
-    document.getElementById('acao-descricao').value = '';
-    document.getElementById('acao-ncid').value      = '';
-    await updateDashboardStats();
-    renderKanban();
-  } else {
-    alert('❌ Erro ao criar ação:\n' + (result?.message || 'Erro desconhecido'));
-  }
+  alert('✅ Ação criada!');
+  closeModal('actionModal');
+  ['acao-titulo', 'acao-descricao', 'acao-responsavel', 'acao-prazo'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  await refreshData();
 }
 
 // ── Refresh geral ─────────────────────────────
 async function refreshData() {
+  if (!sb || !sessao.empresaId) return;
   const btn = document.querySelector('[onclick="refreshData()"]');
   if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
-
-  await updateDashboardStats();
-  if (chartNC || chartStatus) {
-    if (chartNC)     chartNC.destroy();
-    if (chartStatus) chartStatus.destroy();
-    chartNC = null; chartStatus = null;
+  try {
+    await carregarTodosDados();
+    setEl('sessao-banco', `Supabase (São Paulo) · atualizado ${fmtDataHora(new Date())}`);
+  } catch (err) {
+    setEl('sessao-banco', 'Erro ao carregar: ' + err.message);
+    alert('❌ Erro ao carregar os dados:\n' + err.message);
   }
-  await initCharts();
+  atualizarContadores();
+  desenharAnos();
+  desenharGraficoMensal();
+  desenharGraficoStatus();
+  renderTimeline();
   renderTabelaNCs();
   renderKanban();
   renderTabelaTreinamentos();
-
   if (btn) btn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar';
 }
 
-// ── Loading ───────────────────────────────────
-window.addEventListener('load', () => {
-  setTimeout(() => {
+// ── Inicialização ─────────────────────────────
+window.addEventListener('load', async () => {
+  try {
+    if (!sb) {
+      mostrarErroLogin('Não foi possível carregar a biblioteca de login. Verifique a conexão e recarregue a página.');
+      document.getElementById('btnLogin').disabled = true;
+      return;
+    }
+    const { data } = await sb.auth.getSession();
+    if (data.session) await entrarNoSistema(data.session.user);
+    sb.auth.onAuthStateChange(evento => {
+      if (evento === 'SIGNED_OUT' && sessao.usuario) logout();
+    });
+  } finally {
     document.getElementById('loadingOverlay').classList.add('hidden');
-  }, 1800);
-});
-
-// ── Login / Logout ────────────────────────────
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value;
-  const senha  = document.getElementById('loginPassword').value;
-
-  if (email !== 'admin@empresa.com' || senha !== 'admin123') {
-    alert('Credenciais inválidas!\nUse: admin@empresa.com / admin123');
-    return;
   }
-
-  document.getElementById('loginScreen').classList.add('hidden');
-
-  setTimeout(async () => {
-    await updateDashboardStats();
-    await initCharts();
-  }, 300);
-}
-
-function logout() {
-  document.getElementById('loginScreen').classList.remove('hidden');
-}
+});
 
 // ── Sidebar toggle ────────────────────────────
 let sidebarCollapsed = false;
@@ -2408,15 +2389,9 @@ function toggleSidebar() {
   const header  = document.getElementById('header');
   const main    = document.getElementById('mainContent');
   sidebarCollapsed = !sidebarCollapsed;
-  if (sidebarCollapsed) {
-    sidebar.style.width   = '70px';
-    header.style.left     = '70px';
-    main.style.marginLeft = '70px';
-  } else {
-    sidebar.style.width   = '';
-    header.style.left     = '';
-    main.style.marginLeft = '';
-  }
+  sidebar.style.width   = sidebarCollapsed ? '70px' : '';
+  header.style.left     = sidebarCollapsed ? '70px' : '';
+  main.style.marginLeft = sidebarCollapsed ? '70px' : '';
 }
 
 // ── Navegação ─────────────────────────────────
@@ -2426,86 +2401,46 @@ function navigateTo(page) {
 
   const pageEl = document.getElementById('page-' + page);
   if (pageEl) pageEl.classList.add('active');
-
   const menuLink = document.querySelector(`[data-page="${page}"]`);
   if (menuLink) menuLink.classList.add('active');
 
-  if (page === 'nc')         renderTabelaNCs();
-  if (page === 'actions')    renderKanban();
-  if (page === 'training')   renderTabelaTreinamentos();
-  if (page === 'indicators') setTimeout(initKpiCharts, 100);
-
+  if (page === 'nc')       renderTabelaNCs();
+  if (page === 'actions')  renderKanban();
+  if (page === 'training') renderTabelaTreinamentos();
   window.scrollTo(0, 0);
 }
 
 document.querySelectorAll('.sidebar-menu a[data-page]').forEach(link => {
-  link.addEventListener('click', function(e) {
+  link.addEventListener('click', function (e) {
     e.preventDefault();
     navigateTo(this.dataset.page);
   });
 });
 
 // ── Modais ────────────────────────────────────
-function openModal(id)  { document.getElementById(id).classList.add('active'); }
+function openModal(id) {
+  if ((id === 'ncModal' || id === 'actionModal') && !podeEscreverSST()) {
+    alert('Seu papel nesta empresa (' + (PAPEIS[sessao.papel] || '—') + ') é somente leitura para NCs e ações.');
+    return;
+  }
+  if (id === 'actionModal') preencherNCsParaAcao();
+  document.getElementById(id).classList.add('active');
+}
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
 document.querySelectorAll('.modal-overlay').forEach(o => {
-  o.addEventListener('click', function(e) {
+  o.addEventListener('click', function (e) {
     if (e.target === this) this.classList.remove('active');
   });
 });
 
-// ── Notificações ──────────────────────────────
+// ── Notificações / FAB ────────────────────────
 function toggleNotifications() {
   document.getElementById('notificationPanel').classList.toggle('open');
 }
 
-// ── FAB ───────────────────────────────────────
 function toggleFab() {
   document.getElementById('fabMenu').classList.toggle('active');
-}
-
-// ── KPI Charts ────────────────────────────────
-function initKpiCharts() {
-  const kpiCtx = document.getElementById('kpiChart');
-  if (kpiCtx && !kpiCtx._chartInstance) {
-    kpiCtx._chartInstance = new Chart(kpiCtx.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['Jan','Fev','Mar','Abr','Mai','Jun'],
-        datasets: [
-          { label: 'Satisfação Cliente (%)', data: [92,94,93,95,96,96.2], borderColor: '#34a853', tension: 0.4, fill: false },
-          { label: 'Eficácia Ações (%)',     data: [85,82,88,86,90,88.5], borderColor: '#4285f4', tension: 0.4, fill: false },
-          { label: 'Conformidade (%)',        data: [88,90,89,91,92,91],   borderColor: '#fbbc04', tension: 0.4, fill: false }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' } },
-        scales: { y: { min: 75, max: 100 }, x: { grid: { display: false } } }
-      }
-    });
-  }
-
-  const areaCtx = document.getElementById('areaChart');
-  if (areaCtx && !areaCtx._chartInstance) {
-    areaCtx._chartInstance = new Chart(areaCtx.getContext('2d'), {
-      type: 'radar',
-      data: {
-        labels: ['Qualidade','Meio Ambiente','SSO','Documentos','Treinamentos','Auditorias'],
-        datasets: [{
-          label: 'Performance KAIJU SGI',
-          data: [94,87,91,96,73,88],
-          backgroundColor: 'rgba(0,210,255,0.1)',
-          borderColor: '#00d2ff', borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        scales: { r: { min: 50, max: 100 } }
-      }
-    });
-  }
 }
 </script>
 </body>
