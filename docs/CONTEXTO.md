@@ -58,12 +58,20 @@ Itens 7–10: confirmados pelo dono em 26/09/2026.
 
 Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 
+### Projeto Supabase (criado em 05/10/2026)
+
+- Projeto `kaiju-sgi`, região `sa-east-1` (São Paulo), plano Free — URL `https://rrleosgoxebbxmkgxpwz.supabase.co`.
+- Criado com *Automatically expose new tables* desligado e *automatic RLS* ligado; cadastro público
+  de usuários desligado; *Confirm email* ligado.
+- Migrations 0001–0003 aplicadas pelo SQL Editor em 05/10/2026.
+- O projeto `seconci-sst` (mesma org) é outro banco, de uso ainda não identificado: **não mexer**.
+
 ## Plano
 
 | Etapa | Entrega | Status |
 |---|---|---|
 | 0.1 | Tirar `node_modules` do git no `kaiju-sgi-api` (+ `.gitignore`). | ✅ 05/10/2026 — `kaiju-sgi-api` PR #1, merge `08fdf7a`; deploy no Render *Live* com Build Command `npm install`. |
-| 0.2 | Esquema multi-tenant (empresas, usuários×empresa×papel, estabelecimentos/obras, PGRs, NCs, ações, treinamentos, ASOs sem CID) + políticas RLS + testes provando que empresa A não lê nem escreve na empresa B. **Entregar primeiro como proposta para revisão — nada é criado no Supabase antes do ok.** | ✅ 26/09/2026 — `kaiju-sgi` PR #1. Testado só em Postgres 16 + shim; `supabase test db` [A MEDIR]. |
+| 0.2 | Esquema multi-tenant (empresas, usuários×empresa×papel, estabelecimentos/obras, PGRs, NCs, ações, treinamentos, ASOs sem CID) + políticas RLS + testes provando que empresa A não lê nem escreve na empresa B. **Entregar primeiro como proposta para revisão — nada é criado no Supabase antes do ok.** | ✅ 26/09/2026 — `kaiju-sgi` PR #1. Aplicado no Supabase em 05/10/2026; testes no banco real: 533 ok, 0 falhas. |
 | 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. | Em andamento — criação do projeto Supabase autorizada pelo dono em 05/10/2026. |
 | 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. | — |
 | 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. | — |
