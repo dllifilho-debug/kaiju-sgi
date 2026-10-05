@@ -23,7 +23,7 @@ futura. Não é vinculado a nenhum cliente — a menção a "SECONCI" no `kaiju-
 - Express 5 no Render. Dados em arrays na memória — cada reinício volta ao `seed.js`.
 - `pg`, `bcryptjs`, `jsonwebtoken` instalados e nunca usados.
 - Sem autenticação: qualquer um cria/apaga. CORS aberto.
-- `node_modules` versionado (893 arquivos).
+- ~~`node_modules` versionado (893 arquivos).~~ Resolvido na etapa 0.1 (05/10/2026).
 - **Erro conceitual**: a rota `/api/ltcats` guarda afastamentos/CAT. LTCAT é o Laudo Técnico das
   Condições Ambientais do Trabalho (Lei 8.213/1991, art. 58, §1º) — documento previdenciário,
   não registro de afastamento. CAT é a Comunicação de Acidente de Trabalho (Lei 8.213/1991, art. 22).
@@ -60,13 +60,13 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 
 ## Plano
 
-| Etapa | Entrega |
-|---|---|
-| 0.1 | Tirar `node_modules` do git no `kaiju-sgi-api` (+ `.gitignore`). |
-| 0.2 | Esquema multi-tenant (empresas, usuários×empresa×papel, estabelecimentos/obras, PGRs, NCs, ações, treinamentos, ASOs sem CID) + políticas RLS + testes provando que empresa A não lê nem escreve na empresa B. **Entregar primeiro como proposta para revisão — nada é criado no Supabase antes do ok.** |
-| 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. |
-| 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. |
-| 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. |
+| Etapa | Entrega | Status |
+|---|---|---|
+| 0.1 | Tirar `node_modules` do git no `kaiju-sgi-api` (+ `.gitignore`). | ✅ 05/10/2026 — `kaiju-sgi-api` PR #1, merge `08fdf7a`; deploy no Render *Live* com Build Command `npm install`. |
+| 0.2 | Esquema multi-tenant (empresas, usuários×empresa×papel, estabelecimentos/obras, PGRs, NCs, ações, treinamentos, ASOs sem CID) + políticas RLS + testes provando que empresa A não lê nem escreve na empresa B. **Entregar primeiro como proposta para revisão — nada é criado no Supabase antes do ok.** | ✅ 26/09/2026 — `kaiju-sgi` PR #1. Testado só em Postgres 16 + shim; `supabase test db` [A MEDIR]. |
+| 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. | Em andamento — criação do projeto Supabase autorizada pelo dono em 05/10/2026. |
+| 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. | — |
+| 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. | — |
 
 ## Repositórios relacionados (Python/Streamlit — ficam SEPARADOS)
 
