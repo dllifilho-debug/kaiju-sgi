@@ -13,16 +13,14 @@ futura. Não é vinculado a nenhum cliente — a menção a "SECONCI" no `kaiju-
 
 ### `dllifilho-debug/kaiju-sgi` (este repositório)
 - Um único `index.html` (~108 KB), publicado no Vercel (`kaiju-sgi.vercel.app`, plano Hobby).
-- **Login falso**: `doLogin()` compara com `admin@empresa.com` / `admin123` no próprio JS, e a
-  senha aparece na tela (campo pré-preenchido e texto "Demo").
-- **Números fixos no HTML**: conformidade ISO 94 % / 87 % / 91 %, "127 dias sem acidente",
-  "+2 novos".
-- `API_URL = https://kaiju-sgi-api.onrender.com`.
+- ~~Login falso (`admin@empresa.com` / `admin123` no JS); números fixos no HTML; `API_URL` do
+  Render.~~ Resolvidos na etapa 0.3 (05/10/2026) — ver "Estado após a etapa 0.3" abaixo.
 
 ### `dllifilho-debug/kaiju-sgi-api` (repositório separado)
 - Express 5 no Render. Dados em arrays na memória — cada reinício volta ao `seed.js`.
 - `pg`, `bcryptjs`, `jsonwebtoken` instalados e nunca usados.
-- Sem autenticação: qualquer um cria/apaga. CORS aberto.
+- Sem autenticação: qualquer um cria/apaga. CORS aberto. **Desde a 0.3 o frontend não usa mais
+  esta API**; ela segue no ar no Render (aposentar — decisão pendente do dono).
 - ~~`node_modules` versionado (893 arquivos).~~ Resolvido na etapa 0.1 (05/10/2026).
 - **Erro conceitual**: a rota `/api/ltcats` guarda afastamentos/CAT. LTCAT é o Laudo Técnico das
   Condições Ambientais do Trabalho (Lei 8.213/1991, art. 58, §1º) — documento previdenciário,
@@ -67,6 +65,29 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 - Migration 0004 (campos de NC/ação da tela, aprovada pelo dono em 05/10/2026) aplicada pelo SQL
   Editor em 05/10/2026; testes no banco real: 535 ok, 0 falhas.
 - O projeto `seconci-sst` (mesma org) é outro banco, de uso ainda não identificado: **não mexer**.
+- Primeiro usuário: o dono, `admin` da "Empresa Demonstração (teste)" (CNPJ fictício
+  11111111000111), criados em 05/10/2026.
+
+### Estado após a etapa 0.3 (05/10/2026)
+
+- `kaiju-sgi.vercel.app` com login real (Supabase Auth, e-mail/senha), testado pelo dono no site
+  oficial: login, painel, gravação de NC (NC-EC4690).
+- Frontend lê/grava no Supabase com a chave `publishable` (pública); isolamento pela RLS.
+- supabase-js 2.117.2 e Chart.js 4.5.1 com versão fixa e SRI; escape de HTML em todo dado exibido.
+- Vocabulário de status (decisão do dono, 05/10/2026): NC = Aberta → Em tratamento → Encerrada;
+  Ação = Pendente → Em andamento → Concluída (NC só encerra após eficácia das ações — ISO 9001/45001, 10.2).
+- Módulos sem banco (riscos, auditorias, meio ambiente, documentos, KPIs, compliance) aparecem como
+  "em desenvolvimento", sem números.
+
+### Pendências
+
+- Supabase → Authentication → URL Configuration: Site URL `https://kaiju-sgi.vercel.app` e
+  Redirect URL `https://kaiju-sgi.vercel.app/**` — confirmar se o dono salvou.
+- Aposentar a API Express no Render (sugestão: suspender o serviço, sem apagar).
+- Itens de norma citados em comentários ainda não conferidos no texto vigente (Gov.br/MTE):
+  NR-1 1.5.4.4.6 e NR-7 7.5.19.1.
+- Testes de tela (Playwright + Supabase simulado) ficaram fora do repositório; versionar se
+  o frontend crescer.
 
 ## Plano
 
@@ -74,8 +95,8 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 |---|---|---|
 | 0.1 | Tirar `node_modules` do git no `kaiju-sgi-api` (+ `.gitignore`). | ✅ 05/10/2026 — `kaiju-sgi-api` PR #1, merge `08fdf7a`; deploy no Render *Live* com Build Command `npm install`. |
 | 0.2 | Esquema multi-tenant (empresas, usuários×empresa×papel, estabelecimentos/obras, PGRs, NCs, ações, treinamentos, ASOs sem CID) + políticas RLS + testes provando que empresa A não lê nem escreve na empresa B. **Entregar primeiro como proposta para revisão — nada é criado no Supabase antes do ok.** | ✅ 26/09/2026 — `kaiju-sgi` PR #1. Aplicado no Supabase em 05/10/2026; testes no banco real: 533 ok, 0 falhas. |
-| 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. | Em andamento — projeto Supabase criado; frontend com login real e dados do banco (branch `feat/login-supabase`). |
-| 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. | — |
+| 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. | ✅ 05/10/2026 — `kaiju-sgi` PR #4; testado pelo dono no site oficial. |
+| 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. | **Próxima.** Começar lendo `dllifilho-debug/app-auditoria-nrs` e trazendo proposta antes de codar. |
 | 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. | — |
 
 ## Repositórios relacionados (Python/Streamlit — ficam SEPARADOS)
