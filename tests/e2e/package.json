@@ -1,0 +1,14 @@
+{
+  "name": "kaiju-sgi-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Teste de tela do index.html (Playwright + Supabase simulado). As versões das bibliotecas devem ser as mesmas fixadas no index.html.",
+  "scripts": {
+    "test": "node teste.mjs"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "chart.js": "4.5.1",
+    "playwright": "1.56.1"
+  }
+}

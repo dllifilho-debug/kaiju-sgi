@@ -81,14 +81,13 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
   Ação = Pendente → Em andamento → Concluída (NC só encerra após eficácia das ações — ISO 9001/45001, 10.2).
 - Módulos sem banco (riscos, auditorias, meio ambiente, documentos, KPIs, compliance) aparecem como
   "em desenvolvimento", sem números.
+- Teste de tela em `tests/e2e/` (Playwright + Supabase simulado): 40 verificações; ver o README da pasta.
 
 ### Pendências
 
 - Etapa 2: a tabela `asos` guarda só NR-7 7.5.19.1 e) e g) (+ tipo e data); se o Kaiju for
   **emitir** ASO, faltam c) perigos/riscos do PGR, d) exames e datas, f) médico responsável
   pelo PCMSO.
-- Testes de tela (Playwright + Supabase simulado) ficaram fora do repositório; versionar se
-  o frontend crescer.
 
 ## Plano
 
