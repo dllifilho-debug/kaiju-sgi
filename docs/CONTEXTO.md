@@ -84,8 +84,6 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 
 ### Pendências
 
-- Confirmar no Gov.br/MTE se a NR-7 teve alteração após a Portaria MTP nº 567/2022 (o PDF
-  conferido é dessa versão) [A MEDIR].
 - Etapa 2: a tabela `asos` guarda só NR-7 7.5.19.1 e) e g) (+ tipo e data); se o Kaiju for
   **emitir** ASO, faltam c) perigos/riscos do PGR, d) exames e datas, f) médico responsável
   pelo PCMSO.
@@ -105,7 +103,8 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 ## Normas conferidas no texto oficial
 
 Fonte: PDFs oficiais em `dllifilho-debug/automacao-pgr-agente-pcmso/normas` (Gov.br/MTE),
-conferidos em 05/10/2026.
+conferidos em 05/10/2026. O dono confirmou no Gov.br/MTE, na mesma data, que a NR-7 vigente
+ainda é a da Portaria MTP nº 567/2022.
 
 | Item | Arquivo (última alteração) | Conteúdo usado no Kaiju |
 |---|---|---|
