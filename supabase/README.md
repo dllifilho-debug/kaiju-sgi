@@ -9,6 +9,7 @@ migrations/
   20260926000002_rls.sql            privilégios, funções auxiliares, políticas
   20260926000003_storage.sql        bucket privado "documentos" + políticas
   20261005000004_campos_nc_acao.sql campos de tratamento de NC/ação usados pelo frontend
+  20261009000005_enviar_nc_auditoria.sql  RPC do "Enviar para o Kaiju" (app-auditoria-nrs)
 tests/                              pgTAP (rodam também com `supabase test db`)
 tests-local/                        shim + runner para Postgres puro, sem Docker
 ```
@@ -55,6 +56,9 @@ O shim (`tests-local/shim_supabase.sql`) emula só o que as migrations usam: pap
 - Vínculo inativo ou empresa inativa = nenhum acesso.
 - A empresa sempre mantém pelo menos um admin ativo (erro `KJ001`).
 - `empresa_id` não muda depois de gravado (erro `KJ002`).
+- `enviar_nc_auditoria(empresa, obra, itens)`: SECURITY INVOKER — mesmas permissões de inserir NC
+  (admin/tecnico_sst); lote atômico; reenvio idempotente por `origem_externa_id`, sem sobrescrever
+  NC já existente. Erro `KJ003` = payload inválido.
 - Storage: o Supabase bloqueia `DELETE` direto em `storage.objects` (`storage.protect_delete`,
   erro `42501`); exclusão de arquivo só pela API de Storage, onde vale a política acima.
 
