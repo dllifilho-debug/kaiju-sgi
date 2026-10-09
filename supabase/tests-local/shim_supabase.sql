@@ -30,6 +30,10 @@ create table auth.users (
   email       text,
   created_at  timestamptz not null default now()
 );
+-- O Supabase real tem users_email_partial_key (email único, fora de SSO). Sem isto o shim
+-- aceitou dois arquivos de teste criando o mesmo e-mail na mesma transação, e o script do
+-- SQL Editor quebrou só no banco real (09/10/2026).
+create unique index users_email_partial_key on auth.users (email);
 
 create function auth.uid()
 returns uuid
