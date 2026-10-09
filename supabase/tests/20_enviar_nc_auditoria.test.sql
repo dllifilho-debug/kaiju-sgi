@@ -26,7 +26,7 @@ declare
 begin
   foreach u in array array['a_admin', 'a_tec', 'a_med', 'a_cli', 'b_tec', 'duplo_tec'] loop
     insert into e5_fx values ('u_' || u, gen_random_uuid());
-    insert into auth.users (id, email) values (pg_temp.e5_fx('u_' || u), u || '@teste.kaiju.invalid');
+    insert into auth.users (id, email) values (pg_temp.e5_fx('u_' || u), 'e5_' || u || '@teste.kaiju.invalid');
   end loop;
 
   foreach e in array array['A', 'B'] loop
