@@ -188,6 +188,7 @@ declare
   tabela text;
   outra text;
   escreve boolean;
+  insere boolean;
 begin
   for usu in
     select * from (values
@@ -206,6 +207,8 @@ begin
         when 'asos' then usu.papel = 'medico'
         else usu.papel in ('admin', 'tecnico_sst')
       end;
+      -- 0006: o médico também cria PGR, só em rascunho (o default), para o envio da matriz do PCMSO.
+      insere := escreve or (tabela = 'pgrs' and usu.papel = 'medico');
 
       perform pg_temp.caso(format('%s lê só a própria empresa', tabela), usu.nome,
         format('select count(*) from public.%I', tabela), 'linhas=1');
@@ -213,7 +216,7 @@ begin
         format('select count(*) from public.%I where empresa_id = %L', tabela, pg_temp.fx('emp_' || outra)),
         'linhas=0');
       perform pg_temp.caso(format('%s insere na própria empresa conforme papel', tabela), usu.nome,
-        pg_temp.sql_insert(tabela, usu.empresa), case when escreve then 'ok=1' else 'erro=42501' end);
+        pg_temp.sql_insert(tabela, usu.empresa), case when insere then 'ok=1' else 'erro=42501' end);
       perform pg_temp.caso(format('%s não insere na outra empresa', tabela), usu.nome,
         pg_temp.sql_insert(tabela, outra), 'erro=42501');
       perform pg_temp.caso(format('%s altera na própria empresa conforme papel', tabela), usu.nome,

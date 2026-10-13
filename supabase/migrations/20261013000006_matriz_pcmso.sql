@@ -61,7 +61,10 @@ create table public.pcmsos (
     status = 'rascunho'
     or (medico_responsavel_nome is not null and medico_responsavel_crm is not null
         and vigente_desde is not null)
-  )
+  ),
+  -- PRELIMINAR = o motor achou pendência bloqueante em algum GHE: não vira vigente, senão o
+  -- vencimento de ASO seria calculado sobre periodicidade não validada. Resolve no app e reenvia.
+  constraint pcmso_vigente_so_ok check (status = 'rascunho' or resultado_motor = 'OK')
 );
 -- Um PCMSO vigente por PGR; a troca marca o anterior como 'substituido' antes.
 create unique index pcmsos_um_vigente_por_pgr on public.pcmsos (empresa_id, pgr_id)
@@ -172,7 +175,11 @@ begin
     from public.ghes g join public.pcmsos p on p.empresa_id = g.empresa_id and p.id = g.pcmso_id
     where g.empresa_id = new.empresa_id and g.id = new.ghe_id;
   end if;
-  if v_status is distinct from 'rascunho' then
+  -- PCMSO invisível (outra empresa) ou inexistente: quem recusa é a RLS ou a FK, com o erro delas.
+  if v_status is null then
+    return new;
+  end if;
+  if v_status <> 'rascunho' then
     raise exception 'matriz de PCMSO % não aceita alteração (status %)', tg_table_name, v_status
       using errcode = 'KJ004';
   end if;
@@ -314,6 +321,10 @@ declare
 begin
   if p_empresa_id is null then
     raise exception 'empresa não informada' using errcode = 'KJ003';
+  end if;
+  -- Antes de tudo: sem isto o reenvio (que não grava) responderia 'ja_existia' a quem só lê.
+  if p_empresa_id not in (select private.empresas_com_papel('{admin,tecnico_sst,medico}')) then
+    raise exception 'sem permissão para enviar matriz nesta empresa' using errcode = '42501';
   end if;
   if jsonb_typeof(p_matriz) is distinct from 'object' then
     raise exception 'matriz deve ser um objeto' using errcode = 'KJ003';
