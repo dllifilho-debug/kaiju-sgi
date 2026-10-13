@@ -88,6 +88,20 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
   `updateUser`). Mínimo de 8 caracteres no cliente; o mínimo do servidor está no painel do
   Supabase [A MEDIR].
 
+### Estado após a etapa 1 (13/10/2026)
+
+- Migration 0005 (`enviar_nc_auditoria`) aplicada pelo SQL Editor em 09/10/2026; testes no banco
+  real: 568 ok, 0 falhas (`kaiju-sgi` PR #11 corrigiu e-mails repetidos nas fixtures).
+- `auditoria-nrs-08.streamlit.app` com `KAIJU_SUPABASE_URL` e `KAIJU_SUPABASE_CHAVE` (publishable)
+  nos Secrets do Streamlit Cloud, cadastrados pelo dono em 09/10/2026.
+- Testado pelo dono em produção em 13/10/2026 (modo demonstração, 1 NC, "Sem obra"): 1º envio
+  "1 NC criada"; reenvio "0 criadas, 1 já estava no Kaiju"; NC-C6BFC8 apareceu no Kaiju com origem
+  Auditoria NR, NR-18 18.9.2, Crítica, prazo 14/10/2026, e a ação corretiva vinculada.
+- O Kaiju **não tem tela de obras/estabelecimentos**: hoje o envio só é útil com "Sem obra".
+  Proposta (tela mínima de cadastro, só admin/tecnico_sst, sem mudar o banco) aguarda ok do dono.
+- Telas "Esqueci minha senha" e "Alterar senha" no ar desde `kaiju-sgi` PR #12 (13/10/2026);
+  envio de e-mail pelo SMTP padrão do Supabase **[A CONFERIR]** para usuários fora da equipe.
+
 ### Pendências
 
 - Etapa 2: a tabela `asos` guarda só NR-7 7.5.19.1 e) e g) (+ tipo e data); se o Kaiju for
@@ -101,7 +115,7 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 | 0.1 | Tirar `node_modules` do git no `kaiju-sgi-api` (+ `.gitignore`). | ✅ 05/10/2026 — `kaiju-sgi-api` PR #1, merge `08fdf7a`; deploy no Render *Live* com Build Command `npm install`. |
 | 0.2 | Esquema multi-tenant (empresas, usuários×empresa×papel, estabelecimentos/obras, PGRs, NCs, ações, treinamentos, ASOs sem CID) + políticas RLS + testes provando que empresa A não lê nem escreve na empresa B. **Entregar primeiro como proposta para revisão — nada é criado no Supabase antes do ok.** | ✅ 26/09/2026 — `kaiju-sgi` PR #1. Aplicado no Supabase em 05/10/2026; testes no banco real: 533 ok, 0 falhas. |
 | 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. | ✅ 05/10/2026 — `kaiju-sgi` PR #4; testado pelo dono no site oficial. |
-| 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. | **Próxima.** Começar lendo `dllifilho-debug/app-auditoria-nrs` e trazendo proposta antes de codar. |
+| 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. | ✅ 13/10/2026 — `kaiju-sgi` PR #10 (RPC `enviar_nc_auditoria`, migration 0005) e `app-auditoria-nrs` PR #84; ver "Estado após a etapa 1". Pendente: cadastro de obras no Kaiju. |
 | 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. | — |
 
 ## Normas conferidas no texto oficial

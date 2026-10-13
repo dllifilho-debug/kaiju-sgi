@@ -2569,6 +2569,58 @@ async function alterarStatusNC(id) {
   if (error) { alert('❌ ' + traduzErroDb(error)); return; }
   // UPDATE barrado pela RLS não dá erro: volta 0 linhas.
   if (!data || data.length === 0) { alert('❌ Nenhuma alteração: seu papel nesta empresa não permite alterar NCs.'); return; }
+
+  // Cancelar a NC não cancela as ações sozinho: pergunta, e só cancela com confirmação.
+  if (novo === 'cancelada') {
+    const abertas = dadosGlobais.acoes.filter(a =>
+      a.nc_id === id && (a.status === 'pendente' || a.status === 'em_andamento'));
+    if (abertas.length > 0 && confirm(
+      `${codigoNC(nc.id)} foi cancelada.\n\n` +
+      `Ela tem ${abertas.length} ação(ões) em aberto:\n` +
+      abertas.map(a => '• ' + (a.titulo || a.descricao)).join('\n') +
+      `\n\nCancelar também essas ações?`)) {
+      const ids = abertas.map(a => a.id);
+      const r = await sb.from('acoes')
+        .update({ status: 'cancelada', concluida_em: null })
+        .in('id', ids).select('id');
+      if (r.error) alert('❌ A NC foi cancelada, mas as ações não: ' + traduzErroDb(r.error));
+      else if (!r.data || r.data.length !== ids.length)
+        alert(`⚠️ A NC foi cancelada, mas só ${(r.data || []).length} de ${ids.length} ação(ões) foram canceladas.`);
+    }
+  }
+  await refreshData();
+}
+
+const ACAO_STATUS = {
+  pendente:     'Pendente',
+  em_andamento: 'Em andamento',
+  concluida:    'Concluída',
+  cancelada:    'Cancelada'
+};
+
+async function alterarStatusAcao(id) {
+  const acao = dadosGlobais.acoes.find(a => a.id === id);
+  if (!acao) return;
+  if (!podeEscreverSST()) { alert('Seu papel nesta empresa não permite alterar ações.'); return; }
+  const opcoes = Object.keys(ACAO_STATUS);
+  const escolha = prompt(
+    `${acao.titulo || acao.descricao}\n` +
+    `Status atual: ${ACAO_STATUS[acao.status] || acao.status}\n\n` +
+    `Novo status:\n` + opcoes.map((s, i) => `${i} - ${ACAO_STATUS[s]}`).join('\n') +
+    `\n\nDigite o número:`
+  );
+  if (escolha === null) return;
+  const novo = opcoes[parseInt(escolha, 10)];
+  if (!novo) { alert('Opção inválida'); return; }
+  if (novo === acao.status) return;
+
+  // O banco exige concluida_em preenchida se e somente se o status for 'concluida'.
+  const mudanca = { status: novo, concluida_em: novo === 'concluida' ? hojeISO() : null };
+  if (novo === 'concluida') mudanca.progresso = 100;
+
+  const { data, error } = await sb.from('acoes').update(mudanca).eq('id', id).select('id');
+  if (error) { alert('❌ ' + traduzErroDb(error)); return; }
+  if (!data || data.length === 0) { alert('❌ Nenhuma alteração: seu papel nesta empresa não permite alterar ações.'); return; }
   await refreshData();
 }
 
@@ -2650,7 +2702,10 @@ function renderKanban() {
             </div>` : ''}
           <div class="kanban-card-meta">
             <span>📅 ${esc(fmtData(acao.prazo))}</span>
-            ${prio ? `<span class="status-badge ${prio.cls}" style="font-size:0.68rem;padding:2px 8px;">${esc(prio.label)}</span>` : ''}
+            <span style="display:flex;align-items:center;gap:6px;">
+              ${prio ? `<span class="status-badge ${prio.cls}" style="font-size:0.68rem;padding:2px 8px;">${esc(prio.label)}</span>` : ''}
+              ${podeEscreverSST() ? `<button class="action-btn" onclick="event.stopPropagation(); alterarStatusAcao('${esc(acao.id)}')" title="Alterar status"><i class="fas fa-edit"></i></button>` : ''}
+            </span>
           </div>
         </div>`;
     }).join('');
