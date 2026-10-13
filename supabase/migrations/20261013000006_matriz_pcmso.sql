@@ -230,6 +230,10 @@ revoke all on function private.travar_pcmso() from public, anon, authenticated;
 --   ghe_riscos_aso ................ todos L · admin/tecnico_sst/medico inserem · ninguém altera
 --   pgrs (adicional) .............. medico insere, só em rascunho (para o envio criar o PGR)
 -- ---------------------------------------------------------------------------
+-- Tabela nova herda dos default privileges do Supabase ALL para anon e authenticated, inclusive
+-- TRUNCATE (que ignora RLS). Zerar antes de conceder, como a 0002 fez com as tabelas dela.
+revoke all on public.pcmsos, public.ghes, public.pcmso_exames, public.ghe_riscos_aso
+  from anon, authenticated;
 grant select, insert, update on public.pcmsos to authenticated;
 grant select, insert on public.ghes, public.pcmso_exames, public.ghe_riscos_aso to authenticated;
 
