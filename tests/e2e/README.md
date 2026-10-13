@@ -9,7 +9,8 @@ Abre o `index.html` no Chromium (Playwright) **sem rede**:
   `cliente_leitura`, XSS não executa, alterar senha (confere a atual, mínimo de 8, confirmação),
   "esqueci minha senha" (resposta neutra, `redirectTo` da própria página), status da ação no kanban
   (`concluida_em`/`progresso` coerentes), cancelar NC pergunta antes de cancelar as ações abertas,
-  logout, nenhum erro de JS.
+  obras e unidades (lista por empresa, cadastro com CNO/CNPJ só em dígitos, edição, desativar sem
+  excluir, `cliente_leitura` sem botões), logout, nenhum erro de JS.
 - **T3 — volta do link do e-mail:** fragmento `type=recovery` abre "Definir nova senha" sem entrar no
   sistema, tira os tokens da barra de endereço e entra após salvar; link expirado mostra aviso.
 

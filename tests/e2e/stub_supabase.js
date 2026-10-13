@@ -43,6 +43,11 @@
       { id: 'r2', empresa_id: EMP_A, data_realizacao: iso(hoje), valido_ate: dias(700), instrutor: null,
         treinamentos: { nome: 'NR-10 Básico', nr_ref: 'NR-10', carga_horaria_h: 40 }, trabalhadores: { nome: 'Ciclano' } }
     ],
+    estabelecimentos: [
+      { id: 'e-1', empresa_id: EMP_A, tipo: 'obra', nome: 'Residencial Alfa', cno: '123456789012', cnpj: null, endereco: 'Rua A, 1', ativo: true },
+      { id: 'e-2', empresa_id: EMP_A, tipo: 'obra', nome: 'Obra encerrada', cno: null, cnpj: null, endereco: null, ativo: false },
+      { id: 'e-3', empresa_id: EMP_B, tipo: 'estabelecimento', nome: 'Fábrica Beta', cno: null, cnpj: '98765432000110', endereco: null, ativo: true }
+    ],
     trabalhadores: [
       { id: 't1', empresa_id: EMP_A, data_desligamento: null }, { id: 't2', empresa_id: EMP_A, data_desligamento: null },
       { id: 't3', empresa_id: EMP_A, data_desligamento: '2025-01-01' }
@@ -71,7 +76,7 @@
       window.__chamadas.push({ tabela, operacao, payload });
       const linhas = (tabelas[tabela] || []).filter(r => filtros.every(f => f(r)));
       if (operacao === 'insert') {
-        const nova = { id: 'novo-' + Math.random().toString(16).slice(2, 10), created_at: new Date().toISOString(), status: 'aberta', ...payload };
+        const nova = { id: 'novo-' + Math.random().toString(16).slice(2, 10), created_at: new Date().toISOString(), status: 'aberta', ...(tabela === 'estabelecimentos' ? { ativo: true } : {}), ...payload };
         tabelas[tabela].push(nova);
         return { data: unico ? nova : [nova], error: null };
       }
