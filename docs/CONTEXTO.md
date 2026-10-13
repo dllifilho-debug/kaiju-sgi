@@ -81,7 +81,12 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
   Ação = Pendente → Em andamento → Concluída (NC só encerra após eficácia das ações — ISO 9001/45001, 10.2).
 - Módulos sem banco (riscos, auditorias, meio ambiente, documentos, KPIs, compliance) aparecem como
   "em desenvolvimento", sem números.
-- Teste de tela em `tests/e2e/` (Playwright + Supabase simulado): 40 verificações; ver o README da pasta.
+- Teste de tela em `tests/e2e/` (Playwright + Supabase simulado): 40 verificações (63 desde as telas de senha); ver o README da pasta.
+- Telas de senha (13/10/2026, branch `claude/awesome-fermat-f4z7qj`, ainda sem teste no Supabase real):
+  "Esqueci minha senha" no login (`resetPasswordForEmail`, volta para a própria página e abre
+  "Definir nova senha") e "Alterar senha" em Configurações (confere a senha atual antes do
+  `updateUser`). Mínimo de 8 caracteres no cliente; o mínimo do servidor está no painel do
+  Supabase [A MEDIR].
 
 ### Pendências
 

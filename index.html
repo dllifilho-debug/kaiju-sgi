@@ -816,6 +816,22 @@
       background: rgba(234,67,53,0.12); border: 1px solid rgba(234,67,53,0.4);
       color: #ffb4ab; font-size: 0.85rem; text-align: center;
     }
+    .login-ok {
+      display: none; margin-top: 14px; padding: 10px 14px; border-radius: 10px;
+      background: rgba(52,168,83,0.12); border: 1px solid rgba(52,168,83,0.4);
+      color: #b7f0c4; font-size: 0.85rem; text-align: center;
+    }
+    .login-link {
+      display: inline-block; margin-top: 18px; background: none; border: none; padding: 0;
+      color: rgba(255,255,255,0.6); font-family: inherit; font-size: 0.85rem;
+      cursor: pointer; text-decoration: underline;
+    }
+    .login-link:hover { color: #00d2ff; }
+    .login-painel-titulo { color: white; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .login-painel-texto { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 20px; }
+    .cfg-msg { display: none; margin-top: 12px; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; }
+    .cfg-msg.erro { display: block; background: #fdecea; border: 1px solid #f5c2c0; color: #a50e0e; }
+    .cfg-msg.ok   { display: block; background: #e6f4ea; border: 1px solid #b7dfc2; color: #137333; }
     .empresa-select {
       max-width: 240px; padding: 8px 12px; border: 1px solid var(--gray-200);
       border-radius: 10px; background: white; font-family: inherit; font-size: 0.85rem;
@@ -840,20 +856,60 @@
     <div class="login-logo">KAIJU SGI</div>
     <div class="login-tagline">Sistema de Gestão Integrada</div>
     <p class="login-subtitle">ISO 9001 · ISO 14001 · ISO 45001</p>
-    <div class="form-group">
-      <label>E-mail</label>
-      <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="username"
-             onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="painelLogin">
+      <div class="form-group">
+        <label for="loginEmail">E-mail</label>
+        <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="username"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Senha</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-login" id="btnLogin" onclick="doLogin()">
+        <i class="fas fa-dragon"></i> &nbsp;Entrar no KAIJU SGI
+      </button>
+      <div style="text-align:center;">
+        <button type="button" class="login-link" id="linkEsqueci" onclick="mostrarPainelLogin('esqueci')">Esqueci minha senha</button>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Senha</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"
-             onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="painelEsqueci" hidden>
+      <div class="login-painel-titulo">Recuperar senha</div>
+      <p class="login-painel-texto">Informe seu e-mail. Se ele estiver cadastrado, você receberá um link para definir uma nova senha.</p>
+      <div class="form-group">
+        <label for="esqueciEmail">E-mail</label>
+        <input type="email" id="esqueciEmail" placeholder="seu@email.com" autocomplete="username"
+               onkeydown="if(event.key==='Enter')enviarLinkRecuperacao()">
+      </div>
+      <button class="btn-login" id="btnEsqueci" onclick="enviarLinkRecuperacao()">
+        <i class="fas fa-envelope"></i> &nbsp;Enviar link
+      </button>
+      <div style="text-align:center;">
+        <button type="button" class="login-link" onclick="mostrarPainelLogin('login')">Voltar ao login</button>
+      </div>
     </div>
-    <button class="btn-login" id="btnLogin" onclick="doLogin()">
-      <i class="fas fa-dragon"></i> &nbsp;Entrar no KAIJU SGI
-    </button>
+    <div id="painelNovaSenha" hidden>
+      <div class="login-painel-titulo">Definir nova senha</div>
+      <p class="login-painel-texto" id="novaSenhaConta">—</p>
+      <div class="form-group">
+        <label for="recNova">Nova senha</label>
+        <input type="password" id="recNova" autocomplete="new-password" placeholder="mínimo 8 caracteres">
+      </div>
+      <div class="form-group">
+        <label for="recConfirma">Confirme a nova senha</label>
+        <input type="password" id="recConfirma" autocomplete="new-password"
+               onkeydown="if(event.key==='Enter')salvarSenhaRecuperada()">
+      </div>
+      <button class="btn-login" id="btnNovaSenha" onclick="salvarSenhaRecuperada()">
+        <i class="fas fa-key"></i> &nbsp;Salvar nova senha
+      </button>
+      <div style="text-align:center;">
+        <button type="button" class="login-link" onclick="cancelarRecuperacao()">Cancelar</button>
+      </div>
+    </div>
     <div class="login-erro" id="loginErro" role="alert"></div>
+    <div class="login-ok" id="loginOk" role="status"></div>
   </div>
 </div>
 
@@ -1478,6 +1534,27 @@
       </div>
       <p style="font-size:0.8rem;color:var(--gray-500);">Alteração dos dados da empresa: em desenvolvimento.</p>
     </div>
+    <div class="chart-card" style="max-width:600px;margin-top:24px;" id="cardTrocarSenha">
+      <h3 style="margin-bottom:6px;">Alterar senha</h3>
+      <p style="font-size:0.8rem;color:var(--gray-500);margin-bottom:20px;">Vale para o seu usuário em todas as empresas a que você tem acesso.</p>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label for="senhaAtual" style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">Senha atual</label>
+        <input type="password" id="senhaAtual" autocomplete="current-password" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="senhaNova" style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">Nova senha</label>
+          <input type="password" id="senhaNova" autocomplete="new-password" placeholder="mínimo 8 caracteres" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+        </div>
+        <div class="form-group">
+          <label for="senhaConfirma" style="color:var(--gray-700);font-size:0.8rem;font-weight:600;display:block;margin-bottom:8px;">Confirme a nova senha</label>
+          <input type="password" id="senhaConfirma" autocomplete="new-password" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;"
+                 onkeydown="if(event.key==='Enter')trocarSenha()">
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btnTrocarSenha" onclick="trocarSenha()"><i class="fas fa-key"></i> Alterar senha</button>
+      <div class="cfg-msg" id="trocarSenhaMsg" role="alert"></div>
+    </div>
   </div>
 
 </main>
@@ -1657,7 +1734,20 @@
 // no banco (supabase/migrations). Filtrar por empresa_id aqui é só para a tela.
 const SUPABASE_URL = 'https://rrleosgoxebbxmkgxpwz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_U5JhospTixr9utKq85Jkqg_bevQXxJo';
+// Lido ANTES do createClient: o supabase-js consome o fragmento da URL ao iniciar. O link do
+// e-mail de recuperação volta com type=recovery (ou com error_description, se expirou).
+const RETORNO_AUTH = (() => {
+  const p = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  return { recuperacao: p.get('type') === 'recovery', erro: p.get('error_description') || '' };
+})();
+const SENHA_MIN = 8;
 const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+let modoRecuperacao = RETORNO_AUTH.recuperacao;
+// Registrado já aqui (e não no load) para não perder o PASSWORD_RECOVERY emitido na inicialização.
+if (sb) sb.auth.onAuthStateChange(evento => {
+  if (evento === 'PASSWORD_RECOVERY') { modoRecuperacao = true; }
+  if (evento === 'SIGNED_OUT' && sessao.usuario) logout();
+});
 
 const PAPEIS = {
   admin: 'Administrador',
@@ -1762,11 +1852,112 @@ function traduzErroAuth(error) {
   return 'Não foi possível entrar: ' + msg;
 }
 
+function traduzErroSenha(error) {
+  const msg = (error && error.message) || '';
+  if (/same.*password|different from the old/i.test(msg)) return 'A nova senha precisa ser diferente da atual.';
+  if (/at least|too short|weak|pwned|leaked/i.test(msg)) return 'Senha fraca ou conhecida em vazamentos. Escolha outra, mais longa.';
+  if (/rate limit|too many/i.test(msg)) return 'Muitas tentativas. Aguarde alguns minutos.';
+  if (/session|jwt|not authenticated|expired/i.test(msg)) return 'Sua sessão expirou. Peça um novo link de recuperação.';
+  return 'Não foi possível alterar a senha: ' + msg;
+}
+
+// Devolve a mensagem de erro, ou '' se a nova senha é aceitável no cliente (o servidor ainda valida).
+function validarNovaSenha(nova, confirma) {
+  if (!nova || !confirma) return 'Preencha a nova senha e a confirmação.';
+  if (nova.length < SENHA_MIN) return `A nova senha precisa ter pelo menos ${SENHA_MIN} caracteres.`;
+  if (nova !== confirma) return 'A confirmação não confere com a nova senha.';
+  return '';
+}
+
+function estadoBotao(id, carregando, rotulo, rotuloCarregando) {
+  const btn = document.getElementById(id);
+  btn.disabled = carregando;
+  btn.innerHTML = carregando ? `<i class="fas fa-spinner fa-spin"></i> &nbsp;${rotuloCarregando}` : rotulo;
+}
+
 // ── Login / sessão ────────────────────────────
 function mostrarErroLogin(texto) {
   const el = document.getElementById('loginErro');
   el.textContent = texto;
   el.style.display = texto ? 'block' : 'none';
+  if (texto) mostrarOkLogin('');
+}
+
+function mostrarOkLogin(texto) {
+  const el = document.getElementById('loginOk');
+  el.textContent = texto;
+  el.style.display = texto ? 'block' : 'none';
+}
+
+// Painéis da tela de login: 'login' | 'esqueci' | 'nova'.
+function mostrarPainelLogin(qual) {
+  document.getElementById('painelLogin').hidden     = qual !== 'login';
+  document.getElementById('painelEsqueci').hidden   = qual !== 'esqueci';
+  document.getElementById('painelNovaSenha').hidden = qual !== 'nova';
+  mostrarErroLogin('');
+  mostrarOkLogin('');
+  if (qual === 'esqueci') {
+    const email = document.getElementById('loginEmail').value.trim();
+    if (email) document.getElementById('esqueciEmail').value = email;
+    document.getElementById('esqueciEmail').focus();
+  }
+}
+
+// ── Esqueci minha senha ───────────────────────
+async function enviarLinkRecuperacao() {
+  if (!sb) return;
+  const email = document.getElementById('esqueciEmail').value.trim();
+  mostrarErroLogin('');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { mostrarErroLogin('Informe um e-mail válido.'); return; }
+
+  estadoBotao('btnEsqueci', true, '', 'Enviando...');
+  // O link volta para esta mesma página; a URL precisa estar em Auth → URL Configuration → Redirect URLs.
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+  estadoBotao('btnEsqueci', false, '<i class="fas fa-envelope"></i> &nbsp;Enviar link');
+  if (error && /rate limit|too many|security purposes/i.test(error.message || '')) {
+    mostrarErroLogin('Muitas solicitações. Aguarde alguns minutos antes de pedir outro link.');
+    return;
+  }
+  // Mesma resposta exista ou não a conta: a tela não revela quem está cadastrado.
+  mostrarOkLogin('Se o e-mail estiver cadastrado, você receberá em instantes um link para definir uma nova senha. Confira também a caixa de spam.');
+}
+
+// ── Nova senha (voltando do link do e-mail) ────
+async function abrirRecuperacao(usuario) {
+  document.getElementById('loginScreen').classList.remove('hidden');
+  mostrarPainelLogin('nova');
+  setEl('novaSenhaConta', 'Conta: ' + (usuario.email || ''));
+  document.getElementById('recNova').focus();
+}
+
+async function salvarSenhaRecuperada() {
+  if (!sb) return;
+  const nova = document.getElementById('recNova').value;
+  const confirma = document.getElementById('recConfirma').value;
+  const invalida = validarNovaSenha(nova, confirma);
+  if (invalida) { mostrarErroLogin(invalida); return; }
+
+  estadoBotao('btnNovaSenha', true, '', 'Salvando...');
+  const { data, error } = await sb.auth.updateUser({ password: nova });
+  estadoBotao('btnNovaSenha', false, '<i class="fas fa-key"></i> &nbsp;Salvar nova senha');
+  if (error) { mostrarErroLogin(traduzErroSenha(error)); return; }
+
+  document.getElementById('recNova').value = '';
+  document.getElementById('recConfirma').value = '';
+  modoRecuperacao = false;
+  mostrarPainelLogin('login');
+  await entrarNoSistema(data.user);
+}
+
+async function cancelarRecuperacao() {
+  modoRecuperacao = false;
+  document.getElementById('recNova').value = '';
+  document.getElementById('recConfirma').value = '';
+  // A sessão aberta pelo link não deve sobrar logada sem a senha ter sido trocada.
+  if (sb) await sb.auth.signOut();
+  mostrarPainelLogin('login');
 }
 
 function estadoBotaoLogin(carregando) {
@@ -1794,6 +1985,43 @@ async function doLogin() {
   document.getElementById('loginPassword').value = '';
   await entrarNoSistema(data.user);
   estadoBotaoLogin(false);
+}
+
+// ── Alterar senha (Configurações) ─────────────
+function mostrarMsgSenha(texto, tipo) {
+  const el = document.getElementById('trocarSenhaMsg');
+  el.textContent = texto;
+  el.className = 'cfg-msg' + (texto ? ' ' + tipo : '');
+}
+
+async function trocarSenha() {
+  if (!sb || !sessao.usuario) return;
+  const atual = document.getElementById('senhaAtual').value;
+  const nova = document.getElementById('senhaNova').value;
+  const confirma = document.getElementById('senhaConfirma').value;
+  mostrarMsgSenha('', '');
+  if (!atual) { mostrarMsgSenha('Informe a senha atual.', 'erro'); return; }
+  const invalida = validarNovaSenha(nova, confirma);
+  if (invalida) { mostrarMsgSenha(invalida, 'erro'); return; }
+  if (nova === atual) { mostrarMsgSenha('A nova senha precisa ser diferente da atual.', 'erro'); return; }
+
+  const rotulo = '<i class="fas fa-key"></i> Alterar senha';
+  estadoBotao('btnTrocarSenha', true, '', 'Alterando...');
+  // O Supabase não pede a senha atual no updateUser; conferi-la aqui impede que alguém com a
+  // sessão aberta (computador destravado) troque a senha do dono da conta.
+  const conf = await sb.auth.signInWithPassword({ email: sessao.usuario.email, password: atual });
+  if (conf.error) {
+    estadoBotao('btnTrocarSenha', false, rotulo);
+    mostrarMsgSenha(/invalid login credentials/i.test(conf.error.message || '')
+      ? 'Senha atual incorreta.' : traduzErroAuth(conf.error), 'erro');
+    return;
+  }
+  const { error } = await sb.auth.updateUser({ password: nova });
+  estadoBotao('btnTrocarSenha', false, rotulo);
+  if (error) { mostrarMsgSenha(traduzErroSenha(error), 'erro'); return; }
+
+  ['senhaAtual', 'senhaNova', 'senhaConfirma'].forEach(id => { document.getElementById(id).value = ''; });
+  mostrarMsgSenha('Senha alterada. Use a nova senha no próximo login.', 'ok');
 }
 
 async function entrarNoSistema(usuario) {
@@ -1864,8 +2092,10 @@ async function logout() {
   dadosGlobais = vazio();
   if (chartNC)     { chartNC.destroy();     chartNC = null; }
   if (chartStatus) { chartStatus.destroy(); chartStatus = null; }
+  ['senhaAtual', 'senhaNova', 'senhaConfirma'].forEach(id => { document.getElementById(id).value = ''; });
+  mostrarMsgSenha('', '');
   document.getElementById('loginScreen').classList.remove('hidden');
-  mostrarErroLogin('');
+  mostrarPainelLogin('login');
 }
 
 // ── Carregar dados da empresa ativa ───────────
@@ -2373,10 +2603,18 @@ window.addEventListener('load', async () => {
       return;
     }
     const { data } = await sb.auth.getSession();
-    if (data.session) await entrarNoSistema(data.session.user);
-    sb.auth.onAuthStateChange(evento => {
-      if (evento === 'SIGNED_OUT' && sessao.usuario) logout();
-    });
+    if (RETORNO_AUTH.erro && !data.session) {
+      mostrarPainelLogin('esqueci');
+      mostrarErroLogin('O link de recuperação é inválido ou expirou. Peça um novo abaixo.');
+    } else if (modoRecuperacao && data.session) {
+      await abrirRecuperacao(data.session.user);
+    } else if (data.session) {
+      await entrarNoSistema(data.session.user);
+    }
+    // Tira os tokens/erro do link da barra de endereço (não ficam no histórico nem em print).
+    if (RETORNO_AUTH.recuperacao || RETORNO_AUTH.erro) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
   } finally {
     document.getElementById('loadingOverlay').classList.add('hidden');
   }

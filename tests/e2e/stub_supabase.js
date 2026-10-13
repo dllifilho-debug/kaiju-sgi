@@ -85,17 +85,42 @@
   }
 
   let logado = false;
+  let senha = 'certa';
+  const ouvintes = [];
+  window.__auth = [];
   window.supabase = {
     createClient() {
+      // Link de recuperação: o supabase-js real abre a sessão a partir do fragmento e emite
+      // PASSWORD_RECOVERY durante a inicialização (assíncrona, depois do createClient).
+      const recuperacao = /type=recovery/.test(window.location.hash);
+      if (recuperacao) {
+        logado = true;
+        setTimeout(() => ouvintes.forEach(f => f('PASSWORD_RECOVERY', { user: USUARIO })), 0);
+      }
       return {
         auth: {
-          async getSession() { return { data: { session: logado ? { user: USUARIO } : null } }; },
+          async getSession() {
+            if (recuperacao) await new Promise(r => setTimeout(r, 5));
+            return { data: { session: logado ? { user: USUARIO } : null } };
+          },
           async signInWithPassword({ email, password }) {
-            if (email === USUARIO.email && password === 'certa') { logado = true; return { data: { user: USUARIO }, error: null }; }
+            window.__auth.push({ op: 'signIn', email });
+            if (email === USUARIO.email && password === senha) { logado = true; return { data: { user: USUARIO }, error: null }; }
             return { data: {}, error: { message: 'Invalid login credentials' } };
           },
+          async resetPasswordForEmail(email, opts) {
+            window.__auth.push({ op: 'reset', email, redirectTo: opts && opts.redirectTo });
+            return { data: {}, error: null };
+          },
+          async updateUser(attrs) {
+            window.__auth.push({ op: 'update', attrs });
+            if (!logado) return { data: { user: null }, error: { message: 'Auth session missing!' } };
+            if (attrs.password === senha) return { data: { user: null }, error: { message: 'New password should be different from the old password.' } };
+            senha = attrs.password;
+            return { data: { user: USUARIO }, error: null };
+          },
           async signOut() { logado = false; return { error: null }; },
-          onAuthStateChange() { return { data: { subscription: { unsubscribe() {} } } }; }
+          onAuthStateChange(f) { ouvintes.push(f); return { data: { subscription: { unsubscribe() {} } } }; }
         },
         from: consulta
       };

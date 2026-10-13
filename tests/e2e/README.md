@@ -6,7 +6,10 @@ Abre o `index.html` no Chromium (Playwright) **sem rede**:
   o `index.html` cita as mesmas versões do `package.json` e que o SRI (hash) bate.
 - **T2 — Supabase simulado** (`stub_supabase.js`): login com senha errada/certa, contagens do
   painel, NC gravada com o `empresa_id` certo, troca de empresa, bloqueio do papel
-  `cliente_leitura`, XSS não executa, logout, nenhum erro de JS.
+  `cliente_leitura`, XSS não executa, alterar senha (confere a atual, mínimo de 8, confirmação),
+  "esqueci minha senha" (resposta neutra, `redirectTo` da própria página), logout, nenhum erro de JS.
+- **T3 — volta do link do e-mail:** fragmento `type=recovery` abre "Definir nova senha" sem entrar no
+  sistema, tira os tokens da barra de endereço e entra após salvar; link expirado mostra aviso.
 
 ```bash
 cd tests/e2e
