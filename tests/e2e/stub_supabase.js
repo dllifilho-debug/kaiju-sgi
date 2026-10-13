@@ -59,6 +59,7 @@
     const q = {
       select(_cols, opts) { if (operacao === 'select') opcoes = opts || {}; return q; },
       eq(c, v) { filtros.push(r => r[c] === v); return q; },
+      in(c, vs) { filtros.push(r => vs.includes(r[c])); return q; },
       is(c, v) { filtros.push(r => (r[c] ?? null) === v); return q; },
       order() { return q; },
       insert(l) { operacao = 'insert'; payload = l; return q; },

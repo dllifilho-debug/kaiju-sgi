@@ -125,6 +125,67 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
   await page.click('#actionModal .modal-close');
 
   
+  // Status de ação (Planos de Ação) e cancelamento de NC com ações em aberto.
+  // Respostas de diálogo em fila: cada prompt/confirm consome a próxima.
+  const respostas = [];
+  const vistos = [];
+  const responder = d => {
+    vistos.push(d.type() + ': ' + d.message());
+    const r = respostas.shift();
+    if (r === undefined || r === false) return d.dismiss();
+    return d.type() === 'prompt' ? d.accept(String(r)) : d.accept();
+  };
+  page.on('dialog', responder);
+  const ACAO = 'cccccc01-0000-4000-8000-000000000001';
+  const updates = tabela => page.evaluate(t => window.__chamadas.filter(c => c.operacao === 'update' && c.tabela === t), tabela);
+
+  await page.click('[data-page="actions"]');
+  respostas.push(2);
+  await page.click(`#kanban-andamento .kanban-card button[onclick*="${ACAO}"]`);
+  await page.waitForFunction(() => document.querySelector('#kanban-concluida .kanban-count').textContent === '1');
+  let u = (await updates('acoes')).at(-1);
+  const hoje = await page.evaluate(() => hojeISO());
+  ok(u && u.payload.status === 'concluida' && u.payload.concluida_em === hoje && u.payload.progresso === 100,
+     'T2 ação → Concluída grava concluida_em de hoje e progresso 100');
+  ok(vistos.length === 1 && vistos[0].startsWith('prompt'), 'T2 clicar no botão de status não abre o detalhe da ação');
+  respostas.push(1);
+  await page.click(`#kanban-concluida .kanban-card button[onclick*="${ACAO}"]`);
+  await page.waitForFunction(() => document.querySelector('#kanban-andamento .kanban-count').textContent === '1');
+  u = (await updates('acoes')).at(-1);
+  ok(u.payload.status === 'em_andamento' && u.payload.concluida_em === null, 'T2 ação reaberta limpa concluida_em');
+
+  await page.click('[data-page="nc"]');
+  vistos.length = 0;
+  respostas.push(3, false);
+  await page.click(`#nc-table-body button[onclick*="alterarStatusNC('aaaaaa01"]`);
+  await page.waitForFunction(() => window.__chamadas.filter(c => c.tabela === 'nao_conformidades' && c.operacao === 'update').length === 1);
+  await page.waitForTimeout(300);
+  ok(vistos.length === 2 && vistos[1].startsWith('confirm') && vistos[1].includes('Instalar guarda-corpo'),
+     'T2 cancelar NC com ação em aberto pergunta, listando a ação');
+  ok((await updates('acoes')).length === 2, 'T2 recusar a pergunta não cancela a ação');
+  ok((await page.evaluate(() => dadosGlobais.acoes.find(a => a.id === 'cccccc01-0000-4000-8000-000000000001').status)) === 'em_andamento',
+     'T2 ação continua em andamento');
+
+  // Repete o cancelamento e aceita: a ação é cancelada junto.
+  vistos.length = 0;
+  respostas.push(3, true);
+  await page.click(`#nc-table-body button[onclick*="alterarStatusNC('aaaaaa01"]`);
+  await page.waitForFunction(() => window.__chamadas.filter(c => c.tabela === 'acoes' && c.operacao === 'update').length === 3);
+  u = (await updates('acoes')).at(-1);
+  ok(u.payload.status === 'cancelada' && u.payload.concluida_em === null, 'T2 aceitar cancela as ações abertas da NC');
+  await page.click('[data-page="actions"]');
+  await page.waitForFunction(() => document.querySelector('#kanban-cancelada .kanban-count').textContent === '1');
+  ok(true, 'T2 ação aparece na coluna Cancelada');
+
+  await page.click('[data-page="nc"]');
+  vistos.length = 0;
+  respostas.push(3);
+  await page.click(`#nc-table-body button[onclick*="alterarStatusNC('aaaaaa02"]`);
+  await page.waitForFunction(() => window.__chamadas.filter(c => c.tabela === 'nao_conformidades' && c.operacao === 'update').length === 3);
+  await page.waitForTimeout(300);
+  ok(vistos.length === 1, 'T2 cancelar NC sem ações em aberto não pergunta nada');
+  page.off('dialog', responder);
+
   await page.selectOption('#empresaSelect', '22222222-bbbb-4bbb-8bbb-222222222222');
   await page.waitForFunction(() => document.getElementById('userRole').textContent === 'Cliente (leitura)');
   ok(await t('nc-stat-total') === '1', 'T2 troca de empresa: só NCs da B');
@@ -133,6 +194,8 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
   await page.click('.fab-btn');
   await page.click('.fab-menu-item:has-text("Nova Não Conformidade")');
   ok(alerta.includes('somente leitura'), 'T2 cliente_leitura não abre formulário de NC');
+  await page.click('[data-page="actions"]');
+  ok((await page.locator('.kanban-card button').count()) === 0, 'T2 cliente_leitura não vê botão de status da ação');
 
   // Alterar senha (Configurações)
   await page.click('[data-page="settings"]');
