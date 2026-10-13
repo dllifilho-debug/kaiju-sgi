@@ -1251,6 +1251,7 @@
             <th>Código</th>
             <th>Título</th>
             <th>Setor</th>
+            <th>Obra</th>
             <th>Origem</th>
             <th>Gravidade</th>
             <th>Status</th>
@@ -1261,7 +1262,7 @@
         </thead>
         <tbody id="nc-table-body">
           <tr>
-            <td colspan="9" style="text-align:center;padding:30px;color:var(--gray-500);">
+            <td colspan="10" style="text-align:center;padding:30px;color:var(--gray-500);">
               <i class="fas fa-spinner fa-spin"></i> Carregando...
             </td>
           </tr>
@@ -2181,7 +2182,7 @@ async function carregarTodosDados() {
       'id, data_realizacao, valido_ate, instrutor, treinamentos(nome, nr_ref, carga_horaria_h), trabalhadores(nome)',
       'data_realizacao'),
     q('nao_conformidades',
-      'id, titulo, descricao, setor, origem, severidade, status, responsavel, prazo, data_identificacao, norma_ref, item_ref, created_at',
+      'id, titulo, descricao, setor, origem, severidade, status, responsavel, prazo, data_identificacao, norma_ref, item_ref, estabelecimento_id, created_at',
       'data_identificacao'),
     q('acoes', 'id, titulo, descricao, tipo, prioridade, setor, progresso, status, responsavel, prazo, nc_id, created_at',
       'created_at'),
@@ -2496,6 +2497,18 @@ async function alternarObraAtiva(id) {
 }
 
 // ── Tabela de NCs ─────────────────────────────
+// Nome da obra/unidade vinculada; inclui as inativas, para a NC antiga não perder o vínculo na tela.
+function nomeObra(id) {
+  if (!id) return '';
+  return dadosGlobais.obras.find(o => o.id === id)?.nome || '';
+}
+
+// Ações que ainda impedem encerrar a NC (ISO 9001/45001, 10.2: a NC encerra depois das ações).
+function acoesEmAbertoDaNC(ncId) {
+  return dadosGlobais.acoes.filter(a =>
+    a.nc_id === ncId && (a.status === 'pendente' || a.status === 'em_andamento'));
+}
+
 function renderTabelaNCs(filtro = '') {
   const tbody = document.getElementById('nc-table-body');
   if (!tbody) return;
@@ -2504,12 +2517,12 @@ function renderTabelaNCs(filtro = '') {
   if (filtro) {
     const f = filtro.toLowerCase();
     lista = lista.filter(nc =>
-      [nc.titulo, nc.descricao, nc.setor, nc.responsavel, nc.status, nc.severidade, nc.norma_ref]
+      [nc.titulo, nc.descricao, nc.setor, nomeObra(nc.estabelecimento_id), nc.responsavel, nc.status, nc.severidade, nc.norma_ref]
         .some(v => String(v || '').toLowerCase().includes(f)));
   }
 
   if (lista.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--gray-500);">Nenhuma NC encontrada</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--gray-500);">Nenhuma NC encontrada</td></tr>`;
     return;
   }
 
@@ -2520,6 +2533,7 @@ function renderTabelaNCs(filtro = '') {
       <td><strong>${esc(codigoNC(nc.id))}</strong></td>
       <td>${esc(nc.titulo || nc.descricao)}</td>
       <td>${esc(nc.setor || '—')}</td>
+      <td>${esc(nomeObra(nc.estabelecimento_id) || '—')}</td>
       <td><span class="compliance-iso ${origem.cls}">${esc(origem.label)}</span></td>
       <td>${nc.severidade ? badge(SEVERIDADE, nc.severidade) : '—'}</td>
       <td>${badge(NC_STATUS, nc.status)}</td>
@@ -2544,6 +2558,7 @@ function verNC(id) {
     `Origem: ${NC_ORIGEM[nc.origem]?.label || nc.origem}\n` +
     (norma ? `Referência: ${norma}\n` : '') +
     `Setor: ${nc.setor || '—'}\n` +
+    `Obra/unidade: ${nomeObra(nc.estabelecimento_id) || '—'}\n` +
     `Responsável: ${nc.responsavel || '—'}\n` +
     `Abertura: ${fmtData(nc.data_identificacao)}\n` +
     `Prazo: ${fmtData(nc.prazo)}\n\n` +
@@ -2565,6 +2580,17 @@ async function alterarStatusNC(id) {
   const novo = opcoes[parseInt(escolha, 10)];
   if (!novo) { alert('Opção inválida'); return; }
 
+  if (novo === 'encerrada') {
+    const pendentes = acoesEmAbertoDaNC(id);
+    if (pendentes.length > 0) {
+      alert(
+        `${codigoNC(nc.id)} não pode ser encerrada: ela tem ${pendentes.length} ação(ões) em aberto:\n` +
+        pendentes.map(a => '• ' + (a.titulo || a.descricao)).join('\n') +
+        `\n\nConclua ou cancele as ações antes de encerrar a NC.`);
+      return;
+    }
+  }
+
   const { data, error } = await sb.from('nao_conformidades').update({ status: novo }).eq('id', id).select('id');
   if (error) { alert('❌ ' + traduzErroDb(error)); return; }
   // UPDATE barrado pela RLS não dá erro: volta 0 linhas.
@@ -2572,8 +2598,7 @@ async function alterarStatusNC(id) {
 
   // Cancelar a NC não cancela as ações sozinho: pergunta, e só cancela com confirmação.
   if (novo === 'cancelada') {
-    const abertas = dadosGlobais.acoes.filter(a =>
-      a.nc_id === id && (a.status === 'pendente' || a.status === 'em_andamento'));
+    const abertas = acoesEmAbertoDaNC(id);
     if (abertas.length > 0 && confirm(
       `${codigoNC(nc.id)} foi cancelada.\n\n` +
       `Ela tem ${abertas.length} ação(ões) em aberto:\n` +
