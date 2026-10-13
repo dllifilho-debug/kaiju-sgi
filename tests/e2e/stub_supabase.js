@@ -16,10 +16,10 @@
     nao_conformidades: [
       { id: 'aaaaaa01-0000-4000-8000-000000000001', empresa_id: EMP_A, titulo: XSS, descricao: 'desc', setor: 'Obras',
         origem: 'auditoria_nr', severidade: 'alta', status: 'aberta', responsavel: 'Fulano', prazo: dias(10),
-        data_identificacao: iso(hoje), norma_ref: 'NR-35', item_ref: '35.1.1', created_at: hoje.toISOString() },
+        data_identificacao: iso(hoje), norma_ref: 'NR-35', item_ref: '35.1.1', estabelecimento_id: 'e-1', created_at: hoje.toISOString() },
       { id: 'aaaaaa02-0000-4000-8000-000000000002', empresa_id: EMP_A, titulo: 'Extintor vencido', descricao: 'd', setor: 'Geral',
         origem: 'inspecao', severidade: 'media', status: 'em_tratamento', responsavel: null, prazo: null,
-        data_identificacao: iso(hoje), norma_ref: null, item_ref: null, created_at: hoje.toISOString() },
+        data_identificacao: iso(hoje), norma_ref: null, item_ref: null, estabelecimento_id: 'e-2', created_at: hoje.toISOString() },
       { id: 'bbbbbb01-0000-4000-8000-000000000003', empresa_id: EMP_B, titulo: 'NC da Beta', descricao: 'd', setor: 'x',
         origem: 'outro', severidade: 'baixa', status: 'aberta', responsavel: null, prazo: null,
         data_identificacao: iso(hoje), norma_ref: null, item_ref: null, created_at: hoje.toISOString() }

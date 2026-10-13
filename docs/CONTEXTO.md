@@ -81,7 +81,7 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
   Ação = Pendente → Em andamento → Concluída (NC só encerra após eficácia das ações — ISO 9001/45001, 10.2).
 - Módulos sem banco (riscos, auditorias, meio ambiente, documentos, KPIs, compliance) aparecem como
   "em desenvolvimento", sem números.
-- Teste de tela em `tests/e2e/` (Playwright + Supabase simulado): 40 verificações (63 desde as telas de senha); ver o README da pasta.
+- Teste de tela em `tests/e2e/` (Playwright + Supabase simulado): 40 verificações (63 desde as telas de senha; 88 desde a coluna "Obra" na lista de NCs); ver o README da pasta.
 - Telas de senha (13/10/2026, branch `claude/awesome-fermat-f4z7qj`, ainda sem teste no Supabase real):
   "Esqueci minha senha" no login (`resetPasswordForEmail`, volta para a própria página e abre
   "Definir nova senha") e "Alterar senha" em Configurações (confere a senha atual antes do
@@ -104,7 +104,9 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 - Armadilha do Streamlit Cloud medida em 13/10/2026: após merge que muda `auditoria/`, o app
   recarregou `app.py` com o módulo `auditoria.kaiju` antigo (`AttributeError: resumo_envio`); o
   envio já tinha gravado e só a mensagem falhou. Remédio: *Reboot app* após cada merge desse tipo.
-- A lista de NCs do Kaiju ainda não mostra a obra vinculada.
+- Lista de NCs com a coluna "Obra" (nome da obra/unidade vinculada, inclusive inativa; a busca acha
+  pelo nome) e bloqueio de encerrar NC com ação pendente/em andamento — branch
+  `claude/festive-hawking-mr9fsa-ncs-obra`. O bloqueio é só na tela; o banco não impede.
 - Telas "Esqueci minha senha" e "Alterar senha" no ar desde `kaiju-sgi` PR #12 (13/10/2026);
   envio de e-mail pelo SMTP padrão do Supabase **[A CONFERIR]** para usuários fora da equipe.
 

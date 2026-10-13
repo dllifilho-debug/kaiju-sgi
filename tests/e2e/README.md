@@ -8,7 +8,8 @@ Abre o `index.html` no Chromium (Playwright) **sem rede**:
   painel, NC gravada com o `empresa_id` certo, troca de empresa, bloqueio do papel
   `cliente_leitura`, XSS não executa, alterar senha (confere a atual, mínimo de 8, confirmação),
   "esqueci minha senha" (resposta neutra, `redirectTo` da própria página), status da ação no kanban
-  (`concluida_em`/`progresso` coerentes), cancelar NC pergunta antes de cancelar as ações abertas,
+  (`concluida_em`/`progresso` coerentes), cancelar NC pergunta antes de cancelar as ações abertas, encerrar NC com ação em aberto é bloqueado,
+  coluna "Obra" na lista de NCs (inclusive obra inativa) e busca pelo nome da obra,
   obras e unidades (lista por empresa, cadastro com CNO/CNPJ só em dígitos, edição, desativar sem
   excluir, `cliente_leitura` sem botões), logout, nenhum erro de JS.
 - **T3 — volta do link do e-mail:** fragmento `type=recovery` abre "Definir nova senha" sem entrar no

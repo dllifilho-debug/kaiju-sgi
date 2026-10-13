@@ -106,6 +106,15 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
   ok(await page.evaluate(() => window.__xss === undefined), 'T2 XSS no título da NC não executou');
   ok((await page.textContent('#nc-table-body')).includes('<img src=x'), 'T2 título malicioso aparece como texto');
   ok((await page.locator('#nc-table-body tr').count()) === 2, 'T2 tabela de NCs com 2 linhas');
+  const celulaObra = id => page.locator(`#nc-table-body tr:has(button[onclick*="${id}"]) td:nth-child(4)`).textContent();
+  ok((await celulaObra('aaaaaa01')).trim() === 'Residencial Alfa', 'T2 NCs: coluna Obra com o nome da obra vinculada');
+  ok((await celulaObra('aaaaaa02')).trim() === 'Obra encerrada', 'T2 NCs: obra inativa continua aparecendo na NC antiga');
+  await page.fill('.table-search', 'residencial');
+  ok((await page.locator('#nc-table-body tr').count()) === 1
+     && (await page.locator('#nc-table-body button[onclick*="aaaaaa01"]').count()) > 0,
+     'T2 NCs: busca encontra pelo nome da obra');
+  await page.fill('.table-search', '');
+  await page.evaluate(() => renderTabelaNCs(''));
 
   // Obras e unidades
   await page.click('[data-page="sites"]');
@@ -194,6 +203,16 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
 
   await page.click('[data-page="nc"]');
   vistos.length = 0;
+  respostas.push(2, true);
+  await page.click(`#nc-table-body button[onclick*="alterarStatusNC('aaaaaa01"]`);
+  await page.waitForFunction(() => window.__chamadas.length > 0);
+  await page.waitForTimeout(300);
+  ok(vistos.length === 2 && vistos[1].startsWith('alert') && vistos[1].includes('não pode ser encerrada')
+     && vistos[1].includes('Instalar guarda-corpo'),
+     'T2 encerrar NC com ação em aberto é bloqueado, listando a ação');
+  ok((await updates('nao_conformidades')).length === 0, 'T2 NC bloqueada não é gravada');
+
+  vistos.length = 0;
   respostas.push(3, false);
   await page.click(`#nc-table-body button[onclick*="alterarStatusNC('aaaaaa01"]`);
   await page.waitForFunction(() => window.__chamadas.filter(c => c.tabela === 'nao_conformidades' && c.operacao === 'update').length === 1);
@@ -222,6 +241,14 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
   await page.waitForFunction(() => window.__chamadas.filter(c => c.tabela === 'nao_conformidades' && c.operacao === 'update').length === 3);
   await page.waitForTimeout(300);
   ok(vistos.length === 1, 'T2 cancelar NC sem ações em aberto não pergunta nada');
+
+  // Com a ação cancelada, a NC aaaaaa01 já pode ser encerrada.
+  vistos.length = 0;
+  respostas.push(2);
+  await page.click(`#nc-table-body button[onclick*="alterarStatusNC('aaaaaa01"]`);
+  await page.waitForFunction(() => window.__chamadas.filter(c => c.tabela === 'nao_conformidades' && c.operacao === 'update').length === 4);
+  ok((await updates('nao_conformidades')).at(-1).payload.status === 'encerrada' && vistos.length === 1,
+     'T2 NC sem ações em aberto encerra sem bloqueio');
   page.off('dialog', responder);
 
   await page.selectOption('#empresaSelect', '22222222-bbbb-4bbb-8bbb-222222222222');
