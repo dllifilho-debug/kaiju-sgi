@@ -107,6 +107,44 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
   ok((await page.textContent('#nc-table-body')).includes('<img src=x'), 'T2 título malicioso aparece como texto');
   ok((await page.locator('#nc-table-body tr').count()) === 2, 'T2 tabela de NCs com 2 linhas');
 
+  // Obras e unidades
+  await page.click('[data-page="sites"]');
+  const linhasObra = () => page.locator('#obras-table-body tr').count();
+  ok(await linhasObra() === 1 && (await page.textContent('#obras-table-body')).includes('Residencial Alfa'),
+     'T2 obras: só as ativas da empresa A (Beta e inativa fora)');
+  ok((await page.textContent('#obras-table-body')).includes('12.345.67890/12'), 'T2 obras: CNO formatado');
+  await page.check('#obras-mostrar-inativas');
+  ok(await linhasObra() === 2, 'T2 obras: "mostrar inativas" inclui a desativada');
+  await page.uncheck('#obras-mostrar-inativas');
+
+  await page.click('#btnNovaObra');
+  await page.fill('#obra-nome', 'Edifício Aurora — Torre B');
+  await page.fill('#obra-cno', '12.345');
+  await page.click('#btnSalvarObra');
+  ok((await page.textContent('#obra-msg')).includes('12 dígitos'), 'T2 obras: CNO incompleto recusado');
+  await page.fill('#obra-cno', '98.765.43210/98');
+  await page.fill('#obra-endereco', 'Av. B, 200');
+  await page.click('#btnSalvarObra');
+  await page.waitForFunction(() => document.querySelectorAll('#obras-table-body tr').length === 2);
+  const insObra = await page.evaluate(() => window.__chamadas.find(c => c.tabela === 'estabelecimentos' && c.operacao === 'insert'));
+  ok(insObra && insObra.payload.empresa_id === '11111111-aaaa-4aaa-8aaa-111111111111' && insObra.payload.tipo === 'obra'
+     && insObra.payload.cno === '987654321098' && insObra.payload.cnpj === null && insObra.payload.nome === 'Edifício Aurora — Torre B',
+     'T2 obras: nova obra gravada com empresa_id, tipo e CNO só com dígitos');
+
+  await page.click('#obras-table-body button[onclick*="abrirObra(\'e-1\')"]');
+  ok(await page.inputValue('#obra-nome') === 'Residencial Alfa', 'T2 obras: editar abre com os dados');
+  await page.fill('#obra-nome', 'Residencial Alfa II');
+  await page.click('#btnSalvarObra');
+  await page.waitForFunction(() => document.getElementById('obras-table-body').textContent.includes('Residencial Alfa II'));
+  const updObra = await page.evaluate(() => window.__chamadas.filter(c => c.tabela === 'estabelecimentos' && c.operacao === 'update').at(-1));
+  ok(updObra && updObra.payload.nome === 'Residencial Alfa II' && !('empresa_id' in updObra.payload), 'T2 obras: edição não mexe em empresa_id');
+
+  page.once('dialog', d => d.accept());
+  await page.click('#obras-table-body button[onclick*="alternarObraAtiva(\'e-1\')"]');
+  await page.waitForFunction(() => document.querySelectorAll('#obras-table-body tr').length === 1);
+  const desat = await page.evaluate(() => window.__chamadas.filter(c => c.tabela === 'estabelecimentos' && c.operacao === 'update').at(-1));
+  ok(desat.payload.ativo === false && Object.keys(desat.payload).length === 1, 'T2 obras: desativar só muda "ativo" (sem exclusão)');
+
   await page.click('[data-page="dashboard"]');
   await page.click('.fab-btn');
   await page.click('.fab-menu-item:has-text("Nova Não Conformidade")');
@@ -115,7 +153,7 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
   page.once('dialog', d => d.accept());
   await page.click('button:has-text("Registrar NC")');
   await page.waitForFunction(() => document.getElementById('nc-stat-total').textContent === '3');
-  const ins = await page.evaluate(() => window.__chamadas.find(c => c.operacao === 'insert'));
+  const ins = await page.evaluate(() => window.__chamadas.find(c => c.operacao === 'insert' && c.tabela === 'nao_conformidades'));
   ok(ins && ins.tabela === 'nao_conformidades' && ins.payload.empresa_id === '11111111-aaaa-4aaa-8aaa-111111111111'
      && ins.payload.titulo === 'Escada sem corrimão' && ins.payload.origem === 'inspecao', 'T2 NC gravada com empresa_id e campos certos');
 
@@ -128,6 +166,11 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
   await page.selectOption('#empresaSelect', '22222222-bbbb-4bbb-8bbb-222222222222');
   await page.waitForFunction(() => document.getElementById('userRole').textContent === 'Cliente (leitura)');
   ok(await t('nc-stat-total') === '1', 'T2 troca de empresa: só NCs da B');
+  await page.click('[data-page="sites"]');
+  ok(!(await page.isVisible('#btnNovaObra')) && (await page.locator('#obras-table-body button').count()) === 0
+     && (await page.textContent('#obras-table-body')).includes('Fábrica Beta'),
+     'T2 obras: cliente_leitura vê só as da B, sem botões de cadastro');
+  await page.click('[data-page="dashboard"]');
   let alerta = '';
   page.once('dialog', d => { alerta = d.message(); d.accept(); });
   await page.click('.fab-btn');

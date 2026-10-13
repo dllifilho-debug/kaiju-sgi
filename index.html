@@ -944,6 +944,7 @@
   <p class="sidebar-section">Recursos</p>
   <ul class="sidebar-menu">
     <li><a href="#" data-page="training"><i class="fas fa-graduation-cap"></i> Treinamentos</a></li>
+    <li><a href="#" data-page="sites"><i class="fas fa-building"></i> Obras e Unidades</a></li>
     <li><a href="#" data-page="people"><i class="fas fa-users"></i> Colaboradores</a></li>
     <li><a href="#" data-page="compliance"><i class="fas fa-balance-scale"></i> Compliance</a></li>
     <li><a href="#" data-page="reports"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
@@ -1459,6 +1460,30 @@
     </div>
   </div>
 
+  <!-- ==================== OBRAS E UNIDADES ==================== -->
+  <div class="page-section" id="page-sites">
+    <div class="page-header">
+      <div class="page-title"><h1>🏗️ Obras e Unidades</h1><p>Obras e estabelecimentos da empresa — usados para vincular NCs (inclusive as enviadas pelo app de Auditoria de NRs)</p></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" id="btnNovaObra" onclick="abrirObra()" style="white-space:nowrap;"><i class="fas fa-plus"></i> Nova obra/unidade</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Cadastro</span>
+        <label style="display:flex;gap:8px;align-items:center;font-size:0.85rem;color:var(--gray-700);">
+          <input type="checkbox" id="obras-mostrar-inativas" onchange="renderTabelaObras()"> Mostrar inativas
+        </label>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Nome</th><th>Tipo</th><th>CNO / CNPJ</th><th>Endereço</th><th>Situação</th><th>Ações</th></tr>
+        </thead>
+        <tbody id="obras-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- ==================== PESSOAS ==================== -->
   <div class="page-section" id="page-people">
     <div class="page-header">
@@ -1558,6 +1583,51 @@
   </div>
 
 </main>
+
+<!-- ==================== MODAL OBRA ==================== -->
+<div class="modal-overlay" id="obraModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="obra-modal-titulo">🏗️ Nova obra/unidade</h3>
+      <button class="modal-close" onclick="closeModal('obraModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="obra-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="obra-tipo">Tipo</label>
+          <select id="obra-tipo" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+            <option value="obra" selected>Obra</option>
+            <option value="estabelecimento">Estabelecimento</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="obra-nome">Nome *</label>
+          <input type="text" id="obra-nome" maxlength="200" placeholder="Ex.: Edifício Aurora — Torre B" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="obra-cno">CNO (12 dígitos)</label>
+          <input type="text" id="obra-cno" inputmode="numeric" placeholder="opcional" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+        </div>
+        <div class="form-group">
+          <label for="obra-cnpj">CNPJ (14 dígitos)</label>
+          <input type="text" id="obra-cnpj" inputmode="numeric" placeholder="opcional" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label for="obra-endereco">Endereço</label>
+        <input type="text" id="obra-endereco" maxlength="300" placeholder="opcional" style="background:white;color:#202124;border:2px solid #e8eaed;border-radius:10px;padding:12px 16px;width:100%;font-family:inherit;font-size:0.95rem;outline:none;">
+      </div>
+      <div class="cfg-msg" id="obra-msg" role="alert"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('obraModal')">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarObra" onclick="salvarObra()"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+  </div>
+</div>
 
 <!-- ==================== MODAL NC ==================== -->
 <div class="modal-overlay" id="ncModal">
@@ -1780,7 +1850,7 @@ let sessao = { usuario: null, vinculos: [], empresaId: null, papel: null };
 let dadosGlobais = vazio();
 
 function vazio() {
-  return { asos: [], pgrs: [], treinamentos: [], ncs: [], acoes: [], trabalhadores: 0 };
+  return { asos: [], pgrs: [], treinamentos: [], ncs: [], acoes: [], obras: [], trabalhadores: 0 };
 }
 
 // ── Utilidades ────────────────────────────────
@@ -2104,7 +2174,7 @@ async function carregarTodosDados() {
   const q = (tabela, colunas, ordem) =>
     sb.from(tabela).select(colunas).eq('empresa_id', emp).order(ordem, { ascending: false });
 
-  const [asos, pgrs, treinos, ncs, acoes, trab] = await Promise.all([
+  const [asos, pgrs, treinos, ncs, acoes, trab, obras] = await Promise.all([
     q('asos', 'id, trabalhador_id, tipo, data_exame, resultado, proximo_exame', 'data_exame'),
     q('pgrs', 'id, versao, status, data_elaboracao, data_revisao_prevista', 'data_elaboracao'),
     q('treinamentos_realizados',
@@ -2116,15 +2186,17 @@ async function carregarTodosDados() {
     q('acoes', 'id, titulo, descricao, tipo, prioridade, setor, progresso, status, responsavel, prazo, nc_id, created_at',
       'created_at'),
     sb.from('trabalhadores').select('id', { count: 'exact', head: true })
-      .eq('empresa_id', emp).is('data_desligamento', null)
+      .eq('empresa_id', emp).is('data_desligamento', null),
+    sb.from('estabelecimentos').select('id, tipo, nome, cnpj, cno, endereco, ativo')
+      .eq('empresa_id', emp).order('nome', { ascending: true })
   ]);
 
-  const falha = [asos, pgrs, treinos, ncs, acoes, trab].find(r => r.error);
+  const falha = [asos, pgrs, treinos, ncs, acoes, trab, obras].find(r => r.error);
   if (falha) throw new Error(traduzErroDb(falha.error));
 
   dadosGlobais = {
     asos: asos.data, pgrs: pgrs.data, treinamentos: treinos.data,
-    ncs: ncs.data, acoes: acoes.data, trabalhadores: trab.count || 0
+    ncs: ncs.data, acoes: acoes.data, obras: obras.data || [], trabalhadores: trab.count || 0
   };
   return dadosGlobais;
 }
@@ -2312,6 +2384,115 @@ function renderTimeline() {
         <div class="timeline-time"><i class="fas fa-clock"></i> ${esc(fmtDataHora(i.quando))}</div>
       </div>
     </div>`).join('');
+}
+
+// ── Obras e unidades ──────────────────────────
+const TIPO_ESTAB = { obra: 'Obra', estabelecimento: 'Estabelecimento' };
+
+function soDigitos(v) { return String(v || '').replace(/\D/g, ''); }
+
+function fmtCNPJ(c) { return c ? c.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5') : ''; }
+// CNO: 12 dígitos, exibido como XX.XXX.XXXXX/XX.
+function fmtCNO(c) { return c ? c.replace(/^(\d{2})(\d{3})(\d{5})(\d{2})$/, '$1.$2.$3/$4') : ''; }
+
+function renderTabelaObras() {
+  const tbody = document.getElementById('obras-table-body');
+  if (!tbody) return;
+  const btn = document.getElementById('btnNovaObra');
+  if (btn) btn.style.display = podeEscreverSST() ? '' : 'none';
+
+  const inativas = document.getElementById('obras-mostrar-inativas').checked;
+  const lista = (dadosGlobais.obras || []).filter(o => inativas || o.ativo);
+  if (lista.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-500);">` +
+      (podeEscreverSST() ? 'Nenhuma obra ou unidade cadastrada. Use "Nova obra/unidade".' : 'Nenhuma obra ou unidade cadastrada.') +
+      `</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(o => {
+    const doc = [o.cno && 'CNO ' + fmtCNO(o.cno), o.cnpj && 'CNPJ ' + fmtCNPJ(o.cnpj)].filter(Boolean).join('<br>');
+    const situacao = o.ativo
+      ? '<span class="status-badge completed"><span class="status-dot"></span>Ativa</span>'
+      : '<span class="status-badge pending"><span class="status-dot"></span>Inativa</span>';
+    const acoes = podeEscreverSST() ? `
+        <button class="action-btn" onclick="abrirObra('${esc(o.id)}')" title="Editar"><i class="fas fa-edit"></i></button>
+        <button class="action-btn" onclick="alternarObraAtiva('${esc(o.id)}')" title="${o.ativo ? 'Desativar' : 'Reativar'}">
+          <i class="fas ${o.ativo ? 'fa-ban' : 'fa-undo'}"></i></button>` : '—';
+    return `
+    <tr>
+      <td><strong>${esc(o.nome)}</strong></td>
+      <td>${esc(TIPO_ESTAB[o.tipo] || o.tipo)}</td>
+      <td>${doc ? doc.split('<br>').map(esc).join('<br>') : '—'}</td>
+      <td>${esc(o.endereco || '—')}</td>
+      <td>${situacao}</td>
+      <td class="table-actions-cell">${acoes}</td>
+    </tr>`;
+  }).join('');
+}
+
+function mostrarMsgObra(texto) {
+  const el = document.getElementById('obra-msg');
+  el.textContent = texto;
+  el.className = 'cfg-msg' + (texto ? ' erro' : '');
+}
+
+function abrirObra(id) {
+  if (!podeEscreverSST()) { alert('Seu papel nesta empresa não permite cadastrar obras.'); return; }
+  const o = id ? (dadosGlobais.obras || []).find(x => x.id === id) : null;
+  if (id && !o) return;
+  document.getElementById('obra-modal-titulo').textContent = o ? '🏗️ Editar obra/unidade' : '🏗️ Nova obra/unidade';
+  document.getElementById('obra-id').value = o ? o.id : '';
+  document.getElementById('obra-tipo').value = o ? o.tipo : 'obra';
+  document.getElementById('obra-nome').value = o ? o.nome : '';
+  document.getElementById('obra-cno').value = o ? fmtCNO(o.cno) : '';
+  document.getElementById('obra-cnpj').value = o ? fmtCNPJ(o.cnpj) : '';
+  document.getElementById('obra-endereco').value = o ? (o.endereco || '') : '';
+  mostrarMsgObra('');
+  document.getElementById('obraModal').classList.add('active');
+  document.getElementById('obra-nome').focus();
+}
+
+async function salvarObra() {
+  if (!podeEscreverSST()) return;
+  const id = document.getElementById('obra-id').value;
+  const nome = valor('obra-nome');
+  const cno = soDigitos(valor('obra-cno'));
+  const cnpj = soDigitos(valor('obra-cnpj'));
+  if (!nome) { mostrarMsgObra('Informe o nome.'); return; }
+  if (cno && cno.length !== 12) { mostrarMsgObra('O CNO tem 12 dígitos.'); return; }
+  if (cnpj && cnpj.length !== 14) { mostrarMsgObra('O CNPJ tem 14 dígitos.'); return; }
+  const repetida = (dadosGlobais.obras || []).find(o =>
+    o.id !== id && o.nome.trim().toLowerCase() === nome.toLowerCase());
+  if (repetida && !confirm(`Já existe "${repetida.nome}"${repetida.ativo ? '' : ' (inativa)'}. Salvar mesmo assim?`)) return;
+
+  const linha = {
+    tipo: document.getElementById('obra-tipo').value,
+    nome, cno: cno || null, cnpj: cnpj || null,
+    endereco: valor('obra-endereco') || null
+  };
+  const btn = document.getElementById('btnSalvarObra');
+  btn.disabled = true;
+  const r = id
+    ? await sb.from('estabelecimentos').update(linha).eq('id', id).select('id')
+    : await sb.from('estabelecimentos').insert({ ...linha, empresa_id: sessao.empresaId }).select('id');
+  btn.disabled = false;
+  if (r.error) { mostrarMsgObra(traduzErroDb(r.error)); return; }
+  if (!r.data || r.data.length === 0) { mostrarMsgObra('Nenhuma alteração: seu papel nesta empresa não permite cadastrar obras.'); return; }
+  closeModal('obraModal');
+  await refreshData();
+}
+
+// Sem exclusão física (decisão 8): obra sai de uso por "ativo". Obra inativa some da lista
+// de envio do app de auditoria, mas as NCs já vinculadas a ela continuam intactas.
+async function alternarObraAtiva(id) {
+  const o = (dadosGlobais.obras || []).find(x => x.id === id);
+  if (!o || !podeEscreverSST()) return;
+  const acao = o.ativo ? 'Desativar' : 'Reativar';
+  if (!confirm(`${acao} "${o.nome}"?` + (o.ativo ? '\n\nEla deixa de aparecer para novos envios; NCs já vinculadas não mudam.' : ''))) return;
+  const { data, error } = await sb.from('estabelecimentos').update({ ativo: !o.ativo }).eq('id', id).select('id');
+  if (error) { alert('❌ ' + traduzErroDb(error)); return; }
+  if (!data || data.length === 0) { alert('❌ Nenhuma alteração: seu papel nesta empresa não permite alterar obras.'); return; }
+  await refreshData();
 }
 
 // ── Tabela de NCs ─────────────────────────────
@@ -2591,6 +2772,7 @@ async function refreshData() {
   renderTabelaNCs();
   renderKanban();
   renderTabelaTreinamentos();
+  renderTabelaObras();
   if (btn) btn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar';
 }
 
@@ -2645,6 +2827,7 @@ function navigateTo(page) {
   if (page === 'nc')       renderTabelaNCs();
   if (page === 'actions')  renderKanban();
   if (page === 'training') renderTabelaTreinamentos();
+  if (page === 'sites')    renderTabelaObras();
   window.scrollTo(0, 0);
 }
 
