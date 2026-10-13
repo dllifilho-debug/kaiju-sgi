@@ -1,6 +1,8 @@
 // Teste de tela do index.html com Chromium (Playwright), sem rede.
 // T1: bibliotecas reais (do node_modules) — valida o SRI do HTML contra os pacotes do npm.
-// T2: Supabase simulado (stub_supabase.js) — login, contagens, gravação, papéis, XSS, logout.
+// T2: Supabase simulado (stub_supabase.js) — login, contagens, gravação, papéis, XSS, troca de senha,
+//     "esqueci minha senha", logout.
+// T3: volta do link de recuperação do e-mail (nova senha) e link expirado.
 // Uso: cd tests/e2e && npm ci && npm test   (CHROMIUM_PATH=... para usar um Chromium já instalado)
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
@@ -19,7 +21,7 @@ const versao = pkg => JSON.parse(readFileSync(join(NM, ...pkg.split('/'), 'packa
 let falhas = 0;
 const ok = (cond, msg) => { console.log(`${cond ? 'ok  ' : 'FALHA'} ${msg}`); if (!cond) falhas++; };
 
-async function abrir(browser, html) {
+async function abrir(browser, html, fragmento = '') {
   const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
   const erros = [];
   page.on('pageerror', e => erros.push(String(e)));
@@ -37,7 +39,7 @@ async function abrir(browser, html) {
   await page.route('**/*supabase.co/**', r => r.abort());
   await page.route('https://cdnjs.cloudflare.com/**', r => r.abort());
   await page.route('https://fonts.googleapis.com/**', r => r.abort());
-  await page.goto('https://kaiju.teste/');
+  await page.goto('https://kaiju.teste/' + fragmento);
   return { page, erros };
 }
 
@@ -132,11 +134,89 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
   await page.click('.fab-menu-item:has-text("Nova Não Conformidade")');
   ok(alerta.includes('somente leitura'), 'T2 cliente_leitura não abre formulário de NC');
 
+  // Alterar senha (Configurações)
+  await page.click('[data-page="settings"]');
+  const msgSenha = async () => (await page.textContent('#trocarSenhaMsg')).trim();
+  await page.fill('#senhaAtual', 'errada'); await page.fill('#senhaNova', 'NovaSenha#1'); await page.fill('#senhaConfirma', 'NovaSenha#1');
+  await page.click('#btnTrocarSenha');
+  await page.waitForFunction(() => document.getElementById('trocarSenhaMsg').textContent !== '');
+  ok((await msgSenha()) === 'Senha atual incorreta.', 'T2 trocar senha: senha atual errada recusada');
+  ok(!(await page.evaluate(() => window.__auth.some(a => a.op === 'update'))), 'T2 trocar senha: sem updateUser quando a atual não confere');
+  await page.fill('#senhaAtual', 'certa'); await page.fill('#senhaConfirma', 'Outra#123');
+  await page.click('#btnTrocarSenha');
+  ok((await msgSenha()).includes('não confere'), 'T2 trocar senha: confirmação divergente recusada');
+  await page.fill('#senhaNova', 'curta'); await page.fill('#senhaConfirma', 'curta');
+  await page.click('#btnTrocarSenha');
+  ok((await msgSenha()).includes('pelo menos 8'), 'T2 trocar senha: mínimo de 8 caracteres');
+  await page.fill('#senhaNova', 'NovaSenha#1'); await page.fill('#senhaConfirma', 'NovaSenha#1');
+  await page.click('#btnTrocarSenha');
+  await page.waitForFunction(() => document.getElementById('trocarSenhaMsg').classList.contains('ok'));
+  const upd = await page.evaluate(() => window.__auth.filter(a => a.op === 'update'));
+  ok(upd.length === 1 && upd[0].attrs.password === 'NovaSenha#1', 'T2 trocar senha: updateUser com a nova senha');
+  ok(await page.inputValue('#senhaAtual') === '' && await page.inputValue('#senhaNova') === '', 'T2 trocar senha: campos limpos após sucesso');
+
   await page.click('text=Sair');
   await page.waitForSelector('#loginScreen:not(.hidden)');
   ok(true, 'T2 logout volta ao login');
+  await page.fill('#loginEmail', 'dono@teste.kaiju'); await page.fill('#loginPassword', 'certa');
+  await page.click('#btnLogin');
+  await page.waitForSelector('#loginErro', { state: 'visible' });
+  ok(await page.isVisible('#loginScreen'), 'T2 senha antiga deixa de valer');
+  await page.fill('#loginPassword', 'NovaSenha#1');
+  await page.click('#btnLogin');
+  await page.waitForSelector('#loginScreen.hidden');
+  ok(true, 'T2 nova senha entra');
+  await page.click('text=Sair');
+  await page.waitForSelector('#loginScreen:not(.hidden)');
+
+  // Esqueci minha senha
+  await page.fill('#loginEmail', 'alguem@teste.kaiju');
+  await page.click('#linkEsqueci');
+  ok(await page.isVisible('#painelEsqueci') && !(await page.isVisible('#painelLogin')), 'T2 esqueci: painel de recuperação aberto');
+  ok(await page.inputValue('#esqueciEmail') === 'alguem@teste.kaiju', 'T2 esqueci: e-mail do login aproveitado');
+  await page.fill('#esqueciEmail', 'invalido');
+  await page.click('#btnEsqueci');
+  ok((await page.textContent('#loginErro')).includes('e-mail válido'), 'T2 esqueci: e-mail inválido recusado no cliente');
+  await page.fill('#esqueciEmail', 'alguem@teste.kaiju');
+  await page.click('#btnEsqueci');
+  await page.waitForSelector('#loginOk', { state: 'visible' });
+  ok((await page.textContent('#loginOk')).includes('Se o e-mail estiver cadastrado'), 'T2 esqueci: resposta neutra (não revela se a conta existe)');
+  const reset = await page.evaluate(() => window.__auth.find(a => a.op === 'reset'));
+  ok(reset && reset.email === 'alguem@teste.kaiju' && reset.redirectTo === 'https://kaiju.teste/', 'T2 esqueci: resetPasswordForEmail com redirectTo da própria página');
+  await page.click('#painelEsqueci .login-link');
+  ok(await page.isVisible('#painelLogin'), 'T2 esqueci: voltar ao login');
+
   ok(erros.length === 0, 'T2 sem erros de JS no console' + (erros.length ? ': ' + erros.join(' | ') : ''));
   await page.close();
+}
+
+// ── T3: volta do link do e-mail (recuperação) ──
+{
+  const html = HTML.replace(
+    /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase[^>]*><\/script>/,
+    `<script>${STUB}</script>`);
+  const { page, erros } = await abrir(browser, html, '#access_token=x&type=recovery');
+  await page.waitForFunction(() => document.getElementById('loadingOverlay').classList.contains('hidden'));
+  ok(await page.isVisible('#painelNovaSenha') && await page.isVisible('#loginScreen'), 'T3 link de recuperação abre "Definir nova senha", sem entrar no sistema');
+  ok(!page.url().includes('access_token'), 'T3 tokens removidos da barra de endereço');
+  ok((await page.textContent('#novaSenhaConta')).includes('dono@teste.kaiju'), 'T3 mostra a conta');
+  await page.fill('#recNova', 'abc'); await page.fill('#recConfirma', 'abc');
+  await page.click('#btnNovaSenha');
+  ok((await page.textContent('#loginErro')).includes('pelo menos 8'), 'T3 senha curta recusada');
+  await page.fill('#recNova', 'certa123'); await page.fill('#recConfirma', 'certa123');
+  await page.click('#btnNovaSenha');
+  await page.waitForSelector('#loginScreen.hidden');
+  ok((await page.textContent('#userName')).trim() === 'dono@teste.kaiju', 'T3 nova senha salva e entra no sistema');
+  const upd = await page.evaluate(() => window.__auth.filter(a => a.op === 'update'));
+  ok(upd.length === 1 && upd[0].attrs.password === 'certa123', 'T3 updateUser com a nova senha');
+  ok(erros.length === 0, 'T3 sem erros de JS no console' + (erros.length ? ': ' + erros.join(' | ') : ''));
+  await page.close();
+
+  const r2 = await abrir(browser, html, '#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired');
+  await r2.page.waitForFunction(() => document.getElementById('loadingOverlay').classList.contains('hidden'));
+  ok(await r2.page.isVisible('#painelEsqueci') && (await r2.page.textContent('#loginErro')).includes('expirou'), 'T3 link expirado → aviso e painel para pedir outro');
+  ok(r2.erros.length === 0, 'T3 link expirado sem erros de JS');
+  await r2.page.close();
 }
 
 await browser.close();
