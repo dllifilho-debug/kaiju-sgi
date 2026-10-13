@@ -97,8 +97,14 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 - Testado pelo dono em produção em 13/10/2026 (modo demonstração, 1 NC, "Sem obra"): 1º envio
   "1 NC criada"; reenvio "0 criadas, 1 já estava no Kaiju"; NC-C6BFC8 apareceu no Kaiju com origem
   Auditoria NR, NR-18 18.9.2, Crítica, prazo 14/10/2026, e a ação corretiva vinculada.
-- O Kaiju **não tem tela de obras/estabelecimentos**: hoje o envio só é útil com "Sem obra".
-  Proposta (tela mínima de cadastro, só admin/tecnico_sst, sem mudar o banco) aguarda ok do dono.
+- Tela "Obras e Unidades" no ar desde `kaiju-sgi` PR #14 (13/10/2026). Testado pelo dono no mesmo
+  dia: obra cadastrada no Kaiju apareceu no app; envio com obra criou NC-74DF28; reenvio após
+  reboot do app: "0 NCs criadas; 1 já estava no Kaiju e não foi alterada".
+- Status de ação e cancelamento em cascata (com confirmação) no ar desde `kaiju-sgi` PR #13.
+- Armadilha do Streamlit Cloud medida em 13/10/2026: após merge que muda `auditoria/`, o app
+  recarregou `app.py` com o módulo `auditoria.kaiju` antigo (`AttributeError: resumo_envio`); o
+  envio já tinha gravado e só a mensagem falhou. Remédio: *Reboot app* após cada merge desse tipo.
+- A lista de NCs do Kaiju ainda não mostra a obra vinculada.
 - Telas "Esqueci minha senha" e "Alterar senha" no ar desde `kaiju-sgi` PR #12 (13/10/2026);
   envio de e-mail pelo SMTP padrão do Supabase **[A CONFERIR]** para usuários fora da equipe.
 
