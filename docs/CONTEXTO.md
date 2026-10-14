@@ -110,6 +110,53 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 - Telas "Esqueci minha senha" e "Alterar senha" no ar desde `kaiju-sgi` PR #12 (13/10/2026);
   envio de e-mail pelo SMTP padrão do Supabase **[A CONFERIR]** para usuários fora da equipe.
 
+### Estado da etapa 2 (14/10/2026) — LEIA ISTO PRIMEIRO NO PRÓXIMO CHAT
+
+**Decisões do dono (13/10/2026):** (1) PCMSO é tabela própria (`pcmsos`), separada do PGR;
+(2) admin, tecnico_sst e medico gravam a matriz; o médico também cria PGR, só em `rascunho`;
+(3) a matriz chega como `rascunho` e só o **médico** a torna `vigente` (com médico responsável,
+NR-7 7.5.19.1 "f"); matriz com resultado do motor `PRELIMINAR` **não** vira vigente;
+(4) ordem: 2a (banco) → 2b-1 (tela de PCMSO) → 2c (envio no app PCMSO) → 2b-2 (Trabalhadores e ASO).
+
+- **2a — migration 0006 (`matriz_pcmso`)**: `kaiju-sgi` PR #17, mergeado em 14/10/2026. Aplicada no
+  projeto `kaiju-sgi` (`rrleosgoxebbxmkgxpwz`) pelo conector Supabase do Claude em 14/10/2026
+  (arquivo idêntico ao do `main`, mesmo sha256). Conferência estrutural no banco real: RLS em todas
+  as tabelas, `empresa_id` NOT NULL, `anon` sem acesso, sem TRUNCATE, DELETE só em `membros`,
+  carimbo em todas, 10 políticas novas, RPC `enviar_matriz_pcmso` SECURITY INVOKER sem EXECUTE
+  para `anon`, 4 triggers de trava. **Suíte pgTAP completa no banco real: [A MEDIR]** — rodar
+  `python3 supabase/tests-local/gerar_sql_editor.py` e colar no SQL Editor **do projeto kaiju-sgi**
+  (não do seconci-sst); esperado `RESULTADO: 639 ok, 0 falhas`. Local (Postgres 16 + pgTAP):
+  639 ok, 0 falhas.
+- **Tabelas novas**: `pcmsos`, `ghes` (cargos `text[]`), `pcmso_exames` (momentos em `tipo_aso[]`,
+  periodicidade ≥ 0), `ghe_riscos_aso` (veredito consta/conferir/nao_consta, NR-7 7.5.19.1 "c");
+  `pgrs.origem_externa_id` (hash do PDF); `trabalhadores.ghe_id`. Erro `KJ004` = matriz/PCMSO travados.
+- **Também no ar (13/10/2026)**: coluna "Obra" na lista de NCs e bloqueio (só na tela) de encerrar NC
+  com ação pendente/em andamento — `kaiju-sgi` PR #16; nota de *Reboot app* no CLAUDE.md do
+  `app-auditoria-nrs` — PR #86.
+- **Próximo passo**: 2b-1 — tela de PCMSO no `index.html` (lista de PCMSOs por PGR, matriz por GHE,
+  botão "Tornar vigente" só para `medico`, que exige nome/CRM do médico responsável e data; marcar o
+  vigente anterior como `substituido` antes). Teste de tela em `tests/e2e` (hoje 88 verificações).
+- **Pendente da 2b-2**: trabalhador aponta para o GHE de uma versão do PCMSO; quando um novo PCMSO
+  entrar em vigor, a tela tem de sinalizar e pedir reconfirmação do GHE.
+
+### Projeto Supabase `seconci-sst` — é o banco do app PCMSO (achado em 14/10/2026)
+
+- `wmuflfqzdndiwpgwnexw`, mesma org. Tabelas `dicionario_dinamico`, `historico_laudos`,
+  `ghe_mapeamentos` — exatamente as que `dllifilho-debug/automacao-pgr-agente-pcmso` usa
+  (`config/db.py`, `testar_ghe_mapper.py`). Nome antigo: o app se chamava Seconci antes do rename.
+  Confirmação definitiva [A CONFERIR]: `SUPABASE_URL` nos Secrets do Streamlit do app.
+- **Segurança, medido em 14/10/2026**: `historico_laudos` e `dicionario_dinamico` **sem RLS**, com
+  SELECT/INSERT/DELETE para `anon`; `ghe_mapeamentos` com RLS mas políticas `true` para `public`
+  (leitura, insert e update); função `_set_atualizado_em` sem `search_path` fixo. As 3 tabelas
+  estimadas com 0 linhas (`n_live_tup`, estimativa). Atividade de 13/10 ~18h20 (Brasília) foi só da
+  infraestrutura Supabase (mgmt-api, reinício do PostgREST durante incidente da plataforma); nada
+  alterado por nós.
+- **Próximo passo, aprovado pelo dono em 14/10/2026**: preparar **proposta** de RLS para o
+  seconci-sst no repositório do app PCMSO (CLAUDE.md próprio: branch `feat/<sessao>-<nome>`, push
+  com autorização por turno, merge é do dono). Antes: confirmar qual chave o app usa
+  (`SUPABASE_KEY`: `service_role` ignora RLS; `anon` precisaria de políticas). **Nada aplicado sem
+  ok do dono.** O app grava por servidor (Streamlit), não por navegador.
+
 ### Pendências
 
 - Etapa 2: a tabela `asos` guarda só NR-7 7.5.19.1 e) e g) (+ tipo e data); se o Kaiju for
@@ -124,7 +171,7 @@ Esquema, políticas e testes: `supabase/` (ver `supabase/README.md`).
 | 0.2 | Esquema multi-tenant (empresas, usuários×empresa×papel, estabelecimentos/obras, PGRs, NCs, ações, treinamentos, ASOs sem CID) + políticas RLS + testes provando que empresa A não lê nem escreve na empresa B. **Entregar primeiro como proposta para revisão — nada é criado no Supabase antes do ok.** | ✅ 26/09/2026 — `kaiju-sgi` PR #1. Aplicado no Supabase em 05/10/2026; testes no banco real: 533 ok, 0 falhas. |
 | 0.3 | Login real no frontend (senha fora do HTML); números da tela calculados dos dados ou removidos. | ✅ 05/10/2026 — `kaiju-sgi` PR #4; testado pelo dono no site oficial. |
 | 1 | Integração: app de Auditoria de NRs → Não Conformidades + Planos de Ação. | ✅ 13/10/2026 — `kaiju-sgi` PR #10 (RPC `enviar_nc_auditoria`, migration 0005) e `app-auditoria-nrs` PR #84; ver "Estado após a etapa 1". Pendente: cadastro de obras no Kaiju. |
-| 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. | — |
+| 2 | Integração: app PCMSO → PGRs + vencimento de ASO por trabalhador. | Em andamento — 2a ✅ 14/10/2026 (`kaiju-sgi` PR #17, migration 0006 aplicada; suíte pgTAP no banco real [A MEDIR]); próximo: 2b-1. Ver "Estado da etapa 2". |
 
 ## Normas conferidas no texto oficial
 
