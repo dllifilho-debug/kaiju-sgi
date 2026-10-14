@@ -10,7 +10,7 @@ migrations/
   20260926000003_storage.sql        bucket privado "documentos" + políticas
   20261005000004_campos_nc_acao.sql campos de tratamento de NC/ação usados pelo frontend
   20261009000005_enviar_nc_auditoria.sql  RPC do "Enviar para o Kaiju" (app-auditoria-nrs)
-  20261013000006_matriz_pcmso.sql   matriz do PCMSO por GHE + RPC do app PCMSO (PROPOSTA, não aplicada)
+  20261013000006_matriz_pcmso.sql   matriz do PCMSO por GHE + RPC do app PCMSO (aplicada em 14/10/2026)
 tests/                              pgTAP (rodam também com `supabase test db`)
 tests-local/                        shim + runner para Postgres puro, sem Docker
 ```
