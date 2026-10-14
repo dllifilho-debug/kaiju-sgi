@@ -139,23 +139,28 @@ NR-7 7.5.19.1 "f"); matriz com resultado do motor `PRELIMINAR` **não** vira vig
 - **Pendente da 2b-2**: trabalhador aponta para o GHE de uma versão do PCMSO; quando um novo PCMSO
   entrar em vigor, a tela tem de sinalizar e pedir reconfirmação do GHE.
 
-### Projeto Supabase `seconci-sst` — é o banco do app PCMSO (achado em 14/10/2026)
+### Projeto Supabase `seconci-sst` — banco do app PCMSO ANTIGO, fechado em 14/10/2026
 
 - `wmuflfqzdndiwpgwnexw`, mesma org. Tabelas `dicionario_dinamico`, `historico_laudos`,
-  `ghe_mapeamentos` — exatamente as que `dllifilho-debug/automacao-pgr-agente-pcmso` usa
-  (`config/db.py`, `testar_ghe_mapper.py`). Nome antigo: o app se chamava Seconci antes do rename.
-  Confirmação definitiva [A CONFERIR]: `SUPABASE_URL` nos Secrets do Streamlit do app.
-- **Segurança, medido em 14/10/2026**: `historico_laudos` e `dicionario_dinamico` **sem RLS**, com
-  SELECT/INSERT/DELETE para `anon`; `ghe_mapeamentos` com RLS mas políticas `true` para `public`
-  (leitura, insert e update); função `_set_atualizado_em` sem `search_path` fixo. As 3 tabelas
-  estimadas com 0 linhas (`n_live_tup`, estimativa). Atividade de 13/10 ~18h20 (Brasília) foi só da
-  infraestrutura Supabase (mgmt-api, reinício do PostgREST durante incidente da plataforma); nada
-  alterado por nós.
-- **Próximo passo, aprovado pelo dono em 14/10/2026**: preparar **proposta** de RLS para o
-  seconci-sst no repositório do app PCMSO (CLAUDE.md próprio: branch `feat/<sessao>-<nome>`, push
-  com autorização por turno, merge é do dono). Antes: confirmar qual chave o app usa
-  (`SUPABASE_KEY`: `service_role` ignora RLS; `anon` precisaria de políticas). **Nada aplicado sem
-  ok do dono.** O app grava por servidor (Streamlit), não por navegador.
+  `ghe_mapeamentos` — as do `app.py` **legado** de `dllifilho-debug/automacao-pgr-agente-pcmso`
+  (`config/db.py`, `utils/ghe_mapper.py`), da época em que o app se chamava Seconci.
+- **O app PCMSO atual (`app_matriz.py`, via `entrypoint.sh`) não usa Supabase**: nenhuma menção em
+  `app_matriz.py` nem em `agente_medico/`; os Secrets do Streamlit do app não têm nada de Supabase
+  (conferido pelo dono em 14/10/2026). Tabelas com ~0 linhas (`n_live_tup`, estimativa) e sem
+  requisição de app nos logs de 13–14/10. A atividade de 13/10 ~18h20 (Brasília) foi da
+  infraestrutura Supabase (mgmt-api, reinício do PostgREST durante incidente da plataforma).
+- **Fechado em 14/10/2026, aprovado pelo dono**: RLS ligada nas 3 tabelas, as 3 políticas `true` de
+  `ghe_mapeamentos` removidas, `revoke all` de `anon`/`authenticated` nas 3 tabelas e
+  `search_path = ''` em `_set_atualizado_em`. Aplicado pelo dono no SQL Editor (o conector estourou
+  60 s três vezes, sem aplicar nada — conferido a cada vez). Conferido pelo conector depois: RLS nas
+  3, 0 políticas, `anon` e `authenticated` sem nenhum privilégio; Security Advisor só com o
+  informativo "RLS Enabled No Policy" (esperado). Só o dono, pelo painel/`service_role`, acessa.
+- **Decisão pendente do dono**: pausar ou apagar o projeto (apagar é irreversível; só se o app
+  antigo e o dicionário químico dele não tiverem mais valor).
+- **Advisor do `kaiju-sgi` (14/10/2026)**: `public.rls_auto_enable()` é SECURITY DEFINER executável
+  por `anon`/`authenticated` (não é de migration nossa; provável função do recurso de RLS
+  automática do Supabase [A CONFERIR]); proteção contra senha vazada do Auth desligada. Nada
+  alterado.
 
 ### Pendências
 
